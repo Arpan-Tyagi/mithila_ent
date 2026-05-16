@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  /* Mithila / Madhubani Natural Dyes */
+  --madder-red: #8B2E2E; /* Deep red */
+  --indigo-dye: #1E3A5F; /* Deep blue */
+  --turmeric: #D4A32A;   /* Mustard yellow */
+  --lotus-pink: #E54B8C; /* Lotus pink */
+  --peacock-blue: #007B9E; /* Peacock blue */
+  --parrot-green: #4CAF50; /* Parrot green */
+  --charcoal-ink: #2A2A2A; /* Text color instead of black */
+  --unbleached-cotton: #F7F4E9; /* Background instead of white */
+  
+  --background: var(--unbleached-cotton);
+  --foreground: var(--charcoal-ink);
+  
+  --border-radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-madder-red: var(--madder-red);
+  --color-indigo-dye: var(--indigo-dye);
+  --color-turmeric: var(--turmeric);
+  --color-charcoal-ink: var(--charcoal-ink);
+  --color-unbleached-cotton: var(--unbleached-cotton);
+  
+  --font-sans: var(--font-dm-sans), sans-serif;
+  --font-serif: var(--font-playfair-display), serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 
+  Kachni Style Borders (Mask Image Utilities)
+  Applying standard SVG via mask-image to prevent DOM bloat
+*/
+.kachni-border {
+  mask-image: linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%, transparent);
+  mask-size: 8px 8px;
+  background-color: var(--charcoal-ink);
+}
+
+.hand-drawn-border {
+  border: 3px solid var(--charcoal-ink);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hand-drawn-border:hover {
+  transform: scale(1.02) rotate(-1deg);
+  box-shadow: 6px 6px 0px 0px var(--lotus-pink);
+}
+
+.bharni-hover {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+.bharni-hover:hover {
+  background-color: var(--madder-red);
+  color: var(--unbleached-cotton);
+}
