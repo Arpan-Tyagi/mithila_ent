@@ -45,14 +45,15 @@ const InvoiceDocument = ({ id }: { id: string }) => (
   </Document>
 );
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const stream = await renderToStream(<InvoiceDocument id={params.id} />);
+    const { id } = await params;
+    const stream = await renderToStream(<InvoiceDocument id={id} />);
     
     return new Response(stream as any, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="invoice-${params.id}.pdf"`,
+        'Content-Disposition': `attachment; filename="invoice-${id}.pdf"`,
       },
     });
   } catch (error) {

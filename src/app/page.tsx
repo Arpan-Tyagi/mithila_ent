@@ -49,8 +49,7 @@ export default function Home() {
             {/* Category Card Placeholder 1 */}
             <Link href="/category/cotton" className="group relative aspect-[4/5] overflow-hidden rounded-sm border-2 border-[var(--charcoal-ink)] bg-white flex flex-col">
               <div className="flex-grow bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                {/* Image placeholder */}
-                <div className="absolute inset-0 bg-neutral-200 group-hover:scale-105 transition-transform duration-700"></div>
+                <img src="/images/products/kurti_tunic_1779396899827.png" alt="Pure Cotton" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)] group-hover:bg-[var(--madder-red)] transition-colors duration-300">
                 <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] group-hover:text-[var(--unbleached-cotton)]">Pure Cotton</h3>
@@ -61,7 +60,7 @@ export default function Home() {
             {/* Category Card Placeholder 2 */}
             <Link href="/category/linen" className="group relative aspect-[4/5] overflow-hidden rounded-sm border-2 border-[var(--charcoal-ink)] bg-white flex flex-col">
               <div className="flex-grow bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-neutral-300 group-hover:scale-105 transition-transform duration-700"></div>
+                <img src="/images/products/tote_elephant_1779396820360.png" alt="Fine Linen" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)] group-hover:bg-[var(--turmeric)] transition-colors duration-300">
                 <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] group-hover:text-[var(--charcoal-ink)]">Fine Linen</h3>
@@ -72,7 +71,7 @@ export default function Home() {
              {/* Category Card Placeholder 3 */}
              <Link href="/category/blends" className="group relative aspect-[4/5] overflow-hidden rounded-sm border-2 border-[var(--charcoal-ink)] bg-white flex flex-col">
               <div className="flex-grow bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-neutral-400 group-hover:scale-105 transition-transform duration-700"></div>
+                <img src="/images/products/saree_peacock_1779396777053.png" alt="Heritage Blends" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)] group-hover:bg-[var(--indigo-dye)] transition-colors duration-300">
                 <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] group-hover:text-[var(--unbleached-cotton)]">Heritage Blends</h3>

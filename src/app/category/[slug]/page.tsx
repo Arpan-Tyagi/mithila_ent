@@ -1,28 +1,17 @@
-import { createClient } from '@/lib/supabase/server';
+import { getCategoryProducts, categories } from '@/lib/mockData';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const supabase = await createClient();
-  
-  // First find category
-  const { data: category } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('slug', params.slug)
-    .single();
-
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const category = categories.find(c => c.slug === slug);
   if (!category) {
     notFound();
   }
 
-  // Then fetch products
-  const { data: variants } = await supabase
-    .from('product_variants')
-    .select('*, products!inner(title, slug, weave, is_featured, category_id)')
-    .eq('products.category_id', category.id);
+  const variants = await getCategoryProducts(slug);
 
   return (
     <main className="flex-grow bg-[var(--unbleached-cotton)] py-16">

@@ -10,8 +10,9 @@ export function generateStaticParams() {
   return [{ slug: 'terms' }, { slug: 'privacy' }, { slug: 'returns' }];
 }
 
-export default function LegalPage({ params }: { params: { slug: string } }) {
-  const data = legalContent[params.slug];
+export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const data = legalContent[slug];
   if (!data) return notFound();
 
   return (

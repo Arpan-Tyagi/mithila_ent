@@ -1,22 +1,24 @@
-import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
 export default async function OrdersPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // If no actual user during this scaffold, we'll simulate an empty state or fetch generally
-  // In production, we'd filter by user.id
-  let orders: any[] = [];
-  if (user) {
-    const { data } = await supabase
-      .from('orders')
-      .select('*, order_items(*, product_variants(*, products(title)))')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-    if (data) orders = data;
-  }
+  // Mock user orders
+  const orders: any[] = [
+    {
+      id: '1234-abcd',
+      created_at: new Date().toISOString(),
+      total_amount: 12450,
+      status: 'shipped',
+      order_items: [
+        {
+          id: 'item-1',
+          quantity: 2,
+          unit_price: 6225,
+          product_variants: { products: { title: 'Premium Cotton Kurti' } }
+        }
+      ]
+    }
+  ];
 
   return (
     <div className="space-y-8">

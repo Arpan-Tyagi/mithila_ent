@@ -1,13 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { products } from '@/lib/mockData';
 import { Package, ShoppingBag, IndianRupee, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
-
-  // Basic aggregations
-  const { count: orderCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-  const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
+  // Mock aggregations
+  const orderCount = 124;
+  const productCount = products.length;
   
   return (
     <div className="space-y-8">

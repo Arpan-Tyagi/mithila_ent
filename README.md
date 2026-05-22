@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mithila Enterprises
 
-## Getting Started
+A premium e-commerce platform for Madhubani heritage fabrics, featuring AI-generated product variants and a high-performance modern web architecture.
 
-First, run the development server:
+## Overview
+Mithila Enterprises brings the geometric perfection of Madhubani art to the world of premium cotton and linen fabrics. This project is a robust, full-stack Next.js storefront equipped with dynamic mock data and aesthetic UI patterns.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack & Architecture
+- **Framework**: Next.js 16+ (App Router)
+- **Styling**: Tailwind CSS, Vanilla CSS (`globals.css`), and Framer Motion for smooth micro-animations.
+- **State Management**: Zustand (with persistent storage for Cart state)
+- **Database/Backend**: Currently utilizing a robust mock data layer (`src/lib/mockData.ts`) to simulate a Supabase backend for immediate local testing.
+- **Icons & Components**: Lucide React and custom accessible UI components.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running Locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open [http://localhost:3000](http://localhost:3000) to browse the store.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key Features
+- **Dynamic Catalog**: Browse through Categories (Cotton, Linen, Blends) and Shop All.
+- **Mock Database Integration**: Pre-populated with 10 high-quality AI-generated product variants (Sarees, Dupattas, Totes, Wall Art, etc.).
+- **Interactive Cart**: Persistent slide-out cart drawer with animated Framer Motion transitions.
+- **Admin Dashboard**: Simulated admin portal to view orders, inventory, and promotions.
+- **Future-Proof**: Upgraded to support Next.js 15+ asynchronous route `params` and `searchParams` conventions.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+- `src/app/`: Next.js App Router pages (Home, Shop, Product, Admin, Account, etc.)
+- `src/components/`: Reusable React components (Header, Footer, CartDrawer, ProductCard)
+- `src/lib/`: Utilities and mock data service.
+- `src/store/`: Zustand state definitions.
+- `public/`: Static assets, including generated product images and Madhubani vector patterns.

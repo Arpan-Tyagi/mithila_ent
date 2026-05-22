@@ -1,41 +1,20 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { product_variants, products } from '@/lib/mockData';
 import { Package, AlertCircle } from 'lucide-react';
 
 export default function InventoryPage() {
   const [variants, setVariants] = useState<any[]>([]);
-  const supabase = createClient();
 
   useEffect(() => {
-    // Initial fetch
-    const fetchInventory = async () => {
-      const { data } = await supabase
-        .from('product_variants')
-        .select('*, products(title)')
-        .order('stock_quantity', { ascending: true });
-      if (data) setVariants(data);
-    };
-    fetchInventory();
-
-    // Live subscription
-    const channel = supabase.channel('realtime_inventory')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'product_variants' },
-        (payload) => {
-          setVariants((current) => 
-            current.map((v) => v.id === payload.new.id ? { ...v, stock_quantity: payload.new.stock_quantity } : v)
-          );
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase]);
+    // Initial fetch mock
+    const mapped = product_variants.map(v => ({
+      ...v,
+      products: { title: products.find(p => p.id === v.product_id)?.title }
+    })).sort((a, b) => a.stock_quantity - b.stock_quantity);
+    setVariants(mapped);
+  }, []);
 
   return (
     <div className="space-y-8">

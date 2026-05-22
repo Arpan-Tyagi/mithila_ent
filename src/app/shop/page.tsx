@@ -1,19 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { getShopProducts } from '@/lib/mockData';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
 export const revalidate = 3600; // ISR cache for 1 hour
 
 export default async function ShopPage() {
-  const supabase = await createClient();
-  
-  const { data: variants, error } = await supabase
-    .from('product_variants')
-    .select('*, products(title, slug, weave, is_featured, tags)');
-    
-  if (error) {
-    console.error(error);
-  }
+  const variants = await getShopProducts();
 
   return (
     <main className="flex-grow bg-[var(--unbleached-cotton)] py-16">

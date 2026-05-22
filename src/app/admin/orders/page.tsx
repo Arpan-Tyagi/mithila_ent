@@ -1,14 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
 
 export default async function AdminOrdersPage() {
-  const supabase = await createClient();
-
-  // In production, fetch actual orders
-  const { data: orders } = await supabase
-    .from('orders')
-    .select('*, profiles(full_name, phone)')
-    .order('created_at', { ascending: false });
+  // Mock orders
+  const orders = [
+    { id: '1234-abcd', created_at: new Date().toISOString(), total_amount: 12450, is_paid: true, status: 'paid', profiles: { full_name: 'Arpan Doe', phone: '1234567890' } },
+    { id: '5678-efgh', created_at: new Date(Date.now() - 86400000).toISOString(), total_amount: 8200, is_paid: false, status: 'pending', profiles: { full_name: 'John Smith', phone: '0987654321' } }
+  ];
 
   return (
     <div className="space-y-8">
