@@ -17,7 +17,7 @@ export default function FooterRiver() {
   const fishTranslateX = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const fishTranslateXReverse = useTransform(scrollYProgress, [0, 1], [150, 0]);
 
-  // Generate repeating detailed waves
+  // Generate repeating detailed waves with dual-line parallel rendering
   const generateWaves = (yOffset: number, amplitude: number, frequency: number, isDashed: boolean) => {
     let d = `M 0,${yOffset}`;
     for (let i = 0; i <= 2000; i += frequency) {
@@ -25,58 +25,77 @@ export default function FooterRiver() {
     }
     return (
       <g>
-        <path d={d} stroke="var(--dye-indigo)" strokeWidth={isDashed ? "1" : "3"} fill="none" strokeDasharray={isDashed ? "4 4" : "none"} />
-        {!isDashed && <path d={d} transform="translate(0, 5)" stroke="var(--ink-black)" strokeWidth="1" fill="none" />}
+        <path d={d} stroke="var(--dye-indigo)" strokeWidth={isDashed ? "2" : "3"} fill="none" strokeDasharray={isDashed ? "5 5" : "none"} />
+        <path d={d} transform="translate(0, 5)" stroke="var(--ink-black)" strokeWidth="1" fill="none" strokeDasharray={isDashed ? "5 5" : "none"} />
+        <path d={d} transform="translate(0, 10)" stroke="var(--dye-indigo)" strokeWidth={isDashed ? "1" : "2"} fill="none" strokeDasharray={isDashed ? "5 5" : "none"} />
       </g>
     );
   };
 
   const DetailedLotus = ({ cx, cy, scale = 1 }: { cx: number, cy: number, scale?: number }) => (
     <g transform={`translate(${cx}, ${cy}) scale(${scale})`} stroke="var(--ink-black)" strokeWidth="1.5">
-      {/* Outer Glow / Padding */}
-      <circle cx="0" cy="0" r="35" fill="var(--cotton)" opacity="0.8" stroke="none" />
-      {/* Back Petals */}
-      <path d="M 0 0 C -30 -20, -20 -40, 0 -30 C 20 -40, 30 -20, 0 0" fill="var(--dye-yellow)" />
+      {/* Back Petals with pointed tips */}
+      <path d="M 0 0 C -30 -20, -30 -50, 0 -40 C 30 -50, 30 -20, 0 0" fill="var(--dye-yellow)" />
+      {/* Hatching for back petals */}
+      <path d="M 0 -10 L 0 -35 M -5 -5 L -15 -30 M 5 -5 L 15 -30" strokeWidth="0.5" />
+
       {/* Side Petals */}
-      <path d="M 0 0 C -40 0, -30 -30, 0 -15" fill="var(--dye-red)" />
-      <path d="M 0 0 C 40 0, 30 -30, 0 -15" fill="var(--dye-red)" />
+      <path d="M 0 0 C -50 0, -40 -40, 0 -15" fill="var(--dye-red)" />
+      <path d="M 0 -2 L -30 -15 M 0 -5 L -20 -25 M -5 -10 L -15 -30" strokeWidth="0.5" />
+
+      <path d="M 0 0 C 50 0, 40 -40, 0 -15" fill="var(--dye-red)" />
+      <path d="M 0 -2 L 30 -15 M 0 -5 L 20 -25 M 5 -10 L 15 -30" strokeWidth="0.5" />
+
       {/* Front Petals */}
-      <path d="M 0 0 C -20 10, -10 30, 0 20 C 10 30, 20 10, 0 0" fill="var(--dye-yellow)" />
-      <path d="M 0 0 C -25 -10, -15 -35, 0 -25 C 15 -35, 25 -10, 0 0" fill="var(--dye-red)" />
+      <path d="M 0 0 C -20 15, -15 35, 0 25 C 15 35, 20 15, 0 0" fill="var(--dye-yellow)" />
+      <path d="M 0 5 L 0 20 M -5 5 L -10 15 M 5 5 L 10 15" strokeWidth="0.5" />
+
+      <path d="M 0 0 C -30 -10, -20 -45, 0 -30 C 20 -45, 30 -10, 0 0" fill="var(--dye-red)" />
+      <path d="M 0 -5 L 0 -25 M -5 -5 L -10 -20 M 5 -5 L 10 -20" strokeWidth="0.5" />
+
       {/* Center Pod */}
-      <path d="M 0 0 C -10 -5, -5 -15, 0 -15 C 5 -15, 10 -5, 0 0" fill="var(--dye-green)" />
-      <circle cx="0" cy="-7" r="1.5" fill="var(--ink-black)" />
+      <path d="M 0 0 C -15 -5, -10 -20, 0 -20 C 10 -20, 15 -5, 0 0" fill="var(--dye-green)" />
+      <circle cx="-3" cy="-10" r="1.5" fill="var(--ink-black)" />
+      <circle cx="3" cy="-10" r="1.5" fill="var(--ink-black)" />
+      <circle cx="0" cy="-15" r="1.5" fill="var(--ink-black)" />
     </g>
   );
 
   const DetailedFish = ({ cx, cy, isFlipped = false }: { cx: number, cy: number, isFlipped?: boolean }) => (
     <g transform={`translate(${cx}, ${cy}) ${isFlipped ? 'scale(-1, 1)' : ''}`} stroke="var(--ink-black)" strokeWidth="1.5">
-      {/* Body Glow */}
-      <path d="M 0 0 Q 30 -30, 60 0 Q 30 30, 0 0 Z" fill="var(--cotton)" opacity="0.8" stroke="none" />
-      {/* Tail */}
-      <path d="M -5 0 L -25 -20 C -20 0, -30 10, -25 20 Z" fill="var(--dye-yellow)" />
-      <path d="M -5 0 L -15 -10 M -5 0 L -20 0 M -5 0 L -15 10" strokeWidth="1" />
-      {/* Fins */}
-      <path d="M 20 -15 C 30 -30, 40 -20, 40 -10 Z" fill="var(--dye-green)" />
-      <path d="M 20 15 C 30 30, 40 20, 40 10 Z" fill="var(--dye-green)" />
-      {/* Body */}
-      <path d="M 0 0 Q 30 -30, 60 0 Q 30 30, 0 0 Z" fill="var(--dye-red)" opacity="0.2" />
-      <path d="M 0 0 Q 30 -30, 60 0 Q 30 30, 0 0 Z" fill="none" />
-      {/* Gills and Scales */}
-      <path d="M 45 -15 Q 40 0, 45 15" />
-      <path d="M 35 -20 Q 30 0, 35 20" strokeWidth="1" />
-      <path d="M 25 -20 Q 20 0, 25 20" strokeWidth="1" />
-      <path d="M 15 -15 Q 10 0, 15 15" strokeWidth="1" />
-      {/* Eye */}
-      <circle cx="50" cy="-5" r="3" fill="var(--cotton)" />
-      <circle cx="51" cy="-5" r="1.5" fill="var(--ink-black)" />
+      {/* Tail with dense parallel hatching */}
+      <path d="M -5 0 L -30 -25 C -25 0, -35 15, -25 25 Z" fill="var(--dye-yellow)" />
+      <path d="M -5 0 L -25 -20 M -5 0 L -20 -10 M -5 0 L -25 0 M -5 0 L -20 10 M -5 0 L -20 20" strokeWidth="1" />
+
+      {/* Upper and Lower Fins */}
+      <path d="M 15 -18 C 25 -35, 35 -30, 45 -10 Z" fill="var(--dye-green)" />
+      <path d="M 20 -18 L 25 -30 M 25 -15 L 30 -28 M 30 -12 L 35 -25" strokeWidth="1" />
+
+      <path d="M 20 15 C 30 35, 40 30, 45 10 Z" fill="var(--dye-green)" />
+      <path d="M 25 15 L 30 30 M 30 15 L 35 28 M 35 12 L 40 25" strokeWidth="1" />
+
+      {/* Main Body */}
+      <path d="M 0 0 Q 30 -40, 65 0 Q 30 40, 0 0 Z" fill="var(--dye-red)" />
+
+      {/* Semi-circular overlapping scales (Kachni detail) */}
+      <path d="M 15 -15 A 5 5 0 0 1 15 15" strokeWidth="1" fill="none" />
+      <path d="M 20 -18 A 5 5 0 0 1 20 18" strokeWidth="1" fill="none" />
+      <path d="M 25 -20 A 5 5 0 0 1 25 20" strokeWidth="1" fill="none" />
+      <path d="M 30 -21 A 5 5 0 0 1 30 21" strokeWidth="1" fill="none" />
+      <path d="M 35 -20 A 5 5 0 0 1 35 20" strokeWidth="1" fill="none" />
+      <path d="M 40 -18 A 5 5 0 0 1 40 18" strokeWidth="1" fill="none" />
+
+      {/* Face divider */}
+      <path d="M 45 -15 Q 40 0, 45 15" strokeWidth="2" />
+
+      {/* Large stylized almond Eye */}
+      <path d="M 50 -5 Q 55 -10, 60 -5 Q 55 0, 50 -5 Z" fill="var(--cotton)" strokeWidth="1.5" />
+      <circle cx="55" cy="-5" r="2" fill="var(--ink-black)" />
     </g>
   );
 
   return (
     <footer ref={containerRef} className="w-full relative mt-24 pt-12 border-t-8 border-double border-ink-black overflow-hidden bg-cotton text-ink-black">
-
-      {/* 3 Column Layout */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 px-6 mb-48 z-10 relative font-lora">
         <div>
           <h3 className="font-yatra text-2xl text-dye-red mb-4">Information</h3>
@@ -104,14 +123,10 @@ export default function FooterRiver() {
         </div>
       </div>
 
-      {/* The Detailed River SVG Container */}
       <div className="absolute bottom-0 left-0 w-full h-[250px] z-0 overflow-hidden pointer-events-none">
         <svg viewBox="0 0 1000 250" preserveAspectRatio="none" className="w-[150%] h-full opacity-90">
-
-          {/* Background water tint */}
           <rect x="0" y="50" width="2000" height="200" fill="var(--dye-indigo)" opacity="0.05" />
 
-          {/* Animated Waves */}
           <motion.g style={{ x: wave1X }}>
             {generateWaves(80, 15, 100, false)}
             {generateWaves(130, 20, 120, false)}
@@ -124,13 +139,11 @@ export default function FooterRiver() {
             {generateWaves(205, 10, 95, true)}
           </motion.g>
 
-          {/* Static Detailed Lotuses */}
           <DetailedLotus cx={200} cy={120} scale={1.2} />
           <DetailedLotus cx={600} cy={180} scale={0.9} />
           <DetailedLotus cx={850} cy={100} scale={1.1} />
           <DetailedLotus cx={1200} cy={160} scale={1.3} />
 
-          {/* Animated Fish */}
           <motion.g style={{ x: fishTranslateX }}>
             <DetailedFish cx={100} cy={160} />
             <DetailedFish cx={400} cy={110} />

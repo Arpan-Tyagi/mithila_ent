@@ -17,26 +17,53 @@ export default function HeroSection() {
   const invertedX = useTransform(x, (value) => -value);
   const invertedY = useTransform(y, (value) => -value);
 
-  // Generate an array of 24 petals for the intricate mandala border
+  // Generate an array of 36 dense petals with internal hatching for the mandala border
   const generatePetals = () => {
     let petals = [];
-    for (let i = 0; i < 24; i++) {
-      const angle = (i * 15 * Math.PI) / 180;
-      const x1 = 200 + Math.cos(angle) * 160;
-      const y1 = 200 + Math.sin(angle) * 160;
-      const x2 = 200 + Math.cos(angle + (7.5 * Math.PI) / 180) * 190;
-      const y2 = 200 + Math.sin(angle + (7.5 * Math.PI) / 180) * 190;
-      const x3 = 200 + Math.cos(angle + (15 * Math.PI) / 180) * 160;
-      const y3 = 200 + Math.sin(angle + (15 * Math.PI) / 180) * 160;
+    const count = 36;
+    const step = 360 / count;
 
+    for (let i = 0; i < count; i++) {
+      const angle = (i * step * Math.PI) / 180;
+      const angleNext = ((i + 1) * step * Math.PI) / 180;
+      const angleMid = ((i + 0.5) * step * Math.PI) / 180;
+
+      const rInner = 165;
+      const rOuter = 190;
+
+      const x1 = 200 + Math.cos(angle) * rInner;
+      const y1 = 200 + Math.sin(angle) * rInner;
+      const x2 = 200 + Math.cos(angleNext) * rInner;
+      const y2 = 200 + Math.sin(angleNext) * rInner;
+      const xTip = 200 + Math.cos(angleMid) * rOuter;
+      const yTip = 200 + Math.sin(angleMid) * rOuter;
+
+      // Base petal
       petals.push(
-        <g key={`petal-${i}`}>
-          <path d={`M ${x1} ${y1} Q ${x2} ${y2} ${x3} ${y3}`} fill="none" stroke="var(--ink-black)" strokeWidth="2" />
-          {/* Inner Kachni lines for the petal */}
-          <path d={`M ${x1} ${y1} Q ${x2 * 0.95 + 10} ${y2 * 0.95 + 10} ${x3} ${y3}`} fill="none" stroke="var(--dye-red)" strokeWidth="1" />
-          <path d={`M ${x1} ${y1} Q ${x2 * 0.9 + 20} ${y2 * 0.9 + 20} ${x3} ${y3}`} fill="none" stroke="var(--ink-black)" strokeWidth="1" />
-        </g>
+        <path
+          key={`petal-base-${i}`}
+          d={`M ${x1} ${y1} Q ${xTip} ${yTip} ${x2} ${y2}`}
+          fill={i % 2 === 0 ? "var(--dye-red)" : "var(--dye-yellow)"}
+          stroke="var(--ink-black)"
+          strokeWidth="1.5"
+        />
       );
+
+      // Inner dense Kachni (hatching)
+      for (let j = 1; j <= 3; j++) {
+        const rHatch = rInner + (rOuter - rInner) * (j / 4);
+        const xHatchTip = 200 + Math.cos(angleMid) * rHatch;
+        const yHatchTip = 200 + Math.sin(angleMid) * rHatch;
+        petals.push(
+          <path
+            key={`petal-hatch-${i}-${j}`}
+            d={`M ${(x1 + x2)/2} ${(y1 + y2)/2} L ${xHatchTip} ${yHatchTip}`}
+            fill="none"
+            stroke="var(--ink-black)"
+            strokeWidth="0.5"
+          />
+        );
+      }
     }
     return petals;
   };
@@ -46,7 +73,6 @@ export default function HeroSection() {
       className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl mx-auto min-h-[70vh] gap-12 px-4"
       onMouseMove={handleMouseMove}
     >
-      {/* Left: Portrait with Parallax and Hover-Rotating Frame */}
       <div className="flex-1 flex justify-center relative w-full h-[500px]">
         {/* The Frame (Intricate Mandala SVG) */}
         <motion.div
@@ -56,26 +82,22 @@ export default function HeroSection() {
         >
           <div className="w-[450px] h-[450px] absolute">
             <SvgTwigDraw>
-              {/* Outer double border */}
-              <circle cx="200" cy="200" r="198" stroke="var(--ink-black)" strokeWidth="4" fill="none" />
-              <circle cx="200" cy="200" r="190" stroke="var(--ink-black)" strokeWidth="2" fill="none" />
+              {/* Outer thick double border simulating hand-drawn wobble */}
+              <path d="M 20 200 A 180 180 0 1 1 380 200 A 180 180 0 1 1 20 200" stroke="var(--ink-black)" strokeWidth="4" fill="none" />
+              <path d="M 25 200 A 175 175 0 1 1 375 200 A 175 175 0 1 1 25 200" stroke="var(--ink-black)" strokeWidth="1.5" fill="none" />
 
-              {/* Geometric triangle border (repeating zig-zag) */}
-              <path d="M 200 10 L 210 20 L 220 10 L 230 20 L 240 10 ... " stroke="var(--ink-black)" strokeWidth="2" fill="none" />
-              {/* Generate a zig-zag using stroke-dasharray trick on a thick border */}
-              <circle cx="200" cy="200" r="185" stroke="var(--dye-yellow)" strokeWidth="6" strokeDasharray="10 10" fill="none" />
-              <circle cx="200" cy="200" r="185" stroke="var(--ink-black)" strokeWidth="2" strokeDasharray="10 10" strokeDashoffset="5" fill="none" />
-
-              {/* Middle boundary */}
-              <circle cx="200" cy="200" r="175" stroke="var(--ink-black)" strokeWidth="2" fill="none" />
+              {/* Dense zig-zag border */}
+              <circle cx="200" cy="200" r="195" stroke="var(--dye-yellow)" strokeWidth="6" strokeDasharray="5 5" fill="none" />
+              <circle cx="200" cy="200" r="195" stroke="var(--ink-black)" strokeWidth="1" strokeDasharray="5 5" strokeDashoffset="2.5" fill="none" />
 
               {/* The Lotus Petals */}
               {generatePetals()}
 
-              {/* Inner frame for the image */}
-              <circle cx="200" cy="200" r="155" stroke="var(--ink-black)" strokeWidth="4" fill="none" />
-              <circle cx="200" cy="200" r="148" stroke="var(--ink-black)" strokeWidth="2" fill="none" strokeDasharray="4 4" />
-              <circle cx="200" cy="200" r="142" stroke="var(--ink-black)" strokeWidth="2" fill="none" />
+              {/* Inner frame containing the portrait */}
+              <circle cx="200" cy="200" r="160" stroke="var(--ink-black)" strokeWidth="3" fill="var(--cotton)" />
+              <circle cx="200" cy="200" r="155" stroke="var(--ink-black)" strokeWidth="1" fill="none" />
+              {/* Inner decorative dots */}
+              <circle cx="200" cy="200" r="150" stroke="var(--dye-red)" strokeWidth="4" strokeDasharray="1 8" fill="none" strokeLinecap="round" />
             </SvgTwigDraw>
           </div>
         </motion.div>
@@ -84,49 +106,59 @@ export default function HeroSection() {
         <BloomingMandala delay={0.5}>
           <motion.div
             style={{ x: invertedX, y: invertedY }}
-            className="w-[280px] h-[280px] mt-16 rounded-full overflow-hidden border-wobble bg-dye-yellow/20 relative z-0 flex items-center justify-center border-4 border-ink-black"
+            className="w-[300px] h-[300px] mt-12 rounded-full overflow-hidden bg-dye-yellow/10 relative z-20 flex items-center justify-center border-4 border-ink-black"
           >
-            {/* Highly stylized inner face placeholder */}
-            <svg viewBox="0 0 100 100" className="w-full h-full opacity-60" stroke="var(--ink-black)" strokeWidth="1" fill="none">
+            {/* Highly stylized inner face with Madhubani motifs */}
+            <svg viewBox="0 0 100 100" className="w-full h-full opacity-90" stroke="var(--ink-black)" strokeWidth="0.8" fill="none">
+              {/* Background texture vines */}
+              <path d="M 10 10 Q 30 30 10 50 T 10 90 M 90 10 Q 70 30 90 50 T 90 90" strokeWidth="0.5" opacity="0.3" strokeDasharray="2 2" />
+
               {/* Profile silhouette */}
-              <path d="M50 10 C 30 10, 20 40, 25 70 C 25 80, 40 95, 50 95 C 60 95, 75 80, 75 70 C 80 40, 70 10, 50 10" fill="var(--cotton)"/>
-              {/* Large almond eye */}
-              <path d="M35 45 Q 50 35, 65 45 Q 50 55, 35 45" strokeWidth="2"/>
-              <circle cx="50" cy="45" r="5" fill="var(--ink-black)"/>
-              {/* Eyebrow */}
-              <path d="M30 35 Q 50 25, 70 35" strokeWidth="3"/>
-              {/* Nose ring (Nath) */}
-              <circle cx="65" cy="65" r="8" strokeWidth="1"/>
-              <path d="M73 65 L 85 60" />
+              <path d="M 50 5 C 20 5, 10 40, 20 75 C 25 90, 45 95, 60 90 C 80 80, 85 40, 50 5 Z" fill="var(--cotton)" strokeWidth="1.5" />
+
+              {/* Signature Madhubani Almond Eye */}
+              <path d="M 35 45 C 45 30, 65 35, 75 45 C 60 55, 45 55, 35 45 Z" fill="var(--cotton)" strokeWidth="1.5" />
+              <circle cx="55" cy="45" r="7" fill="var(--ink-black)" />
+              <circle cx="57" cy="43" r="2" fill="var(--cotton)" stroke="none" /> {/* Eye highlight */}
+
+              {/* Sharp, curved Eyebrow */}
+              <path d="M 30 35 C 50 20, 75 30, 80 35" strokeWidth="2.5" />
+
+              {/* Nose and Nath (Nose Ring) */}
+              <path d="M 75 45 Q 85 60, 70 70" strokeWidth="1.5" />
+              <circle cx="75" cy="65" r="10" strokeWidth="1" strokeDasharray="1 1" fill="none" />
+              <circle cx="75" cy="55" r="2" fill="var(--dye-red)" />
+
+              {/* Lips */}
+              <path d="M 60 80 Q 70 75, 65 85 Q 55 85, 60 80 Z" fill="var(--dye-red)" strokeWidth="1" />
+
+              {/* Hair/Crown styling */}
+              <path d="M 50 5 C 60 10, 70 5, 80 15 C 70 20, 60 15, 50 25 Z" fill="var(--ink-black)" />
+              <path d="M 50 5 C 40 10, 30 5, 20 15 C 30 20, 40 15, 50 25 Z" fill="var(--ink-black)" />
             </svg>
           </motion.div>
         </BloomingMandala>
       </div>
 
       {/* Right: H1 and CTA */}
-      <div className="flex-1 flex flex-col justify-center items-start space-y-8 z-20">
+      <div className="flex-1 flex flex-col justify-center items-start space-y-8 z-30">
         <BloomingMandala delay={1}>
           <h1 className="font-yatra text-5xl md:text-7xl leading-tight text-ink-black relative">
             <span className="relative z-10">Loomed by Hand,<br />Loved by <span className="text-dye-red">Heart</span></span>
-            {/* Subtle brush stroke behind the text */}
-            <svg className="absolute -z-10 -bottom-4 -left-4 w-[110%] h-[60px] opacity-20" viewBox="0 0 400 50" preserveAspectRatio="none">
-              <path d="M 10 25 Q 100 5, 200 25 T 390 25" stroke="var(--dye-yellow)" strokeWidth="20" strokeLinecap="round" fill="none" />
-            </svg>
           </h1>
         </BloomingMandala>
 
         <motion.button
           whileHover={{
             scale: 1.05,
-            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noise\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"4\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noise)\" opacity=\"0.5\"/%3E%3C/svg%3E')",
             backgroundColor: "var(--dye-yellow)"
           }}
           whileTap={{ scale: 0.95 }}
           className="border-wobble bg-dye-red text-cotton font-yatra text-2xl px-8 py-4 transition-colors duration-500 cursor-none relative overflow-hidden group"
         >
           <span className="relative z-10">Shop the Collection</span>
-          {/* Inner detailed kachni border for the button on hover */}
-          <div className="absolute inset-2 border-2 border-dashed border-ink-black opacity-0 group-hover:opacity-50 transition-opacity"></div>
+          {/* Dense kachni border for the button on hover */}
+          <div className="absolute inset-2 border-[3px] border-dotted border-ink-black opacity-0 group-hover:opacity-60 transition-opacity"></div>
         </motion.button>
       </div>
     </section>
