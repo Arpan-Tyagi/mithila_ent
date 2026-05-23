@@ -1,11 +1,12 @@
-import { products } from '@/lib/mockData';
+import { createClient } from '@/lib/supabase/server';
 import { Package, ShoppingBag, IndianRupee, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  // Mock aggregations
-  const orderCount = 124;
-  const productCount = products.length;
+  const supabase = await createClient();
+
+  const { count: orderCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
+  const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
   
   return (
     <div className="space-y-8">
@@ -23,14 +24,14 @@ export default async function AdminDashboard() {
         <div className="bg-white border-2 border-[var(--charcoal-ink)] p-6 rounded-sm flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Total Orders</p>
-            <p className="font-bold text-2xl text-[var(--charcoal-ink)]">{orderCount || 124}</p>
+            <p className="font-bold text-2xl text-[var(--charcoal-ink)]">{orderCount || 0}</p>
           </div>
           <ShoppingBag className="text-[var(--charcoal-ink)] opacity-20" size={40} />
         </div>
         <div className="bg-white border-2 border-[var(--charcoal-ink)] p-6 rounded-sm flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Products</p>
-            <p className="font-bold text-2xl text-[var(--charcoal-ink)]">{productCount || 45}</p>
+            <p className="font-bold text-2xl text-[var(--charcoal-ink)]">{productCount || 0}</p>
           </div>
           <Package className="text-[var(--charcoal-ink)] opacity-20" size={40} />
         </div>

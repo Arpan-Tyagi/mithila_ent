@@ -1,50 +1,29 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
-
-let ratelimit: Ratelimit | null = null;
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  ratelimit = new Ratelimit({
-    redis: Redis.fromEnv(),
-    limiter: Ratelimit.slidingWindow(20, '10 s'),
-    analytics: true,
-  });
-}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  // 1. Rate Limiting Logic (Upstash Redis)
-  if (ratelimit) {
-    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
-    const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    if (!success) {
-      return new NextResponse('Too Many Requests', {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-          'X-RateLimit-Reset': reset.toString(),
-        },
-      })
-    }
+  // Graceful fallback if Supabase is not configured
+  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-supabase')) {
+    return supabaseResponse
   }
 
-  // 2. Supabase Auth Logic
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'anon-key',
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -56,16 +35,41 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // Basic RBAC for admin routes
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    // Basic RBAC for admin routes
+    if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/login')) {
+      if (!user) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/admin/login'
+        return NextResponse.redirect(url)
+      }
+      
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+      if (profile?.role !== 'admin') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+        return NextResponse.redirect(url)
+      }
+    }
+
+    // Protect account routes
+    if (request.nextUrl.pathname.startsWith('/account') && !user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+  } catch {
+    // If Supabase is unreachable, don't block the request
   }
+
+  // Security headers
+  supabaseResponse.headers.set('X-DNS-Prefetch-Control', 'on')
+  supabaseResponse.headers.set('X-Frame-Options', 'SAMEORIGIN')
+  supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
 
   return supabaseResponse
 }

@@ -1,10 +1,15 @@
-import { searchProducts } from '@/lib/mockData';
+import { createClient } from '@/lib/supabase/server';
 import ProductCard from '@/components/ProductCard';
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams.q || '';
-  const products = await searchProducts(query);
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('products')
+    .select('*, product_variants(*)')
+    .ilike('title', `%${query}%`);
+  const products = data || [];
 
   return (
     <main className="flex-grow max-w-7xl mx-auto px-4 py-16 w-full">

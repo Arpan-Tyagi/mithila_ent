@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { product_variants, products } from '@/lib/mockData';
+import { createClient } from '@/lib/supabase/client';
 import { Package, AlertCircle } from 'lucide-react';
 
 export default function InventoryPage() {
   const [variants, setVariants] = useState<any[]>([]);
 
   useEffect(() => {
-    // Initial fetch mock
-    const mapped = product_variants.map(v => ({
-      ...v,
-      products: { title: products.find(p => p.id === v.product_id)?.title }
-    })).sort((a, b) => a.stock_quantity - b.stock_quantity);
-    setVariants(mapped);
+    const fetchVariants = async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('product_variants')
+        .select('*, products(title)')
+        .order('stock_quantity', { ascending: true });
+      if (data) setVariants(data);
+    };
+    fetchVariants();
   }, []);
 
   return (

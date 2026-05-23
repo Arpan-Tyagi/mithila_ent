@@ -1,4 +1,4 @@
-import { getProductDetail } from '@/lib/mockData';
+import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import AddToCartButton from './AddToCartButton';
 import { Metadata } from 'next';
@@ -7,7 +7,12 @@ export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductDetail(slug);
+  const supabase = await createClient();
+  const { data: product } = await supabase
+    .from('products')
+    .select('*, categories(*), product_variants(*)')
+    .eq('slug', slug)
+    .single();
 
   if (!product) return { title: 'Product Not Found' };
 
@@ -19,7 +24,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = await getProductDetail(slug);
+  const supabase = await createClient();
+  const { data: product } = await supabase
+    .from('products')
+    .select('*, categories(*), product_variants(*)')
+    .eq('slug', slug)
+    .single();
 
   if (!product) {
     notFound();

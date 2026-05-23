@@ -1,4 +1,4 @@
-import { getCategoryProducts, categories } from '@/lib/mockData';
+import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -6,12 +6,26 @@ export const revalidate = 3600;
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = categories.find(c => c.slug === slug);
+  const supabase = await createClient();
+
+  const { data: category } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
   if (!category) {
     notFound();
   }
 
-  const variants = await getCategoryProducts(slug);
+  const { data: prods } = await supabase
+    .from('products')
+    .select('*, product_variants(*)')
+    .eq('category_id', category.id);
+
+  const variants = (prods || []).flatMap((p: any) =>
+    (p.product_variants || []).map((v: any) => ({ ...v, products: p }))
+  );
 
   return (
     <main className="flex-grow bg-[var(--unbleached-cotton)] py-16">

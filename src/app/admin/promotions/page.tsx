@@ -1,11 +1,10 @@
+import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
 
 export default async function AdminPromotions() {
-  // Mock discounts
-  const discounts = [
-    { id: '1', code: 'FESTIVAL20', type: 'percentage', value: '20%', current_uses: 45, max_uses: 100, is_active: true },
-    { id: '2', code: 'WELCOME10', type: 'percentage', value: '10%', current_uses: 890, max_uses: null, is_active: true }
-  ];
+  const supabase = await createClient();
+
+  const { data: discounts } = await supabase.from('discounts').select('*');
 
   return (
     <div className="space-y-8">
