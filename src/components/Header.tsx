@@ -1,65 +1,53 @@
 "use client";
 
-import Link from 'next/link';
-import { ShoppingCart, User, Menu, Search } from 'lucide-react';
-import { useCart } from '@/store/useCart';
-import { useEffect, useState } from 'react';
+import { useState } from "react";
+import Link from "next/link";
+import SidePanel from "./SidePanel";
+import { motion } from "framer-motion";
 
 export default function Header() {
-  const { openCart, items } = useCart();
-  const [mounted, setMounted] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [panelContent, setPanelContent] = useState<"cart" | "account">("cart");
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const openPanel = (type: "cart" | "account") => {
+    setPanelContent(type);
+    setIsPanelOpen(true);
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)]">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-8">
-        
-        {/* Mobile Menu */}
-        <button className="md:hidden p-2 text-[var(--charcoal-ink)]">
-          <Menu size={24} />
-        </button>
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-serif text-2xl font-bold tracking-tight text-[var(--madder-red)]">
-            MITHILA
-          </span>
-          <span className="hidden md:block font-sans text-sm tracking-widest text-[var(--charcoal-ink)]">
-            ENTERPRISES
-          </span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 font-sans font-bold text-[var(--charcoal-ink)] tracking-wider">
-          <Link href="/shop" className="hover:text-[var(--peacock-blue)] hover:-translate-y-1 transition-all duration-300">Shop All</Link>
-          <Link href="/category/cotton" className="hover:text-[var(--lotus-pink)] hover:-translate-y-1 transition-all duration-300">Cotton</Link>
-          <Link href="/category/linen" className="hover:text-[var(--parrot-green)] hover:-translate-y-1 transition-all duration-300">Linen</Link>
-          <Link href="/about" className="hover:text-[var(--turmeric)] hover:-translate-y-1 transition-all duration-300">Heritage</Link>
-        </nav>
-
-        {/* Icons */}
-        <div className="flex items-center gap-4 text-[var(--charcoal-ink)]">
-          <button className="p-2 hover:text-[var(--peacock-blue)] hover:rotate-12 transition-all duration-300 hidden md:block">
-            <Search size={24} />
-          </button>
-          <Link href="/login" className="p-2 hover:text-[var(--lotus-pink)] hover:-rotate-12 transition-all duration-300">
-            <User size={24} />
-          </Link>
-          <button onClick={openCart} className="p-2 hover:text-[var(--turmeric)] hover:scale-110 transition-all duration-300 relative group">
-            <ShoppingCart size={24} className="group-hover:animate-bounce" />
-            {mounted && itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--lotus-pink)] text-[10px] font-bold text-white shadow-lg animate-pulse">
-                {itemCount}
-              </span>
-            )}
-          </button>
+    <header className="w-full border-b-4 border-ink-black py-4 px-6 bg-cotton relative z-50">
+      <nav className="flex justify-between items-center max-w-7xl mx-auto font-yatra text-ink-black text-lg">
+        <div className="flex gap-6 items-center">
+          <Link href="/shop/cotton" className="hover:text-dye-red transition-colors">Cotton Shop</Link>
+          <Link href="/shop/linen" className="hover:text-dye-indigo transition-colors">Linen Shop</Link>
+          <Link href="/shop/stitched" className="hover:text-dye-green transition-colors">Stitched Wear</Link>
         </div>
-      </div>
+
+        <div className="flex-1 text-center font-yatra text-3xl font-bold text-dye-red px-4 border-wobble inline-block mx-4">
+          <Link href="/" className="px-6 py-2 block tracking-wider">
+            MITHILA
+          </Link>
+        </div>
+
+        <div className="flex gap-6 items-center">
+          <Link href="/collections" className="hover:text-dye-indigo transition-colors">Collections</Link>
+          <Link href="/artizone" className="hover:text-dye-yellow transition-colors">Artizone</Link>
+          <button onClick={() => openPanel("cart")} className="hover:text-dye-red transition-colors cursor-none">Cart</button>
+          <button onClick={() => openPanel("account")} className="hover:text-dye-green transition-colors cursor-none">Account</button>
+        </div>
+      </nav>
+
+      <SidePanel
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+        title={panelContent === "cart" ? "Your Pouch" : "Artisan Portal"}
+      >
+        {panelContent === "cart" ? (
+          <p className="italic">Your handwoven pouch is currently empty.</p>
+        ) : (
+          <p className="italic">Identify yourself to enter the artisan portal.</p>
+        )}
+      </SidePanel>
     </header>
   );
 }

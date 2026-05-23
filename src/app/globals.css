@@ -1,66 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  /* Mithila / Madhubani Natural Dyes */
-  --madder-red: #8B2E2E; /* Deep red */
-  --indigo-dye: #1E3A5F; /* Deep blue */
-  --turmeric: #D4A32A;   /* Mustard yellow */
-  --lotus-pink: #E54B8C; /* Lotus pink */
-  --peacock-blue: #007B9E; /* Peacock blue */
-  --parrot-green: #4CAF50; /* Parrot green */
-  --charcoal-ink: #2A2A2A; /* Text color instead of black */
-  --unbleached-cotton: #F7F4E9; /* Background instead of white */
+  --ink-black: #1A1A1A;
+  --dye-red: #991B1B;
+  --dye-yellow: #FBBF24;
+  --dye-indigo: #1E3A8A;
+  --dye-green: #4D7C0F;
+  --cotton: #F8F5F0;
   
-  --background: var(--unbleached-cotton);
-  --foreground: var(--charcoal-ink);
-  
-  --border-radius: 0.5rem;
+  --background: var(--cotton);
+  --foreground: var(--ink-black);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-madder-red: var(--madder-red);
-  --color-indigo-dye: var(--indigo-dye);
-  --color-turmeric: var(--turmeric);
-  --color-charcoal-ink: var(--charcoal-ink);
-  --color-unbleached-cotton: var(--unbleached-cotton);
   
-  --font-sans: var(--font-dm-sans), sans-serif;
-  --font-serif: var(--font-playfair-display), serif;
+  --color-ink-black: var(--ink-black);
+  --color-dye-red: var(--dye-red);
+  --color-dye-yellow: var(--dye-yellow);
+  --color-dye-indigo: var(--dye-indigo);
+  --color-dye-green: var(--dye-green);
+  --color-cotton: var(--cotton);
+
+  --font-yatra: "Yatra One", system-ui, sans-serif;
+  --font-lora: "Lora", serif;
 }
 
+/* Cotton fabric texture noise */
 body {
   background: var(--background);
   color: var(--foreground);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  min-height: 100vh;
+  /* NO shadows, NO modern softness. */
+  cursor: none; /* We use a custom cursor */
 }
 
-/* 
-  Kachni Style Borders (Mask Image Utilities)
-  Applying standard SVG via mask-image to prevent DOM bloat
-*/
-.kachni-border {
-  mask-image: linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%, transparent);
-  mask-size: 8px 8px;
-  background-color: var(--charcoal-ink);
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.3;
+  mix-blend-mode: multiply;
 }
 
-.hand-drawn-border {
-  border: 3px solid var(--charcoal-ink);
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.hand-drawn-border:hover {
-  transform: scale(1.02) rotate(-1deg);
-  box-shadow: 6px 6px 0px 0px var(--lotus-pink);
+/* Base resets to enforce Madhubani style */
+* {
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
-.bharni-hover {
-  transition: background-color 0.4s ease, color 0.4s ease;
+/* Custom utility for the double borders */
+.border-ink-double {
+  border: 6px double var(--ink-black);
 }
-.bharni-hover:hover {
-  background-color: var(--madder-red);
-  color: var(--unbleached-cotton);
+
+/* Custom organic wobble */
+.border-wobble {
+  border: 4px solid var(--ink-black);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
 }

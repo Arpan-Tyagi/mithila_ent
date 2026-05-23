@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Yatra_One, Lora } from "next/font/google";
 import "./globals.css";
+import CustomCursor from "@/components/CustomCursor";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import CartDrawer from "@/components/CartDrawer";
-import StructuredData from "@/components/StructuredData";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair-display",
-  subsets: ["latin"],
+const yatra = Yatra_One({
+  weight: '400',
+  variable: "--font-yatra",
+  subsets: ["latin", "devanagari"],
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Mithila Enterprises | Premium Cotton & Linen",
-  description: "Wholesale B2C Premium Cotton & Linen Fabrics inspired by Madhubani Art.",
+  title: "Mithila Enterprises",
+  description: "Loomed by Hand, Loved by Heart",
 };
 
 export default function RootLayout({
@@ -29,16 +28,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${yatra.variable} ${lora.variable} h-full antialiased`}
     >
-      <head>
-        <StructuredData />
-      </head>
-      <body className="min-h-full flex flex-col font-sans">
-        <Header />
-        {children}
-        <Footer />
-        <CartDrawer />
+      <body className="min-h-full font-lora">
+        <CustomCursor />
+        {/* Master Frame */}
+        <div className="border-ink-double min-h-screen p-6 m-4 relative flex flex-col">
+          <Header />
+          <main className="flex-grow">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
