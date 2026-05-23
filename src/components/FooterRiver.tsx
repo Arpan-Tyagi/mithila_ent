@@ -32,6 +32,22 @@ export default function FooterRiver() {
     );
   };
 
+  // Generate water eddies (vortex swirls)
+  const Vortex = ({ cx, cy }: { cx: number, cy: number }) => (
+    <g transform={`translate(${cx}, ${cy})`} stroke="var(--dye-indigo)" fill="none" strokeWidth="2" opacity="0.6">
+       <path d="M 0 0 C 10 -10, 20 0, 10 10 C -10 20, -20 -10, 0 -20 C 30 -30, 40 10, 20 30 C -20 50, -50 -10, -10 -40" strokeDasharray="4 2" />
+    </g>
+  );
+
+  // Large Lily Pad with intricate vein network
+  const LilyPad = ({ cx, cy, scale = 1 }: { cx: number, cy: number, scale?: number }) => (
+    <g transform={`translate(${cx}, ${cy}) scale(${scale})`}>
+       <path d="M 0 20 C 30 20, 50 0, 40 -20 C 30 -40, 0 -30, -10 -10 L 0 5 C -20 -10, -40 -30, -30 -10 C -20 10, -30 20, 0 20 Z" fill="var(--dye-green)" stroke="var(--ink-black)" strokeWidth="1.5" />
+       {/* Veins */}
+       <path d="M 0 5 L 30 -10 M 0 5 L 15 -25 M 0 5 L -10 -25 M 0 5 L -20 -5" stroke="var(--ink-black)" strokeWidth="0.5" strokeDasharray="1 1" />
+    </g>
+  );
+
   const DetailedLotus = ({ cx, cy, scale = 1 }: { cx: number, cy: number, scale?: number }) => (
     <g transform={`translate(${cx}, ${cy}) scale(${scale})`} stroke="var(--ink-black)" strokeWidth="1.5">
       {/* Back Petals with pointed tips */}
@@ -66,23 +82,29 @@ export default function FooterRiver() {
       {/* Tail with dense parallel hatching */}
       <path d="M -5 0 L -30 -25 C -25 0, -35 15, -25 25 Z" fill="var(--dye-yellow)" />
       <path d="M -5 0 L -25 -20 M -5 0 L -20 -10 M -5 0 L -25 0 M -5 0 L -20 10 M -5 0 L -20 20" strokeWidth="1" />
+      <path d="M -10 -5 L -22 -15 M -10 5 L -22 15" strokeWidth="0.5" strokeDasharray="1 1" />
 
       {/* Upper and Lower Fins */}
       <path d="M 15 -18 C 25 -35, 35 -30, 45 -10 Z" fill="var(--dye-green)" />
-      <path d="M 20 -18 L 25 -30 M 25 -15 L 30 -28 M 30 -12 L 35 -25" strokeWidth="1" />
+      <path d="M 20 -18 L 25 -30 M 23 -16 L 28 -29 M 25 -15 L 30 -28 M 28 -13 L 33 -26 M 30 -12 L 35 -25" strokeWidth="1" />
 
       <path d="M 20 15 C 30 35, 40 30, 45 10 Z" fill="var(--dye-green)" />
-      <path d="M 25 15 L 30 30 M 30 15 L 35 28 M 35 12 L 40 25" strokeWidth="1" />
+      <path d="M 25 15 L 30 30 M 28 15 L 33 29 M 30 15 L 35 28 M 33 13 L 38 26 M 35 12 L 40 25" strokeWidth="1" />
 
       {/* Main Body */}
       <path d="M 0 0 Q 30 -40, 65 0 Q 30 40, 0 0 Z" fill="var(--dye-red)" />
 
-      {/* Semi-circular overlapping scales (Kachni detail) */}
+      {/* Dense Semi-circular overlapping scales (Kachni detail) */}
       <path d="M 15 -15 A 5 5 0 0 1 15 15" strokeWidth="1" fill="none" />
+      <path d="M 17 -16 A 5 5 0 0 1 17 16" strokeWidth="0.5" fill="none" />
       <path d="M 20 -18 A 5 5 0 0 1 20 18" strokeWidth="1" fill="none" />
+      <path d="M 22 -19 A 5 5 0 0 1 22 19" strokeWidth="0.5" fill="none" />
       <path d="M 25 -20 A 5 5 0 0 1 25 20" strokeWidth="1" fill="none" />
+      <path d="M 27 -20 A 5 5 0 0 1 27 20" strokeWidth="0.5" fill="none" />
       <path d="M 30 -21 A 5 5 0 0 1 30 21" strokeWidth="1" fill="none" />
+      <path d="M 32 -21 A 5 5 0 0 1 32 21" strokeWidth="0.5" fill="none" />
       <path d="M 35 -20 A 5 5 0 0 1 35 20" strokeWidth="1" fill="none" />
+      <path d="M 37 -19 A 5 5 0 0 1 37 19" strokeWidth="0.5" fill="none" />
       <path d="M 40 -18 A 5 5 0 0 1 40 18" strokeWidth="1" fill="none" />
 
       {/* Face divider */}
@@ -90,7 +112,8 @@ export default function FooterRiver() {
 
       {/* Large stylized almond Eye */}
       <path d="M 50 -5 Q 55 -10, 60 -5 Q 55 0, 50 -5 Z" fill="var(--cotton)" strokeWidth="1.5" />
-      <circle cx="55" cy="-5" r="2" fill="var(--ink-black)" />
+      <circle cx="55" cy="-5" r="2.5" fill="var(--ink-black)" />
+      <circle cx="56" cy="-6" r="1" fill="var(--cotton)" stroke="none" />
     </g>
   );
 
@@ -127,6 +150,12 @@ export default function FooterRiver() {
         <svg viewBox="0 0 1000 250" preserveAspectRatio="none" className="w-[150%] h-full opacity-90">
           <rect x="0" y="50" width="2000" height="200" fill="var(--dye-indigo)" opacity="0.05" />
 
+          {/* Static Water Eddies / Swirls */}
+          <Vortex cx={150} cy={160} />
+          <Vortex cx={500} cy={120} />
+          <Vortex cx={900} cy={180} />
+
+          {/* Animated Waves */}
           <motion.g style={{ x: wave1X }}>
             {generateWaves(80, 15, 100, false)}
             {generateWaves(130, 20, 120, false)}
@@ -139,11 +168,20 @@ export default function FooterRiver() {
             {generateWaves(205, 10, 95, true)}
           </motion.g>
 
+          {/* Static Detailed Lotuses and Lily Pads */}
+          <LilyPad cx={200} cy={130} scale={1.5} />
           <DetailedLotus cx={200} cy={120} scale={1.2} />
+
+          <LilyPad cx={600} cy={190} scale={1.1} />
           <DetailedLotus cx={600} cy={180} scale={0.9} />
+
+          <LilyPad cx={850} cy={110} scale={1.3} />
           <DetailedLotus cx={850} cy={100} scale={1.1} />
+
+          <LilyPad cx={1200} cy={170} scale={1.6} />
           <DetailedLotus cx={1200} cy={160} scale={1.3} />
 
+          {/* Animated Detailed Fish */}
           <motion.g style={{ x: fishTranslateX }}>
             <DetailedFish cx={100} cy={160} />
             <DetailedFish cx={400} cy={110} />

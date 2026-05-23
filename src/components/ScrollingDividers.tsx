@@ -10,14 +10,21 @@ export default function ScrollingDividers({ type }: DividerProps) {
   // Ultra-detailed Madhubani Elephant
   const Elephant = () => (
     <svg viewBox="0 0 200 120" className="h-28 w-auto mx-8 inline-block overflow-visible" stroke="var(--ink-black)" strokeWidth="1" fill="none">
-      {/* Background fill to block lines behind it */}
       <path d="M 30 90 L 30 50 C 30 10, 100 10, 140 20 C 170 25, 180 50, 180 70 Q 180 100, 160 110 Q 140 80, 130 50 L 100 90 Z" fill="var(--cotton)" stroke="none" />
+
+      {/* Body micro-pattern filler (Dots and small circles) simulating dense Kachni */}
+      <g strokeWidth="0.5" stroke="var(--ink-black)" opacity="0.3">
+         <circle cx="35" cy="60" r="1"/> <circle cx="35" cy="70" r="1"/> <circle cx="35" cy="80" r="1"/>
+         <circle cx="130" cy="30" r="1"/> <circle cx="140" cy="40" r="1"/> <circle cx="150" cy="50" r="1"/>
+         <circle cx="160" cy="60" r="1"/> <circle cx="170" cy="70" r="1"/> <circle cx="160" cy="90" r="1"/>
+         <path d="M 32 55 L 38 55 M 32 65 L 38 65 M 32 75 L 38 75" />
+      </g>
 
       {/* Scalloped Back Blanket (Jhool) */}
       <path d="M 40 20 C 60 15, 90 15, 110 25 L 110 70 C 90 75, 60 75, 40 70 Z" fill="var(--dye-yellow)" />
       {/* Inner Dense Grid (Kachni) for Blanket */}
-      <path d="M 45 25 L 45 65 M 55 23 L 55 67 M 65 21 L 65 69 M 75 20 L 75 71 M 85 20 L 85 71 M 95 21 L 95 69 M 105 23 L 105 67" strokeWidth="0.5" />
-      <path d="M 42 30 L 108 30 M 40 40 L 110 40 M 40 50 L 110 50 M 42 60 L 108 60" strokeWidth="0.5" />
+      <path d="M 45 25 L 45 65 M 50 24 L 50 66 M 55 23 L 55 67 M 60 22 L 60 68 M 65 21 L 65 69 M 70 20 L 70 70 M 75 20 L 75 71 M 80 20 L 80 71 M 85 20 L 85 71 M 90 20 L 90 70 M 95 21 L 95 69 M 100 22 L 100 68 M 105 23 L 105 67" strokeWidth="0.5" />
+      <path d="M 43 28 L 107 28 M 42 32 L 108 32 M 41 36 L 109 36 M 40 40 L 110 40 M 40 44 L 110 44 M 40 48 L 110 48 M 40 52 L 110 52 M 41 56 L 109 56 M 42 60 L 108 60 M 43 64 L 107 64" strokeWidth="0.5" />
       {/* Blanket Tassels (Scallops) */}
       <path d="M 40 70 A 5 5 0 0 0 50 70 A 5 5 0 0 0 60 70 A 5 5 0 0 0 70 70 A 5 5 0 0 0 80 70 A 5 5 0 0 0 90 70 A 5 5 0 0 0 100 70 A 5 5 0 0 0 110 70" fill="var(--dye-red)" strokeWidth="1" />
 
@@ -33,9 +40,9 @@ export default function ScrollingDividers({ type }: DividerProps) {
       <path d="M 140 30 Q 155 25, 165 35 Q 150 40, 140 30 Z" fill="var(--cotton)" strokeWidth="1.5" />
       <circle cx="150" cy="32" r="3" fill="var(--ink-black)" />
       {/* Forehead ornament (Bindu/Tika array) */}
-      <circle cx="130" cy="22" r="2" fill="var(--dye-red)" />
+      <circle cx="130" cy="22" r="2.5" fill="var(--dye-red)" />
       <circle cx="120" cy="20" r="2" fill="var(--dye-yellow)" />
-      <circle cx="110" cy="18" r="2" fill="var(--dye-red)" />
+      <circle cx="110" cy="18" r="1.5" fill="var(--dye-red)" />
 
       {/* Tusk */}
       <path d="M 150 60 Q 170 60, 185 50 Q 170 55, 150 65 Z" fill="var(--cotton)" strokeWidth="1.5" />
@@ -43,15 +50,26 @@ export default function ScrollingDividers({ type }: DividerProps) {
       {/* Ear with scalloped edges and inner floral pattern */}
       <path d="M 110 30 C 135 30, 135 70, 110 75 C 90 70, 90 30, 110 30 Z" fill="var(--cotton)" strokeWidth="1.5" />
       <path d="M 110 35 C 128 35, 128 65, 110 68 C 95 65, 95 35, 110 35 Z" fill="var(--dye-indigo)" opacity="0.2" />
-      {/* Ear hatching */}
-      <path d="M 100 40 L 120 40 M 98 50 L 122 50 M 100 60 L 120 60" strokeWidth="1" strokeDasharray="2 2" />
+      {/* Ear dense hatching */}
+      <path d="M 100 40 L 120 40 M 98 45 L 122 45 M 98 50 L 122 50 M 98 55 L 122 55 M 100 60 L 120 60" strokeWidth="1" strokeDasharray="1 1" />
 
-      {/* Legs with detailed toes and anklets */}
+      {/* Legs with detailed toes and anklets (Ghungroos) */}
       <path d="M 40 90 L 40 110 L 60 110 L 60 90" strokeWidth="2" fill="var(--cotton)" />
       <path d="M 90 90 L 90 110 L 110 110 L 110 90" strokeWidth="2" fill="var(--cotton)" />
-      {/* Anklets */}
-      <path d="M 38 100 L 62 100 M 38 103 L 62 103" strokeWidth="1" stroke="var(--dye-red)" />
-      <path d="M 88 100 L 112 100 M 88 103 L 112 103" strokeWidth="1" stroke="var(--dye-red)" />
+
+      {/* Ghungroos (Anklets with bells) */}
+      <path d="M 38 98 L 62 98 M 38 101 L 62 101" strokeWidth="1.5" stroke="var(--dye-red)" />
+      <circle cx="42" cy="103" r="1" fill="var(--dye-yellow)" />
+      <circle cx="47" cy="103" r="1" fill="var(--dye-yellow)" />
+      <circle cx="52" cy="103" r="1" fill="var(--dye-yellow)" />
+      <circle cx="57" cy="103" r="1" fill="var(--dye-yellow)" />
+
+      <path d="M 88 98 L 112 98 M 88 101 L 112 101" strokeWidth="1.5" stroke="var(--dye-red)" />
+      <circle cx="92" cy="103" r="1" fill="var(--dye-yellow)" />
+      <circle cx="97" cy="103" r="1" fill="var(--dye-yellow)" />
+      <circle cx="102" cy="103" r="1" fill="var(--dye-yellow)" />
+      <circle cx="107" cy="103" r="1" fill="var(--dye-yellow)" />
+
       {/* Toes */}
       <path d="M 40 110 C 45 105, 50 105, 55 110" fill="var(--dye-yellow)" strokeWidth="1" />
       <path d="M 90 110 C 95 105, 100 105, 105 110" fill="var(--dye-yellow)" strokeWidth="1" />
@@ -77,24 +95,37 @@ export default function ScrollingDividers({ type }: DividerProps) {
       <path d="M 30 80 L 30 50 C 30 20, 70 20, 80 40 C 100 60, 120 50, 130 40" strokeWidth="2" />
       <path d="M 34 78 L 34 52 C 34 26, 68 26, 78 44 C 95 62, 115 54, 125 44" strokeWidth="0.5" />
 
+      {/* Neck Scallops (Feather texture) */}
+      <path d="M 80 40 C 85 45, 95 55, 110 50" strokeWidth="0.5" strokeDasharray="3 3" />
+      <path d="M 75 35 C 80 40, 90 50, 105 45" strokeWidth="0.5" strokeDasharray="3 3" />
+      <path d="M 70 30 C 75 35, 85 45, 100 40" strokeWidth="0.5" strokeDasharray="3 3" />
+
       {/* Eye and Beak */}
       <path d="M 115 45 Q 120 40, 125 45 Q 120 50, 115 45 Z" fill="var(--cotton)" strokeWidth="1.5" />
-      <circle cx="120" cy="45" r="1.5" fill="var(--ink-black)" />
+      <circle cx="120" cy="45" r="2" fill="var(--ink-black)" />
+      <circle cx="121" cy="44" r="0.5" fill="var(--cotton)" stroke="none" />
       <path d="M 130 40 L 145 35 L 132 45 Z" fill="var(--dye-yellow)" strokeWidth="1.5" />
       <path d="M 130 40 L 145 35 L 132 45 Z" strokeWidth="0.5" />
 
-      {/* Head Crest (Kalgi) with decorative dots */}
+      {/* Elaborate Head Crest (Kalgi) with floral tips */}
       <path d="M 115 35 L 110 20 M 120 33 L 120 15 M 125 35 L 130 20" strokeWidth="1.5" />
-      <circle cx="110" cy="20" r="3" fill="var(--dye-red)" />
-      <circle cx="120" cy="15" r="3" fill="var(--dye-yellow)" />
-      <circle cx="130" cy="20" r="3" fill="var(--dye-red)" />
+      <g fill="var(--dye-red)">
+         <circle cx="110" cy="20" r="3" />
+         <circle cx="108" cy="18" r="1" fill="var(--dye-yellow)" stroke="none" />
+         <circle cx="120" cy="15" r="3" />
+         <circle cx="118" cy="13" r="1" fill="var(--dye-yellow)" stroke="none" />
+         <circle cx="130" cy="20" r="3" />
+         <circle cx="128" cy="18" r="1" fill="var(--dye-yellow)" stroke="none" />
+      </g>
 
       {/* Wing with highly intricate scale hatching */}
       <path d="M 40 50 C 65 40, 90 65, 80 85 C 55 95, 35 70, 40 50 Z" fill="var(--dye-green)" />
       <path d="M 40 50 C 65 40, 90 65, 80 85 C 55 95, 35 70, 40 50 Z" strokeWidth="2" />
-      {/* Hatching scales inside wing */}
+      {/* Heavy Hatching scales inside wing */}
       <path d="M 45 55 Q 60 50, 65 65" strokeWidth="1" />
+      <path d="M 48 60 Q 65 55, 70 70" strokeWidth="1" />
       <path d="M 50 65 Q 70 60, 75 75" strokeWidth="1" />
+      <path d="M 52 70 Q 72 65, 75 80" strokeWidth="1" />
       <path d="M 55 75 Q 75 70, 70 85" strokeWidth="1" />
 
       {/* Legs */}
@@ -121,12 +152,15 @@ export default function ScrollingDividers({ type }: DividerProps) {
           {/* Eye 1 */}
           <path d="M -20 50 Q -10 40, 0 50 Q -10 60, -20 50 Z" fill="var(--cotton)" />
           <circle cx="-10" cy="50" r="3" fill="var(--ink-black)" />
+          <circle cx="-11" cy="49" r="1" fill="var(--cotton)" stroke="none" />
           {/* Eye 2 */}
           <path d="M -15 15 Q -5 5, 5 15 Q -5 25, -15 15 Z" fill="var(--cotton)" />
           <circle cx="-5" cy="15" r="3" fill="var(--ink-black)" />
+          <circle cx="-6" cy="14" r="1" fill="var(--cotton)" stroke="none" />
           {/* Eye 3 */}
           <path d="M 10 -5 Q 20 -15, 30 -5 Q 20 5, 10 -5 Z" fill="var(--cotton)" />
           <circle cx="20" cy="-5" r="3" fill="var(--ink-black)" />
+          <circle cx="19" cy="-6" r="1" fill="var(--cotton)" stroke="none" />
         </g>
       </motion.g>
     </motion.svg>
