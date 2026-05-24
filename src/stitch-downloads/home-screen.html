@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mithila Enterprises - Traditional Art &amp; Apparel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Marcellus&amp;display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cream: '#F4F1E6',
+              brown: '#7B3F27',
+              gold: '#C5A059',
+              red: '#8E1B1B',
+              charcoal: '#333333'
+            }
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            decorative: ['Marcellus', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    body {
+      background-color: #F4F1E6;
+      color: #333333;
+      font-family: 'Marcellus', serif;
+    }
+
+    /* Outer Geometric Border */
+    .page-border {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 20px solid transparent;
+      border-image: url('data:image/svg+xml,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0V0zm2 2v36h36V2H2zm4 4h28v28H6V6zm2 2v24h24V8H8z" fill="%23333" fill-opacity="0.2"/></svg>') 40 repeat;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .watercolor-glow {
+      background: radial-gradient(circle, rgba(197, 160, 89, 0.3) 0%, rgba(244, 241, 230, 0) 70%);
+    }
+
+    .hero-mandala-frame {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-mandala-frame::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 130%;
+      height: 130%;
+      background-image: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="none" stroke="%23C5A059" stroke-width="0.5" stroke-dasharray="1 1"/><circle cx="50" cy="50" r="40" fill="none" stroke="%237B3F27" stroke-width="1"/></svg>');
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+
+    .product-card {
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(123, 63, 39, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .product-card.highlighted {
+      border: 2px solid #8E1B1B;
+      box-shadow: 0 0 15px rgba(142, 27, 27, 0.2);
+    }
+
+    .decorative-footer-wave {
+      height: 100px;
+      background: linear-gradient(to bottom, transparent, #8FB3C9 20%, #4A7C9A 100%);
+      mask-image: url('data:image/svg+xml,<svg viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,0 C150,110 350,-20 500,70 C650,160 850,20 1000,70 C1150,120 1200,40 1200,40 V120 H0 Z" fill="black"/></svg>');
+    }
+  </style>
+</head>
+<body class="p-10 md:p-20">
+<!-- BEGIN: Page Frame -->
+<div class="page-border"></div>
+<!-- END: Page Frame -->
+<div class="max-w-6xl mx-auto relative z-10">
+<!-- BEGIN: MainHeader -->
+<header class="flex flex-col md:flex-row justify-between items-center py-8 mb-16">
+<div class="flex items-center gap-4 mb-6 md:mb-0" data-purpose="logo-container">
+<div class="w-10 h-10 flex items-center justify-center">
+<img alt="Mandala Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmxpXbjlQ2gVZfbuPRdHAJ49gyiPRTG9dge10DUDkP8tc2HINhJsXaVrM7nkqVlrNcufom9oT2mvhnFsh_mGTamSZpgiWSwIsA6shTeomSMT2MvT-pRmuu3simSbtJ7fiKdFPTCDXm3qSFQfpQA_R7PnPgJwuvuevVd57Wrahwqj7qu6HTsGbprNpquhnltkjfI2IuiD0RuUMoX8g5mxU8hNihhkMq5PCjWIVz21l3CkWYBFYYQCGKZ-_3cctnO1zRbKLBaaZ6OQ">
+</div>
+<h1 class="text-2xl font-serif italic text-brand-charcoal">Mithila Enterprises</h1>
+</div>
+<nav data-purpose="main-navigation">
+<ul class="flex flex-wrap justify-center gap-6 text-sm tracking-widest uppercase text-brand-charcoal">
+<li><a class="border-b border-brand-brown" href="#">Home</a></li>
+<li><a class="hover:text-brand-brown transition" href="#">About</a></li>
+<li><a class="hover:text-brand-brown transition" href="#">Toures</a></li>
+<li><a class="hover:text-brand-brown transition" href="#">Deetinanders</a></li>
+<li><a class="hover:text-brand-brown transition" href="#">Blog</a></li>
+<li><a class="hover:text-brand-brown transition" href="#">Contact</a></li>
+</ul>
+</nav>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: HeroSection -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-24" data-purpose="hero-section">
+<div class="space-y-6">
+<h2 class="text-5xl md:text-6xl font-serif text-brand-charcoal leading-tight">
+          Mithila Enterprises<br>Website
+        </h2>
+<p class="text-brand-charcoal opacity-80 max-w-md leading-relaxed">
+          This chove prototype for high-fidelity interactive website fras based on the original layout.
+        </p>
+<button class="bg-brand-brown text-white px-8 py-3 rounded-full shadow-lg hover:bg-brand-red transition-colors duration-300 font-serif">
+          Shop the Collection
+        </button>
+</div>
+<div class="flex justify-center items-center relative py-12">
+<div class="watercolor-glow absolute inset-0 rounded-full scale-110"></div>
+<div class="hero-mandala-frame">
+<img alt="Traditional Portrait" class="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover border-4 border-brand-cream relative z-10 shadow-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBND5MsC8kkyGlXbbOw5WAiiXFepBcrKkfaN-ucwE0ZNoeKdO9MY3cN1dzpEkbAnhSoRAdwyrL_8TertTg4bgohsqYNiu4VU_m0Bc6x2bTdgLY5Mxgz62AZ0mXrBfVLgty5z6Kshd9NGzAyI3Iwt_G4aJZ_CKqypoj1jiUn-wPoh906X_YOrILHCnx3XQFaeCk2bhhOA8lSOi9SJPNKlETibv0K4ZxxAJmdbwj-zn7ftGGOaCk1VB7SazN2O_284xjJpIUukCKS-A">
+</div>
+</div>
+</section>
+<!-- END: HeroSection -->
+<!-- BEGIN: TreeIllustrationSection -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-32" data-purpose="middle-illustration">
+<div class="flex justify-center relative">
+<div class="watercolor-glow absolute inset-0 rounded-full opacity-60"></div>
+<img alt="Sacred Tree Illustration" class="w-full max-w-sm relative z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUdG2BhfnSe28WYXjAqvBC_0d7rnxJoRsdlCj03sj4uJy9FSu-0zku5Gcctvu2GJkrGeVfHqunn4H0ky97etpngCI98wJz9lHTLmr717WcXJXjgkytCLiARWE8HLyOGDeh4Wj5XrT8ehYXSzdS0seyxHxSI6644mlGTEVHJWLGflbFT_sG4Z0Cphtf6zZVC1qXeu2GmxMbYH-V8GzeLzJEKqvXj133B7_w1jwha8lCEZ66M2Wvf7_BVXweJNerzTyyfq0WRIykJw">
+</div>
+<div class="space-y-4">
+<h3 class="text-4xl font-serif text-brand-charcoal italic">Shop the Collection</h3>
+<p class="text-sm leading-loose text-brand-charcoal opacity-90">
+          Our hight to inrsn reach ia high-resolution raw handloom cotton texture J-moe with bloomuion and eosilection. Terracotta seal shows a slight pressed, deepened ink effect with a soft inner glow.
+        </p>
+</div>
+</section>
+<!-- END: TreeIllustrationSection -->
+<!-- BEGIN: ProductGrid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-32" data-purpose="shop-collection">
+<!-- Product 1 -->
+<div class="product-card p-4 text-center">
+<div class="bg-gray-100 mb-4 h-64 overflow-hidden rounded-sm">
+<img alt="Elephua r samts" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsNg3J_ZSvisepfTKy24PCu7Bw44PIaR8KgsBtV8FeY2a46SV-WzhgkGmxkjprd_e33J4PSWNB-N8JPGTn9xZF3MIxCCtP1hvk4CNJWM6TMzrB3atRBFwT6LYxZYoY7ZQKkgfteVsY7ySYFWkt4E8x0r4EgPyn6ew4mxaa2ptk0abMEwtqgOWIq9S7LS3bvi4N6qcONJPxOWozMTZGs2RGTRZSzzIHA-JIe0bxxAZHAmcImxaDncsIGyKH-6znlVGjm0KvQ2paeA">
+</div>
+<h4 class="text-brand-charcoal text-sm uppercase tracking-wider mb-1">Elephua r samts</h4>
+<p class="text-brand-brown font-serif">$35.00</p>
+</div>
+<!-- Product 2 -->
+<div class="product-card p-4 text-center">
+<div class="bg-gray-100 mb-4 h-64 overflow-hidden rounded-sm">
+<img alt="Mharahad punes" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC2rl0RndE210m4y-mU_PnREpa6u8x2sG0d2m_q3vksphGttaguhMr31RpwO4hlCkJa22_s2oeMcplvCq5CSsOIXio8-RVvPXWsH_L-rB4LHJUP4raHvGSvbmghbp8BYxOLEINxx1J4Y4qAzVAdauvXJUUGiFT5jguFtIGDLlcWlDPZClfz720_-yDP02rLfRWsYbgJltLv50YgLoWjixIDbPymxp0abFSmJJuCEdaI6_c0ToWlaYpc0Pk9oXL6abc-kwliiiVzQ">
+</div>
+<h4 class="text-brand-charcoal text-sm uppercase tracking-wider mb-1">Mharahad punes</h4>
+<p class="text-brand-brown font-serif">$25.00</p>
+</div>
+<!-- Product 3 (Highlighted) -->
+<div class="product-card highlighted p-4 text-center">
+<div class="bg-gray-100 mb-4 h-64 overflow-hidden rounded-sm">
+<img alt="Kachni line growth" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUUZOkzwMPPpJgb0zPQZ905MXfN-OWuLXriWXyvUDmct_bVPnaKImww2yozrZbGOi544GsSsZnQ7XDD9LoEVnbz6VjUaSrbXg8WJxvP1V4ZgO2AgIhr7ubqjFxQZWkVfwZzIPVTMon-lwrbnLz1BO7OsfOiGC1enWE62rfDLkzceCPYn85sbVA1UZqjnB1JG2Q0g8OKVwUndYdkTrYhbH8thjdWijurDDTSKuKukERGfH1lbB6r2fC3cTv0ZAb28QT_573Q_38Mw">
+</div>
+<h4 class="text-brand-charcoal text-sm uppercase tracking-wider mb-1">Kachni line growth</h4>
+<p class="text-brand-red font-bold font-serif">$25.00</p>
+</div>
+<!-- Product 4 -->
+<div class="product-card p-4 text-center">
+<div class="bg-gray-100 mb-4 h-64 overflow-hidden rounded-sm">
+<img alt="Sachon bunnirs" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKwt50yu46DVIQ7RSrJR9Ea2iT5lStm1uxze2qWfPGQixVF-iXD50cRVYeM7hO9_xGg2FrTc_GDVRaHz9oqoF3V7Aw9t3M_Nc5hEXMwnZVI6DthS3XITId2SH4PKXVBRCaiPOMDBcou6EgW4HSIP3imAGs4SZH0M0Ez42ocFMC9ID1YFdgHSEFLGfYzSm-0ZZDYGzudy52Eyzs113r4DWLq5WXib8Vb3fPmmvWMGQ82tYHOxMWBbPPyBods6oF0pz8nj0_oo4vlA">
+</div>
+<h4 class="text-brand-charcoal text-sm uppercase tracking-wider mb-1">Sachon bunnirs</h4>
+<p class="text-brand-brown font-serif">$10.00</p>
+</div>
+</section>
+<!-- END: ProductGrid -->
+<!-- BEGIN: DecorativeRows -->
+<section class="space-y-16 mb-24 text-center" data-purpose="decorative-icon-rows">
+<div>
+<h3 class="text-3xl font-serif italic mb-8">Elephant Rows</h3>
+<div class="flex justify-between overflow-hidden opacity-60">
+<!-- Elephant Icons (Repeated) -->
+<img alt="Elephant" class="w-20 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjV_gJkNAaaHF7f1myhUUGulFYPpeOx2RgUTNEG3PeakTnSvfsb7Xzu2x9PsLFTHDS2ZQmDC-5EgxaoMFNb0M0qh-4NWBUB8LwzxzYLxrw8ZvjFMEFV7h3OU8_bUB5-IWTu-UqS0_Jt5yogj2Q011unlkNAja4ws4H_ct8IKYtd-o4lteEbDl5wAptCRMspXU1WDjlPf1E_gTvNQumWOcJoDEQtE9XsBH3y7oxgFZqMU7GGaZ9nfVhlmtL2t_2bQZWALLbiN677A">
+<img alt="Elephant" class="w-20 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfqo02_vcsTnv8N18pqnBx-GNLA1VZwewX6WtV13-qJulu6fItDYzbO1MO3ykGTuP1UrpPKTrAVe_BrNf7M_nwceVg87AAZjeHuuMiUvGd6SjOaOdMg7PeheIS4uWjwpKnDFkTbCvyNdc_zFxMi5PHZLDquTFO5EIUTu1JUKwf0bGbU9dv160G_1P11dkxDeD2veKQ6xe6b3H72675nPKbm78UECE6i5JE9zcDEtNN6Q_br0BC3eyFjnUOwMrDDUurJxgoGLGxgw">
+<img alt="Elephant" class="w-20 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_9WikCb1xNwcthNvgd7-w9TxR02ZCMJMfex5LkI7X01mIdjn0sn5_ArrSWBVjO-h7BxnhiDHGHIU0ZMBI6awdx6r1kBujE2tmn85ZUHdYAY2y5Y_rozj4_QE9v-2fLZ7RwDowPr6ty5lStUJGAbEntP73z4V5lDsIrw47W8Rj-aSDY8NRN8-fh0Rco9ukS96hG1VbRrCLvnkfhUK-ab0DsnEzJFAMu9vV46HdlX8dhxNH9frAht20uwnv8w6zd2RxzyK60bPrhw">
+<img alt="Elephant" class="w-20 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzlYzJ_S9UCI2lamRzVbAkOGeITJkRmBmEMlAFZs_OioKSri07usKvptv_lG-NGfWsPSlko2qJOJ-zaQ89B4V-qzeawd-L_40EtiS3QsZbZbrQ4lGUY_-bELkurGMYZzw_ILEZaFnOOmFUtGcoFO6pwQY9HSjorTcv6ftW8KRK3whZznb1uIYhnrVSe9BIMecj8SNwZeJjSo7lMefjv0QkRPg-li__0ojxsMs0_Zd8J8wV5EQ0IT8vFvpkJDKMVtEVWnlTomYKiw">
+<img alt="Elephant" class="w-20 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArxKZHC4u7mWqN7P0sdek5DgRTh2O5EJtK78aYQKoOGSXgeGwXcn3a1kHJvotxfJNbPSHOWRt0nZv8AC4f5XsxMbQJQCxpPoELygcYLfszodXc89UshoU6KKyB_g-j3ZFTsQByYoJ5pLNusut9iuPvm_EukZ1RUj037LgP40Ww7nJSA1pJp8xk1XMk36Xro2SDSKRpDQVgeXE41eL9WiG4GZ0ly48IjidkcSsRP9YyaoKNIAOItMlhKQnsPoJRkMwWRIPkGnaMIw">
+<img alt="Elephant" class="w-20 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV-eSwune0zf8NjmnYb8c4BMtt1WTIm0zOSIibOcUmCKibPCYXzvZKPjkq5LkydYh0up0NCr9Ohs-6bKGwocpfJWsdx0onXM4JxqJsSqYBr-huJUwWzOgW5uhErOaOoxkIcCsNdB-0a0aITmep_80UwOC3srxpkBf7bO6c2rBJFnBdHyCM93diuHdpjswN3IXxmyMsy9WWaGBANg1K1aR1kCsjURxkdTD1NvnPdwkDGLC-lnNq0pYlNPDHgrXkZC8h7SGmVtbqXw">
+</div>
+</div>
+<div>
+<h3 class="text-3xl font-serif italic mb-8">Peacock Row</h3>
+<div class="flex justify-around items-center gap-4">
+<!-- Peacock Icons -->
+<img alt="Peacock" class="w-24" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0iCE3S66kNRMdBdm9tGJW9v5X-Gw2FBVajR0fCJoPxkVfI9R0ut6MamvAPFzQncWAtMNDLUu1LvUEYMAl1j9-tc68LbeG_-rhqjKilXFAhmf5mRMQfn3tJysu4XoZpfHudcJfqSbpse5IdGBW-RRzS66Q8ZRZDrES82OsZG65mj_7qB9mPtnwc4wdvljDxpSiZr71EXXJ1AGtloDZu4l0SBRNgwmhAuqOe3a0H-ow1qfRpQNnDnkqc3kMQFj_muHQ7Nc8QkEC6w">
+<img alt="Peacock" class="w-24" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA50AIBxaY0Ng2fmCBMcKGtQYl0t_z65Z2NFfYku8Sx9JIBP6aJ4Ww9dpFMZwYx_8WV91zFC9MygObPGkfXXhK6uKW3ROB_um-JPEFU440TRcvmKJVP1PQH9kyWzwsaSjQXZxETWxUxhcj9pWaBCc2T6bOeKYLIYxnuUE12El1M_wGVLgYdrvFH98N7wYfAmxZfCfn0pfN94kiXGY8Jj20RmH6wM7YNta8t4lZFVX_LsBBV9ddz2z9PZpSy5DnMmodjulb80lLK7w">
+<img alt="Peacock" class="w-24" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpaun50Opsk91KlqiyBN7Kkgpy_PVkfeL2wSeot71cGp2FKbcDJOIyj6x2gDKSTJG-pgW8a0Ze2xwds1jP0nSMvdrjopaB2sROnRjuZB-ZHIXo1zjGP-ZX-6eFWwmKBng_I475ARYcsDOqm6XvglTfpt9CkuZGqoxA76p4Pju6KVmsiIvnrrFWe4U2fcwidE5ICBTfi9hlNwIBtM0CRwr3HLzsKpOGyJwywBY4oRJ4C6IS9GWbu_Slp4fHcp2o6cA7EhBxnBU5Bg">
+<img alt="Peacock" class="w-24" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJgDULv9mScmzwV5dVto5EWGTlsn_3XNaryb2dE-X-3Bwb9CsrQAWYERlgCyq88sL8e8QwUlZ-0NJHEOV5LgehaY9QwYbl2Shlsk1hwBctxWm8LAVXSOSoN88tUVXQ4Fgmg852_TizUJLgsjMkZcvbEBOITR8HqUvAygDCbq4A74Je06cTj0N_3xsHLLJHIicy0IhWkkGyF4DrDipivRjLRCxHsHuyE2wbCnVmyJmIMccLDBeiZuplm338gVy5uWRPRLxDXPlHgQ">
+<img alt="Peacock" class="w-24" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_jFIGXPoAPrPi8i0t8sxhRUWgK1YymdIXBDxRijIpngi8_hlFKhmJ01RnPU-lRlAMma2yUnxxwlVNb4CSZ1AQduk-pxK6lWrfm303d2NDoan0ktPQW83m_hLeibgjIPuPnBhUciYbrb11laqQbnwGAvh63hcCZ47I9O9iANB3MyTnSZJi1HdsiTcqbxsf-jPRCLQoOM91999_PTREPjppbj-mtN6zoPXEez_HjJqXCThxqSbNmIF5U8pE5_UWCBmFRu-t2xPYKA">
+<img alt="Peacock" class="w-24" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRQC8pa-oGzV6G2rTcTJtC0wqenctdroVY27vq7PJj75lTUcBB_HOx1nlDiuVr0SAvS99qn0-EDIxBeYb4nvqeegw6vBzYa8m8Fpb9a3mBDUhDLK-zmDtR9yfuPEmUw5gUlIX3HTRJoXEncCYnc8WYoGZMTMP1WSmaoGjjy_5re1zRWVOe4LHoBzZqVfM-rxZraMYG1u93MrnLQc7qXda7T7pHqt5_vjaLkPiRpzAGEW3wnvuagBiOQuZAqjSZt_koXw0n_lm7Yw">
+</div>
+</div>
+</section>
+<!-- END: DecorativeRows -->
+<!-- BEGIN: CalligraphyIcon -->
+<div class="flex justify-center mb-16" data-purpose="calligraphy-footer-icon">
+<img alt="Quill and Ink" class="w-24 opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADU8dTD1M2-Z34eXJUoeYIlqoFwkSxlyGvNoe3mnrzlqUtFLjXbdsZnli_dD2nypMaA1D0qdLc3gjPpE_Nd9V0nmMWGeKe3GWFK3p6uZl_bmPZnSnglzIqmOL6Z3GgPtpXzPhcBSkCfbzJ_xrCb706X_nIxAwej0l8LpZ51f835kFfH4sjMaLJyjEfbwdIw9db9-PlY1Bpg9lnCzmnXQaglNBYvlCflgSVzgS5n0SUD5DRIo2Izr9gjwMK-GyocFyqwTEH4F_47Q">
+</div>
+<!-- END: CalligraphyIcon -->
+</div>
+<!-- BEGIN: FooterWave -->
+<footer class="mt-12 relative">
+<div class="decorative-footer-wave w-full"></div>
+<div class="bg-blue-300/20 py-8 text-center text-xs tracking-widest text-brand-charcoal/50 uppercase">
+      © Mithila Enterprises. Handcrafted Traditions.
+    </div>
+</footer>
+<!-- END: FooterWave -->
+</body></html>
