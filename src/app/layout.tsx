@@ -3,6 +3,7 @@ import { Yatra_One, Lora } from "next/font/google";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 import Header from "@/components/Header";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const yatra = Yatra_One({
   weight: '400',
@@ -31,14 +32,16 @@ export default function RootLayout({
       className={`${yatra.variable} ${lora.variable} h-full antialiased`}
     >
       <body className="min-h-full font-lora">
-        <CustomCursor />
-        {/* Master Frame */}
-        <div className="border-ink-double min-h-screen p-6 m-4 relative flex flex-col">
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-        </div>
+        <SmoothScroll>
+          <CustomCursor />
+          {/* Master Frame */}
+          <div className="border-ink-double min-h-screen p-6 m-4 relative flex flex-col">
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+          </div>
+        </SmoothScroll>
       </body>
     </html>
   );

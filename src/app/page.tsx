@@ -5,20 +5,39 @@ import HeroSection from "@/components/HeroSection";
 import ProductGrid from "@/components/ProductGrid";
 import ScrollingDividers from "@/components/ScrollingDividers";
 import FooterRiver from "@/components/FooterRiver";
+import FadeUpBlur from "@/components/FadeUpBlur";
 
 export default function Home() {
   return (
     <EntranceAnimator>
       <div className="flex flex-col gap-16 py-8">
-        <HeroSection />
-        <ScrollingDividers type="elephant" />
+        {/* We add FadeUpBlur wrap for the initial load stagger */}
+        <FadeUpBlur delay={4}>
+          <HeroSection />
+        </FadeUpBlur>
+
+        <FadeUpBlur inView={true}>
+          <ScrollingDividers type="elephant" />
+        </FadeUpBlur>
+
         <ProductGrid title="Sarees" />
-        <ScrollingDividers type="peacock" />
+
+        <FadeUpBlur inView={true}>
+          <ScrollingDividers type="peacock" />
+        </FadeUpBlur>
+
         <ProductGrid title="Tunics" />
-        <ScrollingDividers type="elephant" />
+
+        <FadeUpBlur inView={true}>
+          <ScrollingDividers type="elephant" />
+        </FadeUpBlur>
+
         <ProductGrid title="Yardage" />
       </div>
-      <FooterRiver />
+
+      <FadeUpBlur inView={true}>
+        <FooterRiver />
+      </FadeUpBlur>
     </EntranceAnimator>
   );
 }
