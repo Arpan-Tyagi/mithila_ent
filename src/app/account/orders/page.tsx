@@ -8,6 +8,7 @@ export default async function OrdersPage() {
 
   // If no actual user during this scaffold, we'll simulate an empty state or fetch generally
   // In production, we'd filter by user.id
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let orders: any[] = [];
   if (user) {
     const { data } = await supabase
@@ -24,7 +25,7 @@ export default async function OrdersPage() {
       
       {orders.length === 0 ? (
         <div className="py-12 border-2 border-[var(--charcoal-ink)]/20 text-center">
-          <p className="font-sans opacity-70 mb-4">You haven't placed any orders yet.</p>
+          <p className="font-sans opacity-70 mb-4">You haven&apos;t placed any orders yet.</p>
           <Link href="/shop">
             <Button>Start Exploring</Button>
           </Link>
@@ -50,6 +51,7 @@ export default async function OrdersPage() {
                   </div>
                 </div>
                 <div className="space-y-4">
+                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                    {order.order_items.map((item: any) => (
                       <div key={item.id} className="flex justify-between items-center font-sans">
                          <div>

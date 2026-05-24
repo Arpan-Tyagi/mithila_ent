@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Package, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 export default function InventoryPage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [variants, setVariants] = useState<any[]>([]);
   const supabase = createClient();
 

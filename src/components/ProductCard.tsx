@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ProductCard({ product }: { product: any }) {
   const price = product.product_variants?.[0]?.price || 0;
   const image = product.product_variants?.[0]?.images?.[0] || '';

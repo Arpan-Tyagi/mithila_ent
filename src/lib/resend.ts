@@ -1,3 +1,3 @@
-export const sendEmail = async (to: string, subject: string, react: any) => {
+export const sendEmail = async (to: string, subject: string, _react: unknown) => {
   console.log(`[Resend Mock] Sending email to ${to} with subject: ${subject}`);
 };

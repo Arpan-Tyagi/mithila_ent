@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function StructuredData({ product }: { product?: any }) {
   const storeLd = {
     '@context': 'https://schema.org',

@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    staticGenerationMaxConcurrency: 1,
+  },
 };
 
 export default withPWA(nextConfig);

@@ -1,87 +1,563 @@
+"use client";
+
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
+import { motion, AnimatePresence, useScroll } from 'framer-motion';
+import { useState } from 'react';
+
+// Animation spring configurations matching Sonic's elite motion curves
+const springTransition = { type: "spring" as const, bounce: 0.15, duration: 0.8 };
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.05
+    }
+  }
+};
+
+const fadeUpItem = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: springTransition }
+};
+
+// Scroll Reveal variants for viewport elements
+const scrollRevealVariants = {
+  hidden: { opacity: 0, y: 35 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: "spring" as const, bounce: 0.1, duration: 0.8 } 
+  }
+};
+
+const staggerGridContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+    }
+  }
+};
+
+const gridItemVariants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: "spring" as const, bounce: 0.15, duration: 0.8 } 
+  }
+};
+
+// Premium Text Reveal Line Mask
+function AnimatedTitle({ text }: { text: string }) {
+  const words = text.split(" ");
+  return (
+    <h1 className="font-serif italic text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] text-zinc-900 overflow-hidden flex flex-wrap gap-x-3">
+      {words.map((word, idx) => (
+        <span key={idx} className="block overflow-hidden relative">
+          <motion.span
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            transition={{ type: "spring", bounce: 0.1, duration: 0.8, delay: idx * 0.05 }}
+            className="block"
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </h1>
+  );
+}
 
 export default function Home() {
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const { scrollYProgress } = useScroll();
+
+  const faqs = [
+    {
+      q: "What makes your fabrics stand out?",
+      a: "Every fabric swatch is loomed by master artisans using unbleached raw organic cotton and linen, then hand-detailed with natural pigments (derived from flowers, seeds, and charcoal ink) inspired by the ancient Madhubani art."
+    },
+    {
+      q: "Are your fabrics compatible with all designs?",
+      a: "Absolutely. Our pigments are derived strictly from organic botanical sources—like turmeric for yellow, indigo plants for blue, and madder root for deep red—completely free of synthetic chemicals or heavy metals."
+    },
+    {
+      q: "How long does the weaving process take?",
+      a: "We specialize in partnership orders for boutique brands and fashion collectors. Standard weaves take 2-3 weeks, while custom Jamdani layouts can take 4-6 weeks to loom, dry, and cure."
+    },
+    {
+      q: "Are the fabrics waterproof or pre-washed?",
+      a: "All organic fabrics are pre-washed and natural-shrunk. They are highly breathable and retain their pigment structure. We recommend gentle hand washing in cold water."
+    },
+    {
+      q: "Do you offer a warranty on organic vegetable dyes?",
+      a: "Yes. We offer a lifetime heritage support on dye settings. If properly maintained (dry in shade, pH-neutral detergents), our botanical pigments retain their brilliance for generations."
+    }
+  ];
+
+  const blogs = [
+    {
+      title: "Wireless Looms: The Evolution of Shuttle Weaving",
+      date: "Feb 1, 2026",
+      desc: "Stay updated with the latest trends in organic weaving, handloom innovations, and expert tips to enhance your fabric durability.",
+      img: "https://images.unsplash.com/photo-1598425237654-4c05bf607590?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+      title: "Indigo Dyeing and Beyond: Organic Pigment Fermentation",
+      date: "Feb 4, 2026",
+      desc: "Delving deep into traditional vat indigo fermentation methods and vegetable-based natural dye preservation techniques.",
+      img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+      title: "Eco-Friendly Handloom Solutions for Modern Brands",
+      date: "Feb 7, 2026",
+      desc: "How boutique designers are leveraging organic GOTS certified cotton and fair-trade artisans to build sustainable luxury lines.",
+      img: "https://images.unsplash.com/photo-1583391733958-d25e07fac662?q=80&w=400&auto=format&fit=crop"
+    }
+  ];
+
+  const brandTags = [
+    "🌾 100% GOTS Certified Cotton",
+    "🎨 Fermented Indigo Dyes",
+    "🧵 Hand-Shuttle Looms",
+    "🏡 Fair-Trade Artisan Guilds",
+    "🍃 Zero Chemical Curing",
+    "🕊️ Sustainable Livelihoods",
+    "✨ Heritage Madhubani Linens"
+  ];
+
   return (
-    <main className="flex-grow">
-      {/* HERO SECTION */}
-      <section className="relative w-full min-h-[85vh] flex items-center bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)] overflow-hidden">
-        {/* Abstract Background Pattern mimicking Bharni */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 70% 30%, var(--madder-red) 0%, transparent 40%), radial-gradient(circle at 30% 80%, var(--turmeric) 0%, transparent 40%)' }}></div>
-        
-        <div className="container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center text-center">
-          <span className="font-sans font-bold tracking-[0.3em] text-[var(--turmeric)] mb-6">HERITAGE WOVEN</span>
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-black max-w-5xl leading-tight mb-8">
-            The Canvas of <span className="text-[var(--madder-red)]">Mithila</span>
-          </h1>
-          <p className="font-sans text-lg md:text-xl max-w-2xl opacity-80 mb-12 leading-relaxed">
-            Premium wholesale cotton and linen fabrics, bringing the intricate geometric perfection and earthy tones of Madhubani art to your wardrobe.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6">
-            <Link href="/shop">
-              <Button className="bg-[var(--turmeric)] text-[var(--charcoal-ink)] border-[var(--turmeric)] hover:bg-[var(--madder-red)] hover:text-[var(--unbleached-cotton)] hover:border-[var(--madder-red)]">
-                Explore Fabrics
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button variant="outline" className="border-[var(--unbleached-cotton)] text-[var(--unbleached-cotton)] hover:bg-[var(--unbleached-cotton)] hover:text-[var(--charcoal-ink)] hover:border-[var(--unbleached-cotton)]">
-                Our Story
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        {/* Bottom decorative border */}
-        <div className="absolute bottom-0 w-full h-8 kachni-border bg-[var(--unbleached-cotton)]"></div>
-      </section>
+    <main className="flex-grow w-full bg-[#fafafa] text-zinc-900 pt-32 pb-24 font-sans overflow-x-hidden relative">
+      
+      {/* Scroll Progress Bar at the very top */}
+      <motion.div 
+        style={{ scaleX: scrollYProgress }} 
+        className="fixed top-[72px] md:top-[88px] left-0 right-0 h-1 bg-purple-600 origin-left z-50 transition-all duration-300"
+      />
 
-      {/* FEATURED CATEGORIES SECTION */}
-      <section className="py-24 bg-[var(--unbleached-cotton)]">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-[var(--charcoal-ink)]">Curated Weaves</h2>
-            <Link href="/shop" className="hidden md:flex font-sans font-bold tracking-widest text-[var(--madder-red)] hover:text-[var(--turmeric)] transition-colors">
-              VIEW ALL
-            </Link>
-          </div>
+      {/* 1. HERO SECTION */}
+      <section className="relative w-full max-w-7xl mx-auto px-6 py-16 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Category Card Placeholder 1 */}
-            <Link href="/category/cotton" className="group relative aspect-[4/5] overflow-hidden rounded-sm border-2 border-[var(--charcoal-ink)] bg-white flex flex-col">
-              <div className="flex-grow bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                {/* Image placeholder */}
-                <div className="absolute inset-0 bg-neutral-200 group-hover:scale-105 transition-transform duration-700"></div>
-              </div>
-              <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)] group-hover:bg-[var(--madder-red)] transition-colors duration-300">
-                <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] group-hover:text-[var(--unbleached-cotton)]">Pure Cotton</h3>
-                <p className="font-sans text-sm mt-2 text-[var(--charcoal-ink)] opacity-70 group-hover:text-[var(--unbleached-cotton)]">Breathable everyday weaves.</p>
-              </div>
-            </Link>
+          {/* Hero Left Content */}
+          <motion.div 
+            initial="hidden"
+            animate="show"
+            variants={staggerContainer}
+            className="space-y-6 text-left max-w-xl"
+          >
+            <motion.span 
+              variants={fadeUpItem}
+              className="inline-block px-3 py-1 rounded-full border border-zinc-200 bg-white text-zinc-800 text-xs font-semibold uppercase tracking-wider shadow-sm"
+            >
+              Artisanal Heritage Revival
+            </motion.span>
             
-            {/* Category Card Placeholder 2 */}
-            <Link href="/category/linen" className="group relative aspect-[4/5] overflow-hidden rounded-sm border-2 border-[var(--charcoal-ink)] bg-white flex flex-col">
-              <div className="flex-grow bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-neutral-300 group-hover:scale-105 transition-transform duration-700"></div>
-              </div>
-              <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)] group-hover:bg-[var(--turmeric)] transition-colors duration-300">
-                <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] group-hover:text-[var(--charcoal-ink)]">Fine Linen</h3>
-                <p className="font-sans text-sm mt-2 text-[var(--charcoal-ink)] opacity-70 group-hover:text-[var(--charcoal-ink)]">Structured, elegant drapes.</p>
-              </div>
-            </Link>
+            <AnimatedTitle text="Loomed by Hand, Loved by Heart" />
 
-             {/* Category Card Placeholder 3 */}
-             <Link href="/category/blends" className="group relative aspect-[4/5] overflow-hidden rounded-sm border-2 border-[var(--charcoal-ink)] bg-white flex flex-col">
-              <div className="flex-grow bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-neutral-400 group-hover:scale-105 transition-transform duration-700"></div>
+            <motion.h4 
+              variants={fadeUpItem}
+              className="text-lg md:text-xl font-medium text-zinc-800 leading-snug"
+            >
+              Experience the premium comfort of authentic Mithila cotton and pure linen.
+            </motion.h4>
+            
+            <motion.h4
+              variants={fadeUpItem}
+              className="text-sm md:text-base text-zinc-500 font-medium leading-relaxed"
+            >
+              Ancestral handloom weaving, organic botanical dye curing, and a sleek, modern design make these fabrics the perfect addition to any wardrobe or home space.
+            </motion.h4>
+
+            <motion.p 
+              variants={fadeUpItem}
+              className="text-xs md:text-sm opacity-75 leading-relaxed text-zinc-400"
+            >
+              Our most recent breakthrough in handloom textiles blends exceptional weaving performance with unparalleled durability and elegance. Designed for modern living, this organic weave blends premium comfort with intuitive styling.
+            </motion.p>
+            
+            <motion.div 
+              variants={fadeUpItem}
+              className="flex flex-wrap gap-4 pt-2"
+            >
+              <Link 
+                href="/shop" 
+                className="px-6 py-3.5 bg-black hover:bg-zinc-800 text-white font-sans text-xs uppercase font-bold tracking-widest rounded-lg transition-all duration-300 shadow-sm"
+              >
+                Buy now
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Hero Right Visual (Vibrant bright cotton fabric showcase with floating keyframes) */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              y: [0, -12, 0],
+              transition: {
+                y: {
+                  repeat: Infinity,
+                  duration: 5,
+                  ease: "easeInOut"
+                },
+                opacity: { duration: 0.8 },
+                scale: { type: "spring", bounce: 0.15, duration: 0.8 }
+              }
+            }}
+            className="relative flex justify-center lg:justify-end"
+          >
+            <div className="relative w-full max-w-[450px] aspect-[4/5] overflow-hidden rounded-2xl border border-zinc-100 bg-white p-3 shadow-md hover:scale-[1.02] transition-transform duration-500 cursor-pointer">
+              <img 
+                src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=600&auto=format&fit=crop" 
+                alt="Bright Hot Pink and Yellow Cotton Fabric Reels" 
+                className="w-full h-full object-cover object-center rounded-xl" 
+              />
+            </div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* 2. INFINITE SCROLLING CERTIFICATION TICKER */}
+      <section className="w-full py-8 bg-white border-y border-zinc-100 overflow-hidden relative">
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        
+        <div className="container mx-auto px-6 max-w-7xl mb-4">
+          <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-zinc-400 text-center">
+            Trusted by Thousands, Engineered for Excellence
+          </h3>
+        </div>
+
+        <div className="flex whitespace-nowrap overflow-hidden relative mt-4">
+          {/* Loop items infinitely using Framer Motion */}
+          <motion.div 
+            animate={{ x: [0, -1200] }}
+            transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+            className="flex gap-16 whitespace-nowrap font-serif italic text-base text-zinc-500 font-bold opacity-80"
+          >
+            {/* Double the array for seamless endless marquee looping */}
+            {[...brandTags, ...brandTags].map((tag, idx) => (
+              <span key={idx} className="flex items-center gap-2">
+                {tag}
+              </span>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 3. DOUBLE COLUMN FEATURES / OVERVIEW */}
+      <section className="w-full py-24 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={scrollRevealVariants}
+            className="space-y-6"
+          >
+            <span className="text-purple-600 font-sans text-xs uppercase tracking-wider font-semibold">Our latest innovation</span>
+            <h2 className="font-serif italic text-3xl md:text-5xl font-bold leading-tight text-zinc-950">
+              Our latest fabrics combine superior handloom thread density with unmatched organic durability
+            </h2>
+            <h4 className="font-sans text-base md:text-lg text-zinc-600 font-medium">
+              Designed for modern living, this organic weave blends premium comfort with intuitive styling.
+            </h4>
+            <p className="font-sans text-sm text-zinc-500 leading-relaxed text-justify">
+              Every piece of fabric is custom loomed by rural Bihar artisans using traditional warp-weft crossings. This manual control forms a high-density matrix of cotton slubs, bringing rich material texture, longevity, and breathability.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerGridContainer}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+          >
+            {/* The Perfect Sound, Anywhere & Smart. Sleek. Powerful copy mapping */}
+            <motion.div 
+              variants={gridItemVariants}
+              whileHover={{ y: -3 }}
+              className="sonic-bento-card p-6 flex flex-col justify-between h-80 bg-white"
+            >
+              <div>
+                <span className="text-purple-600 font-sans uppercase text-[10px] tracking-wider font-bold">The Perfect Swatch, Anywhere</span>
+                <h4 className="font-serif italic font-bold text-lg mt-3">Satin Weaves</h4>
+                <p className="font-sans text-xs text-zinc-500 leading-relaxed mt-2 text-justify">
+                  Our organic linen is designed to fill your space with rich, high-fidelity texture—whether you are designing a high-fashion apparel line or decorating your home.
+                </p>
               </div>
-              <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)] group-hover:bg-[var(--indigo-dye)] transition-colors duration-300">
-                <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] group-hover:text-[var(--unbleached-cotton)]">Heritage Blends</h3>
-                <p className="font-sans text-sm mt-2 text-[var(--charcoal-ink)] opacity-70 group-hover:text-[var(--unbleached-cotton)]">Complex textures and strength.</p>
+              <div className="w-full h-24 overflow-hidden rounded-xl border border-zinc-50 mt-4">
+                <img src="https://images.unsplash.com/photo-1598425237654-4c05bf607590?q=80&w=300&auto=format&fit=crop" className="w-full h-full object-cover" alt="Satin weaves" />
               </div>
-            </Link>
+            </motion.div>
+
+            <motion.div 
+              variants={gridItemVariants}
+              whileHover={{ y: -3 }}
+              className="sonic-bento-card p-6 flex flex-col justify-between h-80 bg-white"
+            >
+              <div>
+                <span className="text-yellow-600 font-sans uppercase text-[10px] tracking-wider font-bold">Smart. Sleek. Powerful.</span>
+                <h4 className="font-serif italic font-bold text-lg mt-3">Jamdani Weaves</h4>
+                <p className="font-sans text-xs text-zinc-500 leading-relaxed mt-2 text-justify">
+                  Designed for modern living, this organic weave blends premium material softness with intuitive care instructions and raw handloomed structural grace.
+                </p>
+              </div>
+              <div className="w-full h-24 overflow-hidden rounded-xl border border-zinc-50 mt-4">
+                <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=300&auto=format&fit=crop" className="w-full h-full object-cover" alt="Jamdani weaves" />
+              </div>
+            </motion.div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* 4. "WHY US" & BENTO STATS GRID (1-to-1 content alignment) */}
+      <section className="w-full py-24 bg-white border-y border-zinc-100">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className="text-purple-600 font-sans text-xs uppercase tracking-wider font-semibold">Why us?</span>
+            <h2 className="font-serif italic text-3xl md:text-4xl font-bold">Engineered for Excellence, Trusted by Thousands</h2>
+            <p className="font-sans text-sm text-zinc-500 leading-relaxed">
+              Our commitment to innovation and heritage weaving quality has earned the trust of premium designers and patrons worldwide. Sleek designs, our creations are loomed to impress.
+            </p>
+          </div>
+
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerGridContainer}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {[
+              { stat: "500+", title: "Master Weavers", desc: "Our fabrics have reached over 500 active artisan households, sustaining rural families." },
+              { stat: "100%", title: "Natural Vegetable Dyes", desc: "Thousands of reviews praise our unmatched botanical dye vibrancy and saturated thread cure." },
+              { stat: "100+", title: "Countries Shipped", desc: "Our organic fabrics are loved, ordered, and shipped across more than 100 countries." }
+            ].map((item, idx) => (
+              <motion.div 
+                key={idx}
+                variants={gridItemVariants}
+                whileHover={{ y: -4 }}
+                className="sonic-bento-card p-8 flex flex-col justify-between h-64"
+              >
+                <span className="font-serif italic text-5xl font-bold text-zinc-900 leading-none mb-3">
+                  {item.stat}
+                </span>
+                <div>
+                  <h4 className="font-sans font-bold text-base text-zinc-800 mb-1">{item.title}</h4>
+                  <p className="font-sans text-xs text-zinc-500 leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 5. SPOTLIGHT FEATURE ("Timeless Elegance" & "In reality" mapping) */}
+      <section className="w-full py-24 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", bounce: 0.1, duration: 1 }}
+            className="relative flex justify-center lg:justify-start"
+          >
+            <div className="relative w-full max-w-[500px] aspect-[4/3] overflow-hidden rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm hover:scale-[1.01] transition-transform duration-500">
+              <img 
+                src="https://images.unsplash.com/photo-1583391733958-d25e07fac662?q=80&w=600&auto=format&fit=crop" 
+                alt="Intricate Handloom fabric curations" 
+                className="w-full h-full object-cover rounded-xl" 
+              />
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={scrollRevealVariants}
+            className="space-y-6"
+          >
+            <span className="text-purple-600 font-sans text-xs uppercase tracking-wider font-semibold">In reality</span>
+            <h2 className="font-serif italic text-3xl md:text-5xl font-bold text-zinc-950">Timeless Elegance</h2>
+            <h4 className="font-sans text-base md:text-lg text-zinc-600 font-medium">
+              Enhance your space with a perfect blend of modern design and warm ambiance.
+            </h4>
+            <p className="font-sans text-sm text-zinc-500 leading-relaxed text-justify">
+              Our handloom sarees, tunics, and fabric rolls bring style and sophistication to any creative project. Designed for modern living, this organic collection merges traditional grace with a highly minimal, sleek contemporary layout.
+            </p>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* 6. FAQ ACCORDION ("Everything You Need to Know...") */}
+      <section id="faq" className="w-full max-w-4xl mx-auto py-24 px-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={scrollRevealVariants}
+          className="text-center mb-16 space-y-3"
+        >
+          <span className="text-purple-600 font-sans text-xs uppercase tracking-wider font-semibold font-bold">Welcome to Beyond FAQ!</span>
+          <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-zinc-950">Everything You Need to Know About Our Fabrics</h2>
+        </motion.div>
+
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerGridContainer}
+          className="space-y-4"
+        >
+          {faqs.map((faq, index) => {
+            const isOpen = activeFaq === index;
+            return (
+              <motion.div 
+                key={index} 
+                variants={gridItemVariants}
+                className="sonic-bento-card overflow-hidden"
+              >
+                <button
+                  onClick={() => setActiveFaq(isOpen ? null : index)}
+                  className="w-full flex items-center justify-between p-6 text-left font-serif text-lg md:text-xl font-bold italic text-zinc-900 focus:outline-none"
+                >
+                  <span>{faq.q}</span>
+                  <span className="text-2xl transform transition-transform duration-300 ml-4 font-sans text-zinc-400">
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+                
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <div className="px-6 pb-6 pt-2 font-sans text-sm text-zinc-600 border-t border-zinc-100 bg-zinc-50/50 leading-relaxed">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </section>
+
+      {/* 7. INSIGHTS / WEAVERS' BLOG GRID */}
+      <section className="w-full py-24 bg-white border-y border-zinc-100">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex flex-col items-center">
+            <motion.span 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={scrollRevealVariants}
+              className="text-xs font-semibold uppercase tracking-wider text-purple-600 mb-3"
+            >
+              Blogs
+            </motion.span>
+            <motion.h2 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={scrollRevealVariants}
+              className="font-serif italic text-3xl md:text-5xl font-bold mb-4 text-center text-zinc-950"
+            >
+              Sound Insights
+            </motion.h2>
+            <motion.p
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={scrollRevealVariants}
+              className="text-zinc-500 font-sans text-sm max-w-md text-center mb-16 leading-relaxed"
+            >
+              Stay updated with the latest trends in organic weaving, handloom innovations, and expert care tips to enhance your heritage fabrics.
+            </motion.p>
+            
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerGridContainer}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full"
+            >
+              {blogs.map((blog, idx) => (
+                <motion.div 
+                  key={idx} 
+                  variants={gridItemVariants}
+                  className="sonic-bento-card group flex flex-col w-full max-w-sm mx-auto bg-white p-4"
+                >
+                  <div className="aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden border border-zinc-100 relative mb-4">
+                    <img src={blog.img} alt={blog.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                  </div>
+                  <div className="px-1 space-y-2 flex-grow flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 font-semibold">{blog.date}</span>
+                      <h3 className="font-serif italic font-bold text-lg text-zinc-950 mt-1 line-clamp-2 group-hover:text-purple-600 transition-colors leading-snug">{blog.title}</h3>
+                      <p className="font-sans text-xs text-zinc-500 mt-2 line-clamp-3 leading-relaxed">{blog.desc}</p>
+                    </div>
+                    <Link href="/shop" className="text-xs font-bold text-purple-600 hover:text-black transition-colors uppercase tracking-wider block mt-4 pt-2 border-t border-zinc-50">
+                      Read Article &rarr;
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
+
+      {/* 8. CTA BANNER ("Bring every room together") */}
+      <motion.section 
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={scrollRevealVariants}
+        className="relative w-full max-w-5xl mx-auto px-6 pt-24 pb-12"
+      >
+        <div className="bg-black text-white rounded-2xl p-8 md:p-16 shadow-lg relative overflow-hidden">
+          
+          <div className="relative z-10 max-w-2xl space-y-6">
+            <span className="text-xs uppercase font-bold tracking-widest text-zinc-400">Bring every room together</span>
+            <h2 className="font-serif italic text-3xl md:text-5xl font-bold leading-tight">
+              Get yours - 15% off
+            </h2>
+            <p className="font-sans text-sm md:text-base opacity-80 leading-relaxed">
+              Experience our latest handloom cotton innovation, delivering exceptional material softness, unbeatable durability, and modern minimalist design.
+            </p>
+            <div className="flex flex-wrap gap-4 pt-2">
+              <Link 
+                href="/shop" 
+                className="px-6 py-3 bg-white text-black hover:bg-zinc-100 font-sans text-xs uppercase font-bold tracking-widest rounded-lg transition-colors shadow-sm hover:scale-[1.02]"
+              >
+                Buy now
+              </Link>
+            </div>
+          </div>
+
+        </div>
+      </motion.section>
+
     </main>
   );
 }

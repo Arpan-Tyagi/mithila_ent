@@ -1,7 +1,20 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export default function SignupPage() {
+  const router = useRouter();
+
+  const handleSignup = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulate successful signup
+    setTimeout(() => {
+      router.push('/');
+    }, 800);
+  };
+
   return (
     <main className="flex-grow bg-[var(--unbleached-cotton)] py-24 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white border-2 border-[var(--charcoal-ink)] p-8 rounded-sm shadow-2xl relative">
@@ -10,7 +23,7 @@ export default function SignupPage() {
         <h1 className="font-serif text-3xl font-bold text-[var(--charcoal-ink)] mb-2 mt-4 text-center">Join Mithila</h1>
         <p className="font-sans text-sm opacity-70 text-center mb-8">Create an account to track orders and save details.</p>
         
-        <form className="space-y-6">
+        <form onSubmit={handleSignup} className="space-y-6">
           <div>
             <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Full Name</label>
             <input type="text" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--turmeric)] transition-colors" />

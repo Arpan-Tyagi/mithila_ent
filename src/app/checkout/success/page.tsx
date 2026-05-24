@@ -22,7 +22,7 @@ export default function CheckoutSuccessPage() {
           Order Confirmed
         </h1>
         <p className="font-sans text-lg opacity-70 mb-8">
-          Thank you for choosing Mithila Enterprises. Your order is being prepared by our artisans. We've sent a confirmation invoice to your email and WhatsApp.
+          Thank you for choosing Mithila Enterprises. Your order is being prepared by our artisans. We&apos;ve sent a confirmation invoice to your email and WhatsApp.
         </p>
         <div className="flex justify-center gap-4">
           <Link href="/account/orders">
