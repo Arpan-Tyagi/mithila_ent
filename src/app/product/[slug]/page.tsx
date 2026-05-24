@@ -4,6 +4,7 @@ import AddToCartButton from './AddToCartButton';
 import { Metadata } from 'next';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
+import { MotionDiv } from '@/components/Motion';
 
 export const revalidate = 3600;
 
@@ -71,7 +72,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           {/* Images */}
-          <div className="space-y-4 sticky top-32">
+          <MotionDiv 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-4 sticky top-32"
+          >
             <div className="aspect-[3/4] bg-white/60 backdrop-blur-sm rounded-lg overflow-hidden relative shadow-sm border border-[var(--charcoal-ink)]/10">
                {defaultVariant.images[0] ? (
                   <img src={defaultVariant.images[0]} alt={product.title} className="w-full h-full object-cover" />
@@ -89,10 +95,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 ))}
               </div>
             )}
-          </div>
+          </MotionDiv>
 
           {/* Details */}
-          <div className="flex flex-col justify-center">
+          <MotionDiv 
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col justify-center"
+          >
             <h1 className="font-serif italic text-4xl md:text-6xl font-bold text-[var(--charcoal-ink)] mb-4 leading-tight">
               {product.title}
             </h1>
@@ -155,7 +166,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 </div>
               </details>
             </div>
-          </div>
+          </MotionDiv>
         </div>
       </div>
     </main>

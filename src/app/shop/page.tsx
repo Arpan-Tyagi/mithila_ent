@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { MOCK_VARIANTS } from '@/lib/mock-data';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
+import { MotionDiv, MotionLink } from '@/components/Motion';
 
 export const revalidate = 3600; // ISR cache for 1 hour
 
@@ -32,7 +33,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <div className="container mx-auto px-4 md:px-8 max-w-7xl relative z-10">
         
         {/* Page Header */}
-        <div className="mb-12 space-y-4">
+        <MotionDiv 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-12 space-y-4"
+        >
           <span className="text-xs uppercase font-bold tracking-widest text-[var(--madder-red)]">Premium Collections</span>
           <h1 className="font-serif italic text-4xl md:text-5xl font-bold text-[var(--charcoal-ink)]">
             {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Registry` : 'Our Fabric Registry'}
@@ -44,7 +50,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               ? "Our artisanal textile wholesale linen offers a crisp, dry hand-feel and exceptional thermal regulation. Handwoven by master craftspeople in Mithila, this pure linen yardage acts as a natural insulator—drawing heat away from the body in summer and trapping warmth during winter. The distinct structural ridges of the hand-spun flax fibers catch the light, offering a muted, sophisticated luster. Over time, the stiff initial drape surrenders, yielding a fluid, butter-soft textile that drapes precisely to the form without losing its foundational strength."
               : "Browse through our organically loomed fabric swatches. Each swatch is hand-selected and dyed in natural plant pigments. Every thread holds the tension of the wooden loom, offering a structural integrity that machine-made fabrics simply cannot replicate."}
           </p>
-        </div>
+        </MotionDiv>
         
         {/* Clean Filter Sidebar/Header */}
         <div className="flex flex-wrap gap-3 mb-16 border-b border-[var(--charcoal-ink)]/10 pb-6 font-sans text-xs">
@@ -65,8 +71,16 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         {/* Polaroid Card Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10">
           {variants.length > 0 ? (
-            variants.map((variant) => (
-              <Link key={variant.id} href={`/product/${variant.products?.slug}`} className="polaroid-card group flex flex-col w-full max-w-sm mx-auto bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10 backdrop-blur-sm">
+            variants.map((variant, index) => (
+              <MotionLink 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                key={variant.id} 
+                href={`/product/${variant.products?.slug}`} 
+                className="polaroid-card group flex flex-col w-full max-w-sm mx-auto bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10 backdrop-blur-sm"
+              >
                 <div className="aspect-[3/4] bg-neutral-100 rounded-lg overflow-hidden border border-[var(--charcoal-ink)]/5 relative mb-4">
                   {variant.images && variant.images[0] ? (
                     <img src={variant.images[0]} alt={variant.products?.title || 'Product'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -86,7 +100,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   <p className="font-sans text-xs text-zinc-500">{variant.color} colorway</p>
                   <p className="font-sans font-bold text-sm text-[var(--indigo-dye)] mt-2">₹{variant.price} / meter</p>
                 </div>
-              </Link>
+              </MotionLink>
             ))
           ) : (
             <div className="col-span-full py-24 text-center opacity-70 sonic-bento-card bg-[var(--charcoal-ink)]/5 p-8 border border-[var(--charcoal-ink)]/10 backdrop-blur-sm">
