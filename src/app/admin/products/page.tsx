@@ -11,11 +11,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  async function fetchProducts() {
+  const fetchProducts = async () => {
     const { data } = await supabase
       .from('products')
       .select('*, categories(name), product_variants(id, stock_quantity, price)')
@@ -23,6 +19,10 @@ export default function ProductsPage() {
     if (data) setProducts(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product and all its variants?')) return;

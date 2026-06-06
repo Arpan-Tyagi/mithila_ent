@@ -12,15 +12,15 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  async function fetchCategories() {
+  const fetchCategories = async () => {
     const { data } = await supabase.from('categories').select('*').order('name');
     if (data) setCategories(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();

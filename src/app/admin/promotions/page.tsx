@@ -17,15 +17,15 @@ export default function AdminPromotions() {
     value: 10,
   });
 
-  useEffect(() => {
-    fetchDiscounts();
-  }, []);
-
-  async function fetchDiscounts() {
+  const fetchDiscounts = async () => {
     const { data } = await supabase.from('discounts').select('*').order('created_at', { ascending: false });
     if (data) setDiscounts(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchDiscounts();
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
