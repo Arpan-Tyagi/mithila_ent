@@ -28,7 +28,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </div>
       ) : (
         <div className="text-center py-24 border-2 border-dashed border-[var(--charcoal-ink)]/20 rounded-xl opacity-50 max-w-xl mx-auto">
-          <p className="font-serif italic text-2xl font-bold mb-2">No fabrics found</p>
+          <p className="font-serif italic text-2xl font-bold mb-2">Coming Soon!</p>
           <p className="font-sans text-sm">We couldn&apos;t find anything matching your search. Try different keywords.</p>
         </div>
       )}

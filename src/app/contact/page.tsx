@@ -87,7 +87,7 @@ export default function ContactPage() {
                     <p className="text-zinc-600 leading-relaxed">X-3458/7, Street -1, Raghubar Pura -2, Gandhi Nagar, DELHI - 110031</p>
                   </div>
                   <div>
-                    <span className="block font-bold text-[10px] uppercase opacity-40">Artisan Workshop</span>
+                    <span className="block font-bold text-[10px] uppercase opacity-40">Warehouse</span>
                     <p className="text-zinc-600 leading-relaxed">TA-106, Okhla Estate Marg, Tughlakabad Extension, Kalkaji New Delhi, Delhi 110019</p>
                   </div>
                   <div>

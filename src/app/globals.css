@@ -3,7 +3,7 @@
 :root {
   /* Sonic Inspired Modern Palette & Mithila Accents */
   --bg-color: var(--unbleached-cotton);
-  --card-bg: #eae3ce; /* Visibly elegant darker shade of the background */
+  --card-bg: #e8e4bb; /* Visibly elegant darker shade of the background */
   --text-primary: #18181b;
   --text-secondary: #52525b;
   
@@ -14,7 +14,7 @@
   --madhubani-green: #16a34a; /* Vibrant Leaf Green */
   
   --charcoal-ink: #1c1917; /* Deep, slightly warm black for fine lines */
-  --unbleached-cotton: #fefce8; /* Warm, natural canvas off-white */
+  --unbleached-cotton: #f7f3cc; /* Warm, natural canvas off-white */
   --lotus-pink: #f472b6; /* Vibrant pink for floral accents */
   --parrot-green: #4ade80; /* Bright green for peacock feathers */
   

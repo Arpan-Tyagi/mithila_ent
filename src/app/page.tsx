@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import Image from 'next/image';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
+import { MOCK_VARIANTS } from '@/lib/mock-data';
 
 // Animation spring configurations matching Sonic's elite motion curves
 const springTransition = { type: "spring" as const, bounce: 0.15, duration: 0.8 };
@@ -35,6 +36,24 @@ const scrollRevealVariants = {
   }
 };
 
+const slideInLeftVariants = {
+  hidden: { opacity: 0, x: -80 },
+  visible: { 
+    opacity: 1, 
+    x: 0, 
+    transition: { type: "spring" as const, bounce: 0.1, duration: 1.2 } 
+  }
+};
+
+const slideInRightVariants = {
+  hidden: { opacity: 0, x: 80 },
+  visible: { 
+    opacity: 1, 
+    x: 0, 
+    transition: { type: "spring" as const, bounce: 0.1, duration: 1.2 } 
+  }
+};
+
 const staggerGridContainer = {
   hidden: { opacity: 0 },
   visible: {
@@ -58,9 +77,9 @@ const gridItemVariants = {
 function AnimatedTitle({ text }: { text: string }) {
   const words = text.split(" ");
   return (
-    <h1 className="font-serif italic text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] text-zinc-900 overflow-hidden flex flex-wrap gap-x-3">
+    <h1 className="font-serif italic text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] text-zinc-900 flex flex-wrap gap-x-3">
       {words.map((word, idx) => (
-        <span key={idx} className="block overflow-hidden relative">
+        <span key={idx} className="block overflow-hidden relative pb-4 -mb-4 pr-2 -mr-2">
           <motion.span
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -119,13 +138,16 @@ export default function Home() {
   ];
 
   const brandTags = [
-    "🌾 100% GOTS Certified Cotton",
-    "🎨 Fermented Indigo Dyes",
-    "🧵 Hand-Shuttle Looms",
-    "🏡 Fair-Trade Artisan Guilds",
-    "🍃 Zero Chemical Curing",
-    "🕊️ Sustainable Livelihoods",
-    "✨ Heritage Madhubani Linens"
+    "100% GOTS Certified Cotton",
+    "Hand-Shuttle Looms",
+    "Fair-Trade Artisan Guilds",
+    "Zero Chemical Curing",
+    "Sustainable Livelihoods",
+    "100% Pure Linen",
+    "Blended Linen",
+    "Superior Cottons",
+    "Premium Viscose",
+    "Lustrous Rayons"
   ];
 
   return (
@@ -175,15 +197,15 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* Hero Right Visual (Peacock SVG showcase) */}
+          {/* Hero Right Visual (Mandala showcase) */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.95, rotate: 0 }}
             animate={{ 
               opacity: 1, 
               scale: 1,
-              y: [0, -15, 0],
+              rotate: 360,
               transition: {
-                y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
+                rotate: { repeat: Infinity, duration: 30, ease: "linear" },
                 opacity: { duration: 0.8 },
                 scale: { type: "spring", bounce: 0.15, duration: 0.8 }
               }
@@ -192,8 +214,8 @@ export default function Home() {
           >
             <div className="relative w-full max-w-[550px] aspect-square hover:scale-[1.03] transition-transform duration-700 cursor-pointer mix-blend-multiply drop-shadow-sm">
               <Image 
-                src="/images/peacock hero.svg" 
-                alt="Professional Madhubani Peacock" 
+                src="/images/madhubani_mandala.png" 
+                alt="Heritage Madhubani Mandala" 
                 fill
                 className="object-contain object-center" 
                 priority
@@ -230,8 +252,13 @@ export default function Home() {
           >
             {/* Double the array for seamless endless marquee looping */}
             {[...brandTags, ...brandTags].map((tag, idx) => (
-              <span key={idx} className="flex items-center gap-2">
-                {tag}
+              <span key={idx} className="flex items-center gap-3">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--madder-red)]">
+                  <path d="M12 2L2 12l10 10 10-10L12 2z" />
+                  <path d="M12 6L6 12l6 6 6-6L12 6z" />
+                  <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                </svg>
+                <span className="uppercase tracking-widest text-sm">{tag}</span>
               </span>
             ))}
           </motion.div>
@@ -252,72 +279,125 @@ export default function Home() {
             Fabric Functionality
           </h2>
         </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-12 lg:gap-16 mt-12">
-          
-          {/* Spring / Summer Card */}
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={scrollRevealVariants}
-            className="relative flex flex-col group"
-          >
-            {/* Image Layer */}
-            <div className="w-full h-72 md:h-[22rem] relative rounded-2xl overflow-hidden shadow-lg z-10 border border-[var(--charcoal-ink)]/10">
-              <Image 
-                src="/images/fabrics/linen.png" 
-                fill 
-                className="object-cover transition-transform duration-1000 group-hover:scale-105" 
-                alt="Spring/Summer Fabric Weave" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--charcoal-ink)]/20 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-0" />
+        
+        <div className="flex flex-col gap-32 mt-20 max-w-6xl mx-auto relative">
+            {/* Spring Row */}
+            <div className="relative flex flex-col lg:flex-row items-center group">
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInLeftVariants}
+                className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
+              >
+                <Image src="/images/fabrics/spring_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Spring Transition" />
+              </motion.div>
+              
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInRightVariants}
+                className="w-full lg:w-1/2 lg:-ml-24 mt-[-4rem] lg:mt-0 z-20 bg-white/95 backdrop-blur-xl p-10 md:p-14 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-3xl"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[var(--turmeric)] animate-pulse" />
+                  <h4 className="font-serif italic font-bold text-3xl text-[var(--charcoal-ink)]">Spring Transition</h4>
+                </div>
+                <p className="font-sans text-sm text-zinc-600 leading-relaxed text-justify">
+                  Spring requires versatile transitional fabrics. Our light cottons and fine twill weaves provide just enough structure to ward off cool morning breezes while remaining highly breathable as the day warms up. The ideal balance of crispness and comfort, engineered to gracefully navigate fluctuating diurnal temperatures.
+                </p>
+              </motion.div>
             </div>
 
-            {/* Overlapping Text Layer */}
-            <div className="bg-white/95 backdrop-blur-xl p-8 md:p-10 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-2xl z-20 -mt-20 mx-4 md:mx-8 relative transition-transform duration-500 group-hover:-translate-y-2">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-2 h-2 rounded-full bg-[var(--madder-red)] animate-pulse" />
-                <h4 className="font-serif italic font-bold text-2xl text-[var(--charcoal-ink)]">Spring / Summer</h4>
-              </div>
-              <p className="font-sans text-xs md:text-sm text-zinc-600 leading-relaxed text-justify">
-                Warm climates demand fabrics that physically expel heat. Our linen, cotton, and viscose textiles are engineered with open weave structures that maximize air circulation. Natural fibers absorb body moisture and pull it to the fabric surface for rapid evaporation. This constant airflow prevents heat trapping and maintains a dry, structured drape in high humidity.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Autumn / Winter Card */}
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={scrollRevealVariants}
-            className="relative flex flex-col group md:mt-16"
-          >
-            {/* Image Layer */}
-            <div className="w-full h-72 md:h-[22rem] relative rounded-2xl overflow-hidden shadow-lg z-10 border border-[var(--charcoal-ink)]/10">
-              <Image 
-                src="/images/fabrics/wool.png" 
-                fill 
-                className="object-cover transition-transform duration-1000 group-hover:scale-105" 
-                alt="Autumn/Winter Fabric Weave" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--charcoal-ink)]/20 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-0" />
+            {/* Summer Row */}
+            <div className="relative flex flex-col lg:flex-row-reverse items-center group">
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInRightVariants}
+                className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
+              >
+                <Image src="/images/fabrics/summer_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Summer Airflow" />
+              </motion.div>
+              
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInLeftVariants}
+                className="w-full lg:w-1/2 lg:-mr-24 mt-[-4rem] lg:mt-0 z-20 bg-[var(--charcoal-ink)]/95 backdrop-blur-xl p-10 md:p-14 border border-white/10 shadow-2xl rounded-3xl"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[var(--madder-red)] animate-pulse" />
+                  <h4 className="font-serif italic font-bold text-3xl text-white">Summer Airflow</h4>
+                </div>
+                <p className="font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+                  Extreme heat demands maximum airflow. Our pure linens and viscose textiles are engineered with open weave structures that physically expel heat and wick moisture away from the body. Designed for weightless draping and rapid evaporation in high humidity, maintaining a dry, structured drape.
+                </p>
+              </motion.div>
             </div>
 
-            {/* Overlapping Text Layer */}
-            <div className="bg-[var(--charcoal-ink)]/95 backdrop-blur-xl p-8 md:p-10 border border-[var(--charcoal-ink)]/20 shadow-2xl rounded-2xl z-20 -mt-20 mx-4 md:mx-8 relative transition-transform duration-500 group-hover:-translate-y-2">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-2 h-2 rounded-full bg-[var(--turmeric)] animate-pulse" />
-                <h4 className="font-serif italic font-bold text-2xl text-white">Autumn / Winter</h4>
-              </div>
-              <p className="font-sans text-xs md:text-sm text-zinc-300 leading-relaxed text-justify">
-                Cold weather requires textiles that actively build thermal barriers. Dense weaves found in our flannel, corduroy, twill, suede, velvet, wool, fleece, and tweed collections physically trap body heat within micro-pockets of air. The heavy weight and raised surface piles block wind penetration. This structural density ensures superior insulation and tactile warmth for domestic winters.
-              </p>
+            {/* Autumn Row */}
+            <div className="relative flex flex-col lg:flex-row items-center group">
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInLeftVariants}
+                className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
+              >
+                <Image src="/images/fabrics/autumn_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Autumn Insulation" />
+              </motion.div>
+              
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInRightVariants}
+                className="w-full lg:w-1/2 lg:-ml-24 mt-[-4rem] lg:mt-0 z-20 bg-white/95 backdrop-blur-xl p-10 md:p-14 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-3xl"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[var(--turmeric)] animate-pulse" />
+                  <h4 className="font-serif italic font-bold text-3xl text-[var(--charcoal-ink)]">Autumn Insulation</h4>
+                </div>
+                <p className="font-sans text-sm text-zinc-600 leading-relaxed text-justify">
+                  As temperatures drop, tactile warmth becomes essential. The raised surface piles of our flannel, corduroy, and suede fabrics act as a windbreak, trapping a light layer of insulating air against the body without the heavy bulk of winter gear. Rich textures that emulate the changing colors of the earth.
+                </p>
+              </motion.div>
             </div>
-          </motion.div>
 
-        </div>
+            {/* Winter Row */}
+            <div className="relative flex flex-col lg:flex-row-reverse items-center group">
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInRightVariants}
+                className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
+              >
+                <Image src="/images/fabrics/winter_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Winter Barriers" />
+              </motion.div>
+              
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={slideInLeftVariants}
+                className="w-full lg:w-1/2 lg:-mr-24 mt-[-4rem] lg:mt-0 z-20 bg-[var(--charcoal-ink)]/95 backdrop-blur-xl p-10 md:p-14 border border-white/10 shadow-2xl rounded-3xl"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[var(--madder-red)] animate-pulse" />
+                  <h4 className="font-serif italic font-bold text-3xl text-white">Winter Barriers</h4>
+                </div>
+                <p className="font-sans text-sm text-zinc-300 leading-relaxed text-justify">
+                  Cold weather requires extreme thermal barriers. The dense, intricate structures found in our heavy wool, fleece, and tweed collections physically trap body heat within micro-pockets. Heavyweight density blocks wind penetration for superior insulation against the harshest elements.
+                </p>
+              </motion.div>
+            </div>
+
+          </div>
       </section>
 
       {/* 4. SHOP BY CATEGORY GRID */}
@@ -325,7 +405,7 @@ export default function Home() {
         <div className="container mx-auto px-6 max-w-7xl">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">The Navigation Grid</span>
-            <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-[var(--charcoal-ink)]">Shop by Category</h2>
+            <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-[var(--charcoal-ink)]">Our Range of Fabrics</h2>
           </div>
 
           <motion.div 
@@ -336,17 +416,17 @@ export default function Home() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
             {[
-              { title: "Premium Pure Linen", desc: "Breathable summer linen by the yard designed for structured warm-weather tailoring.", slug: "linen" },
-              { title: "Organic Woven Cotton", desc: "Medium-weight cotton offering superior moisture wicking and crisp garment construction.", slug: "cotton" },
-              { title: "Fluid Drape Viscose", desc: "High-density viscose fabric yielding a smooth, cooling finish for fluid silhouettes.", slug: "viscose" },
-              { title: "Brushed Winter Flannel", desc: "Double-brushed cotton flannel engineered for maximum heat retention and tactile softness.", slug: "flannel" },
-              { title: "Heavyweight Wale Corduroy", desc: "Durable ribbed corduroy providing deep textural ridges and robust cold-weather insulation.", slug: "corduroy" },
-              { title: "Diagonal Weave Twill", desc: "Tightly bound twill fabric ensuring exceptional tear resistance and structured fall.", slug: "twill" },
-              { title: "Supple Faux Suede", desc: "Dense micro-fiber suede offering a luxurious matte finish and substantial hand-feel.", slug: "suede" },
-              { title: "Plush Pile Velvet", desc: "Heavy pile velvet woven for light absorption, intense color depth, and tactile warmth.", slug: "velvet" },
-              { title: "Insulating Pure Wool", desc: "Dense virgin wool textiles guaranteeing maximum thermal insulation and wind resistance.", slug: "wool" },
-              { title: "Thermal Polar Fleece", desc: "High-loft fleece fabric structured to trap body heat without adding excess weight.", slug: "fleece" },
-              { title: "Heritage Woven Tweed", desc: "Heavily textured wool tweed crafted for structured outerwear and regional weather defense.", slug: "tweed" }
+              { title: "Linen", desc: "Breathable summer linen by the yard designed for structured warm-weather tailoring.", slug: "linen" },
+              { title: "Cotton", desc: "Medium-weight cotton offering superior moisture wicking and crisp garment construction.", slug: "cotton" },
+              { title: "Viscose", desc: "High-density viscose fabric yielding a smooth, cooling finish for fluid silhouettes.", slug: "viscose" },
+              { title: "Flannel", desc: "Double-brushed cotton flannel engineered for maximum heat retention and tactile softness.", slug: "flannel" },
+              { title: "Corduroy", desc: "Durable ribbed corduroy providing deep textural ridges and robust cold-weather insulation.", slug: "corduroy" },
+              { title: "Twill", desc: "Tightly bound twill fabric ensuring exceptional tear resistance and structured fall.", slug: "twill" },
+              { title: "Suede", desc: "Dense micro-fiber suede offering a luxurious matte finish and substantial hand-feel.", slug: "suede" },
+              { title: "Velvet", desc: "Heavy pile velvet woven for light absorption, intense color depth, and tactile warmth.", slug: "velvet" },
+              { title: "Wool", desc: "Dense virgin wool textiles guaranteeing maximum thermal insulation and wind resistance.", slug: "wool" },
+              { title: "Fleece", desc: "High-loft fleece fabric structured to trap body heat without adding excess weight.", slug: "fleece" },
+              { title: "Tweed", desc: "Heavily textured wool tweed crafted for structured outerwear and regional weather defense.", slug: "tweed" }
             ].map((cat, idx) => (
               <motion.div 
                 key={idx}
@@ -384,44 +464,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. SPOTLIGHT FEATURE ("Timeless Elegance" & "In reality" mapping) */}
-      <section className="w-full py-24 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", bounce: 0.1, duration: 1 }}
-            className="relative flex justify-center lg:justify-start"
-          >
-            <div className="relative w-full max-w-[500px] aspect-[4/3] overflow-hidden rounded-2xl border border-[var(--charcoal-ink)]/10 bg-[var(--charcoal-ink)]/5 p-3 shadow-sm hover:scale-[1.01] transition-transform duration-500">
-              <Image 
-                src="/images/fabrics/suede.png" 
-                alt="Intricate Handloom fabric curations" 
-                fill
-                className="object-cover rounded-xl" 
-              />
-            </div>
-          </motion.div>
+      {/* 5. LATEST COLLECTION */}
+      <section className="w-full py-24 bg-[var(--unbleached-cotton)]">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">Fresh Arrivals</span>
+            <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-[var(--charcoal-ink)]">Latest Collection</h2>
+          </div>
 
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
-            variants={scrollRevealVariants}
-            className="space-y-6"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerGridContainer}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-10"
           >
-            <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">Fabric Physics</span>
-            <h2 className="font-serif italic text-3xl md:text-5xl font-bold text-[var(--charcoal-ink)]">Quiet Luxury</h2>
-            <h4 className="font-sans text-base md:text-lg text-[var(--charcoal-ink)]/80 font-medium">
-              We bring you textiles that feel substantial, breathe effortlessly, and age with grace.
-            </h4>
-            <p className="font-sans text-sm text-[var(--charcoal-ink)]/70 leading-relaxed text-justify">
-              Our handloomed collections act as a natural insulator—drawing heat away from the body in summer and trapping warmth during winter. Because the yarns remain untouched by aggressive industrial chemicals, the natural fibers retain their structural memory.
-            </p>
+            {MOCK_VARIANTS.slice(0, 4).map((variant) => (
+              <motion.div key={variant.id} variants={gridItemVariants}>
+                <Link 
+                  href={`/product/${variant.products?.slug}`} 
+                  className="polaroid-card group flex flex-col w-full bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10 backdrop-blur-sm h-full"
+                >
+                  {/* Fixed aspect ratio container for imagery */}
+                  <div className="aspect-[3/4] bg-[var(--unbleached-cotton)] rounded-lg overflow-hidden border border-[var(--charcoal-ink)]/5 relative mb-4">
+                    {variant.images && variant.images[0] ? (
+                      <Image 
+                        src={variant.images[0]} 
+                        alt={variant.products?.title || 'Product Image'} 
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-[var(--charcoal-ink)]/40 p-4 text-center">
+                        <span className="text-sm font-serif italic mb-2">Image Coming Soon</span>
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[var(--charcoal-ink)] text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                      {variant.products?.weave || 'Handloom'}
+                    </div>
+                  </div>
+                  <div className="flex flex-col flex-grow justify-between">
+                    <div>
+                      <h3 className="font-serif font-bold text-lg leading-tight mb-1 text-[var(--charcoal-ink)] group-hover:text-[var(--madder-red)] transition-colors">{variant.products?.title || 'Unnamed Fabric'}</h3>
+                      <p className="font-sans text-xs text-[var(--charcoal-ink)]/60 uppercase tracking-widest mb-3">{variant.color}</p>
+                    </div>
+                    <div className="flex justify-between items-end border-t border-[var(--charcoal-ink)]/10 pt-3 mt-auto">
+                      <span className="font-sans font-bold text-lg text-[var(--charcoal-ink)]">₹{variant.price.toLocaleString()}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/50 bg-[var(--charcoal-ink)]/5 px-2 py-1 rounded">per meter</span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
           </motion.div>
-
+          
+          <div className="mt-16 text-center">
+            <Link href="/shop" className="sonic-btn-primary inline-block">
+              View All Fabrics
+            </Link>
+          </div>
         </div>
       </section>
 

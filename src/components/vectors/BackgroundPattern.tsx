@@ -17,15 +17,15 @@ export default function BackgroundPattern({ className = '' }: { className?: stri
   const y2 = useTransform(scrollYProgress, [0, 1], [-80, 80]);
 
   return (
-    <div ref={ref} className={`absolute inset-0 z-0 pointer-events-none overflow-hidden ${className}`}>
+    <div ref={ref} className={`hidden absolute inset-0 z-0 pointer-events-none overflow-hidden ${className}`}>
       {/* Top-left aligned vector */}
       <motion.div 
         style={{ y: y1 }}
-        className="absolute -top-16 -left-16 w-[562px] h-[839px] opacity-20 mix-blend-multiply"
+        className="absolute -top-16 -left-16 w-[562px] h-[839px] opacity-50 mix-blend-multiply scale-125"
       >
         <Image 
           src="/images/bng_.svg" 
-          alt="Artisanal Vector Pattern" 
+          alt="Premium Madhubani Background" 
           fill 
           className="object-contain" 
           priority 
@@ -35,11 +35,11 @@ export default function BackgroundPattern({ className = '' }: { className?: stri
       {/* Bottom-right aligned vector, rotated for variety */}
       <motion.div 
         style={{ y: y2, rotate: 180 }}
-        className="absolute -bottom-32 -right-16 w-[562px] h-[839px] opacity-20 mix-blend-multiply"
+        className="absolute -bottom-16 -right-16 w-[562px] h-[839px] opacity-50 mix-blend-multiply scale-125"
       >
         <Image 
           src="/images/bng_.svg" 
-          alt="Artisanal Vector Pattern" 
+          alt="Premium Madhubani Background" 
           fill 
           className="object-contain" 
         />

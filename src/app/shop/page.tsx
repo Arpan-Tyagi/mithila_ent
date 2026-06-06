@@ -171,7 +171,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 ))
               ) : (
                 <div className="col-span-full py-24 text-center opacity-70 sonic-bento-card bg-[var(--charcoal-ink)]/5 p-8 border border-[var(--charcoal-ink)]/10 backdrop-blur-sm">
-                   <p className="font-serif italic text-2xl font-bold text-[var(--charcoal-ink)]">No Fabrics Found</p>
+                   <p className="font-serif italic text-2xl font-bold text-[var(--charcoal-ink)]">Coming Soon!</p>
                    <p className="font-sans mt-2 text-sm text-[var(--charcoal-ink)]/80">Our weavers are operating the looms to restore these swatches soon.</p>
                 </div>
               )}
