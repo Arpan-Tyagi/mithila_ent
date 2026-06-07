@@ -7,6 +7,8 @@ export interface ProductDraft {
   title: string
   description: string
   weaveDensity: string
+  count?: string
+  construction?: string
   gsm: number
   width: string
   stretch: string
@@ -34,6 +36,8 @@ export async function createProduct(draft: ProductDraft, imagePreview: string | 
     title: draft.title,
     description: draft.description,
     weave: draft.weaveDensity,
+    count: draft.count || '',
+    construction: draft.construction || '',
     gsm: draft.gsm,
     width: draft.width,
     stretch: draft.stretch,

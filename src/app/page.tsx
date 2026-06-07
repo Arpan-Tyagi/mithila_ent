@@ -453,10 +453,7 @@ export default function Home() {
                     <h4 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)] mb-2 group-hover:text-[var(--madder-red)] transition-colors">{cat.title}</h4>
                     <p className="font-sans text-xs text-[var(--charcoal-ink)]/70 leading-relaxed text-justify">{cat.desc}</p>
                   </div>
-                  <div className="mt-6 pt-4 border-t border-[var(--charcoal-ink)]/10 flex justify-between items-center z-20 relative">
-                    <Link href={`/shop?category=${cat.slug}&style=plain`} className="font-sans text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/80 hover:text-[var(--madder-red)] transition-colors px-3 py-1.5 bg-white/60 hover:bg-white rounded shadow-sm backdrop-blur-md">Plain</Link>
-                    <Link href={`/shop?category=${cat.slug}&style=printed`} className="font-sans text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/80 hover:text-[var(--madder-red)] transition-colors px-3 py-1.5 bg-white/60 hover:bg-white rounded shadow-sm backdrop-blur-md">Printed</Link>
-                  </div>
+
                 </div>
               </motion.div>
             ))}

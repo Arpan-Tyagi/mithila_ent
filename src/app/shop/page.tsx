@@ -8,30 +8,66 @@ import MobileFilterSheet from '@/components/MobileFilterSheet';
 
 export const revalidate = 3600; // ISR cache for 1 hour
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string, style?: string }> }) {
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string, style?: string, color?: string, gsm?: string, construction?: string, count?: string, price?: string }> }) {
   const params = await searchParams;
   const category = params.category?.toLowerCase();
   const style = params.style?.toLowerCase();
+  const color = params.color;
+  const gsmFilter = params.gsm;
+  const construction = params.construction;
+  const count = params.count;
+  const priceFilter = params.price;
   
   const supabase = await createClient();
   const { data: dbVariants, error } = await supabase
     .from('product_variants')
-    .select('*, products(title, slug, weave, is_featured, tags)');
+    .select('*, products(title, slug, weave, count, construction, gsm, is_featured, tags)');
     
   if (error) {
     console.warn("Supabase fetch failed (expected if no DB configured), falling back to mock data.");
   }
 
+  // Dynamically extract available values from the FULL database to populate dropdowns
+  const allColors = Array.from(new Set(dbVariants?.map(v => v.color).filter(Boolean))) as string[];
+  const allConstructions = Array.from(new Set(dbVariants?.map(v => v.products?.construction).filter(Boolean))) as string[];
+  const allCounts = Array.from(new Set(dbVariants?.map(v => v.products?.count).filter(Boolean))) as string[];
+
   // Use actual database data
   let variants = dbVariants || [];
 
-  // Apply category filtering
+  // Apply filters
   if (category) {
     variants = variants.filter(v => v.products?.tags?.includes(category));
   }
-  // Apply style filtering (plain/printed)
   if (style) {
     variants = variants.filter(v => v.products?.tags?.includes(style));
+  }
+  if (color) {
+    variants = variants.filter(v => v.color === color);
+  }
+  if (construction) {
+    variants = variants.filter(v => v.products?.construction === construction);
+  }
+  if (count) {
+    variants = variants.filter(v => v.products?.count === count);
+  }
+  if (gsmFilter) {
+    variants = variants.filter(v => {
+      const gsm = v.products?.gsm || 0;
+      if (gsmFilter === 'light') return gsm < 150;
+      if (gsmFilter === 'medium') return gsm >= 150 && gsm <= 250;
+      if (gsmFilter === 'heavy') return gsm > 250;
+      return true;
+    });
+  }
+  if (priceFilter) {
+    variants = variants.filter(v => {
+      const price = v.price || 0;
+      if (priceFilter === 'budget') return price < 1000;
+      if (priceFilter === 'standard') return price >= 1000 && price <= 2000;
+      if (priceFilter === 'premium') return price > 2000;
+      return true;
+    });
   }
 
   const categoryDescriptions: Record<string, string> = {
@@ -67,6 +103,24 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     { name: 'Heritage Tweed', slug: 'tweed' }
   ];
 
+  const getFilterUrl = (key: string, value: string | null) => {
+    const q = new URLSearchParams();
+    if (category) q.set('category', category);
+    if (style) q.set('style', style);
+    if (color) q.set('color', color);
+    if (gsmFilter) q.set('gsm', gsmFilter);
+    if (construction) q.set('construction', construction);
+    if (count) q.set('count', count);
+    if (priceFilter) q.set('price', priceFilter);
+
+    if (value === null || value === '') {
+      q.delete(key);
+    } else {
+      q.set(key, value);
+    }
+    return `/shop?${q.toString()}`;
+  };
+
   return (
     <main className="flex-grow bg-[var(--unbleached-cotton)] pt-24 md:pt-32 pb-24 relative overflow-x-hidden w-full">
       <BackgroundPattern className="opacity-40" />
@@ -89,31 +143,45 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         </MotionDiv>
         
         {/* Mobile Filter Sheet Component */}
-        <MobileFilterSheet currentCategory={category} currentStyle={style} categoriesList={categoriesList} />
+        <MobileFilterSheet 
+          currentCategory={category} 
+          currentStyle={style} 
+          currentColor={color}
+          currentGsm={gsmFilter}
+          currentConstruction={construction}
+          currentCount={count}
+          currentPrice={priceFilter}
+          categoriesList={categoriesList} 
+          allColors={allColors}
+          allConstructions={allConstructions}
+          allCounts={allCounts}
+        />
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 relative w-full items-start">
           
           {/* Desktop Left Sidebar (w-1/4) - Hidden on mobile/tablet */}
-          <div className="hidden lg:block w-1/4 sticky top-32 max-h-[calc(100vh-128px)] overflow-y-auto pr-6 custom-scrollbar pb-12">
+          <div className="hidden lg:block w-1/4 sticky top-32 max-h-[calc(100vh-128px)] overflow-y-auto pr-6 custom-scrollbar pb-12 space-y-10">
             
-            <div className="mb-10">
-              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Fabric Style</h3>
+            {/* Fabric Style */}
+            <div>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Fabric Print</h3>
               <div className="flex flex-col gap-2 font-sans text-sm">
-                <Link href={`/shop?category=${category || ''}&style=`} className={`px-4 py-2.5 rounded transition-colors font-bold ${!style ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>All Styles</Link>
-                <Link href={`/shop?category=${category || ''}&style=plain`} className={`px-4 py-2.5 rounded transition-colors font-bold ${style === 'plain' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Plain Weave</Link>
-                <Link href={`/shop?category=${category || ''}&style=printed`} className={`px-4 py-2.5 rounded transition-colors font-bold ${style === 'printed' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Printed & Patterned</Link>
+                <Link href={getFilterUrl('style', null)} className={`px-4 py-2.5 rounded transition-colors font-bold ${!style ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>All Styles</Link>
+                <Link href={getFilterUrl('style', 'plain')} className={`px-4 py-2.5 rounded transition-colors font-bold ${style === 'plain' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Plain Weave</Link>
+                <Link href={getFilterUrl('style', 'printed')} className={`px-4 py-2.5 rounded transition-colors font-bold ${style === 'printed' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Printed & Patterned</Link>
               </div>
             </div>
 
+            {/* Weave Category */}
             <div>
-              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Weave Category</h3>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Category</h3>
               <div className="flex flex-col gap-1 font-sans text-sm">
                 {categoriesList.map(cat => {
                   const isActive = (category === cat.slug) || (!category && cat.slug === '');
                   return (
                     <Link 
                       key={cat.slug}
-                      href={`/shop?category=${cat.slug}&style=${style || ''}`} 
+                      href={getFilterUrl('category', cat.slug)} 
                       className={`px-4 py-3 rounded-lg font-bold transition-colors border ${
                         isActive 
                         ? 'bg-[var(--indigo-dye)] text-white border-[var(--indigo-dye)] shadow-sm' 
@@ -126,6 +194,68 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 })}
               </div>
             </div>
+
+            {/* Weight (GSM) */}
+            <div>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Weight (GSM)</h3>
+              <div className="flex flex-col gap-2 font-sans text-sm">
+                <Link href={getFilterUrl('gsm', null)} className={`px-4 py-2.5 rounded transition-colors font-bold ${!gsmFilter ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>All Weights</Link>
+                <Link href={getFilterUrl('gsm', 'light')} className={`px-4 py-2.5 rounded transition-colors font-bold ${gsmFilter === 'light' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Lightweight (&lt;150)</Link>
+                <Link href={getFilterUrl('gsm', 'medium')} className={`px-4 py-2.5 rounded transition-colors font-bold ${gsmFilter === 'medium' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Medium (150-250)</Link>
+                <Link href={getFilterUrl('gsm', 'heavy')} className={`px-4 py-2.5 rounded transition-colors font-bold ${gsmFilter === 'heavy' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Heavyweight (&gt;250)</Link>
+              </div>
+            </div>
+
+            {/* Price */}
+            <div>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Price Range</h3>
+              <div className="flex flex-col gap-2 font-sans text-sm">
+                <Link href={getFilterUrl('price', null)} className={`px-4 py-2.5 rounded transition-colors font-bold ${!priceFilter ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>All Prices</Link>
+                <Link href={getFilterUrl('price', 'budget')} className={`px-4 py-2.5 rounded transition-colors font-bold ${priceFilter === 'budget' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Under ₹1000</Link>
+                <Link href={getFilterUrl('price', 'standard')} className={`px-4 py-2.5 rounded transition-colors font-bold ${priceFilter === 'standard' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>₹1000 - ₹2000</Link>
+                <Link href={getFilterUrl('price', 'premium')} className={`px-4 py-2.5 rounded transition-colors font-bold ${priceFilter === 'premium' ? 'bg-[var(--charcoal-ink)] text-white' : 'hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'}`}>Over ₹2000</Link>
+              </div>
+            </div>
+
+            {/* Colors */}
+            {allColors.length > 0 && (
+              <div>
+                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Color</h3>
+                <div className="flex flex-col gap-1 font-sans text-sm">
+                  <Link href={getFilterUrl('color', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!color ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Colors</Link>
+                  {allColors.map(c => (
+                    <Link key={c} href={getFilterUrl('color', c)} className={`px-4 py-2 rounded transition-colors font-bold ${color === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Construction */}
+            {allConstructions.length > 0 && (
+              <div>
+                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Construction</h3>
+                <div className="flex flex-col gap-1 font-sans text-sm">
+                  <Link href={getFilterUrl('construction', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!construction ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All</Link>
+                  {allConstructions.map(c => (
+                    <Link key={c} href={getFilterUrl('construction', c)} className={`px-4 py-2 rounded transition-colors font-bold ${construction === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Count */}
+            {allCounts.length > 0 && (
+              <div>
+                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Thread Count</h3>
+                <div className="flex flex-col gap-1 font-sans text-sm">
+                  <Link href={getFilterUrl('count', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!count ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Counts</Link>
+                  {allCounts.map(c => (
+                    <Link key={c} href={getFilterUrl('count', c)} className={`px-4 py-2 rounded transition-colors font-bold ${count === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Product Grid Area (w-full or w-3/4 on desktop) */}

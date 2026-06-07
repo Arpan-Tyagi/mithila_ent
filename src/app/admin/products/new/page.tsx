@@ -24,6 +24,8 @@ export default function AIProductIngestion() {
     description: '',
     weaveDensity: '',
     pigment: '',
+    count: '',
+    construction: '',
     pricePerMeter: 0,
     colors: [] as string[],
     categoryId: '',
@@ -85,6 +87,8 @@ export default function AIProductIngestion() {
         description: data.description || '',
         weaveDensity: data.weaveDensity || '',
         pigment: data.pigment || '',
+        count: data.count || '',
+        construction: data.construction || '',
         pricePerMeter: 0, 
         colors: Array.isArray(data.colors) ? data.colors : [],
         categoryId: categories.length > 0 ? categories[0].id : '',
@@ -267,6 +271,17 @@ export default function AIProductIngestion() {
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Width</label>
                     <input type="text" value={draft.width} onChange={e => setDraft({...draft, width: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Count (e.g. 40s x 40s)</label>
+                    <input type="text" value={draft.count} onChange={e => setDraft({...draft, count: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Construction (e.g. 120 x 80)</label>
+                    <input type="text" value={draft.construction} onChange={e => setDraft({...draft, construction: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
                   </div>
                 </div>
 

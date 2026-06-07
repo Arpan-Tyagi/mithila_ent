@@ -126,6 +126,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   <p className="font-bold text-sm">{product.width || '54 inches / 137 cm'}</p>
                 </div>
                 <div>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Count</p>
+                  <p className="font-bold text-sm">{product.count || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Construction</p>
+                  <p className="font-bold text-sm">{product.construction || 'N/A'}</p>
+                </div>
+                <div>
                   <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Weight / GSM</p>
                   <p className="font-bold text-sm">{product.gsm ? `${product.gsm} GSM` : '320 GSM (Heavyweight)'}</p>
                 </div>
