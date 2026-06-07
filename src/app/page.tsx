@@ -151,10 +151,10 @@ export default function Home() {
   ];
 
   return (
-    <main className="flex-grow w-full bg-[var(--unbleached-cotton)] text-zinc-900 pt-28 md:pt-32 lg:pt-36 pb-24 font-sans overflow-x-hidden relative">
+    <main className="flex-grow w-full bg-[var(--unbleached-cotton)] text-zinc-900 pt-20 md:pt-24 lg:pt-24 pb-24 font-sans overflow-x-hidden relative">
       
       {/* 1. HERO SECTION */}
-      <section className="relative w-full max-w-7xl mx-auto px-6 py-8 md:py-12 rounded-3xl">
+      <section className="relative w-full max-w-7xl mx-auto px-6 pt-4 pb-8 md:pt-6 md:pb-12 rounded-3xl">
         <BackgroundPattern className="opacity-60" />
         
         {/* Professional Authentic Mandala (temporarily removed per request) */}
