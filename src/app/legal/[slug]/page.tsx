@@ -152,7 +152,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
         {/* Document Footer */}
         <div className="border-t border-zinc-100 pt-8 mt-12 text-center">
           <p className="font-sans text-xs text-zinc-400">
-            For further clarifications regarding our policies, please write to dheeraj.mishra02@gmail.com.
+            For further clarifications regarding our policies, please write to mithlaenterprises11@gmail.com.
           </p>
         </div>
 

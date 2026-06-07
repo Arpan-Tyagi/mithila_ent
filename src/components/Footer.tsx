@@ -47,7 +47,7 @@ export default function Footer() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--unbleached-cotton)]">Connect</h4>
             <div className="space-y-3 text-sm text-[var(--unbleached-cotton)]/70">
               <div>
-                <p>dheeraj.mishra02@gmail.com</p>
+                <p>mithlaenterprises11@gmail.com</p>
                 <p>+91 9818555220</p>
               </div>
               <div className="text-xs opacity-80 leading-relaxed">
