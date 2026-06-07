@@ -526,65 +526,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. FAQ ACCORDION ("Everything You Need to Know...") */}
-      <section id="faq" className="w-full max-w-4xl mx-auto py-24 px-6">
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={scrollRevealVariants}
-          className="text-center mb-16 space-y-3"
-        >
-          <span className="text-purple-600 font-sans text-xs uppercase tracking-wider font-semibold font-bold">Welcome to Beyond FAQ!</span>
-          <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-zinc-950">Everything You Need to Know About Our Fabrics</h2>
-        </motion.div>
-
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={staggerGridContainer}
-          className="space-y-4"
-        >
-          {faqs.map((faq, index) => {
-            const isOpen = activeFaq === index;
-            return (
-              <motion.div 
-                key={index} 
-                variants={gridItemVariants}
-                className="sonic-bento-card overflow-hidden bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10"
-              >
-                <button
-                  onClick={() => setActiveFaq(isOpen ? null : index)}
-                  className="w-full flex items-center justify-between p-6 text-left font-serif text-lg md:text-xl font-bold italic text-zinc-900 focus:outline-none"
-                >
-                  <span>{faq.q}</span>
-                  <span className="text-2xl transform transition-transform duration-300 ml-4 font-sans text-zinc-400">
-                    {isOpen ? "−" : "+"}
-                  </span>
-                </button>
-                
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                      <div className="px-6 pb-6 pt-2 font-sans text-sm text-zinc-600 border-t border-[var(--charcoal-ink)]/10 bg-[var(--charcoal-ink)]/5 leading-relaxed">
-                        {faq.a}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      </section>
-
-      {/* 7. INSIGHTS / WEAVERS' BLOG GRID */}
+      {/* 6. INSIGHTS / WEAVERS' BLOG GRID */}
       <section className="w-full py-24 bg-[var(--unbleached-cotton)] border-y border-[var(--charcoal-ink)]/10 relative">
         <BackgroundPattern className="opacity-10" />
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
@@ -648,6 +590,64 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
+      </section>
+
+      {/* 7. FAQ ACCORDION ("Everything You Need to Know...") */}
+      <section id="faq" className="w-full max-w-4xl mx-auto py-24 px-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={scrollRevealVariants}
+          className="text-center mb-16 space-y-3"
+        >
+          <span className="text-purple-600 font-sans text-xs uppercase tracking-wider font-semibold font-bold">Welcome to Beyond FAQ!</span>
+          <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-zinc-950">Everything You Need to Know About Our Fabrics</h2>
+        </motion.div>
+
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerGridContainer}
+          className="space-y-4"
+        >
+          {faqs.map((faq, index) => {
+            const isOpen = activeFaq === index;
+            return (
+              <motion.div 
+                key={index} 
+                variants={gridItemVariants}
+                className="sonic-bento-card overflow-hidden bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10"
+              >
+                <button
+                  onClick={() => setActiveFaq(isOpen ? null : index)}
+                  className="w-full flex items-center justify-between p-6 text-left font-serif text-lg md:text-xl font-bold italic text-zinc-900 focus:outline-none"
+                >
+                  <span>{faq.q}</span>
+                  <span className="text-2xl transform transition-transform duration-300 ml-4 font-sans text-zinc-400">
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+                
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <div className="px-6 pb-6 pt-2 font-sans text-sm text-zinc-600 border-t border-[var(--charcoal-ink)]/10 bg-[var(--charcoal-ink)]/5 leading-relaxed">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </section>
 
       {/* PROFESSIONAL BORDER DIVIDER */}
