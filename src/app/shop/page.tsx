@@ -29,13 +29,15 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     console.warn("Supabase fetch failed (expected if no DB configured), falling back to mock data.");
   }
 
-  // Dynamically extract available values from the FULL database to populate dropdowns
-  const allColors = Array.from(new Set(dbVariants?.map(v => v.color).filter(Boolean))) as string[];
-  const allConstructions = Array.from(new Set(dbVariants?.map(v => v.products?.construction).filter(Boolean))) as string[];
-  const allCounts = Array.from(new Set(dbVariants?.map(v => v.products?.count).filter(Boolean))) as string[];
+  // Use actual database data or mock data fallback
+  const baseVariants = (dbVariants && dbVariants.length > 0) ? dbVariants : MOCK_VARIANTS;
 
-  // Use actual database data
-  let variants = dbVariants || [];
+  // Dynamically extract available values from the FULL database to populate dropdowns
+  const allColors = Array.from(new Set(baseVariants.map(v => v.color).filter(Boolean))) as string[];
+  const allConstructions = Array.from(new Set(baseVariants.map(v => v.products?.construction).filter(Boolean))) as string[];
+  const allCounts = Array.from(new Set(baseVariants.map(v => v.products?.count).filter(Boolean))) as string[];
+
+  let variants = [...baseVariants];
 
   // Apply filters
   if (category) {
@@ -231,43 +233,37 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             </div>
 
             {/* Colors */}
-            {allColors.length > 0 && (
-              <div>
-                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Color</h3>
-                <div className="flex flex-col gap-1 font-sans text-sm">
-                  <Link href={getFilterUrl('color', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!color ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Colors</Link>
-                  {allColors.map(c => (
-                    <Link key={c} href={getFilterUrl('color', c)} className={`px-4 py-2 rounded transition-colors font-bold ${color === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
-                  ))}
-                </div>
+            <div>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Color</h3>
+              <div className="flex flex-col gap-1 font-sans text-sm">
+                <Link href={getFilterUrl('color', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!color ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Colors</Link>
+                {allColors.map(c => (
+                  <Link key={c} href={getFilterUrl('color', c)} className={`px-4 py-2 rounded transition-colors font-bold ${color === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Construction */}
-            {allConstructions.length > 0 && (
-              <div>
-                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Construction</h3>
-                <div className="flex flex-col gap-1 font-sans text-sm">
-                  <Link href={getFilterUrl('construction', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!construction ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All</Link>
-                  {allConstructions.map(c => (
-                    <Link key={c} href={getFilterUrl('construction', c)} className={`px-4 py-2 rounded transition-colors font-bold ${construction === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
-                  ))}
-                </div>
+            <div>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Construction</h3>
+              <div className="flex flex-col gap-1 font-sans text-sm">
+                <Link href={getFilterUrl('construction', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!construction ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Constructions</Link>
+                {allConstructions.map(c => (
+                  <Link key={c} href={getFilterUrl('construction', c)} className={`px-4 py-2 rounded transition-colors font-bold ${construction === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Count */}
-            {allCounts.length > 0 && (
-              <div>
-                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Thread Count</h3>
-                <div className="flex flex-col gap-1 font-sans text-sm">
-                  <Link href={getFilterUrl('count', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!count ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Counts</Link>
-                  {allCounts.map(c => (
-                    <Link key={c} href={getFilterUrl('count', c)} className={`px-4 py-2 rounded transition-colors font-bold ${count === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
-                  ))}
-                </div>
+            <div>
+              <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Thread Count</h3>
+              <div className="flex flex-col gap-1 font-sans text-sm">
+                <Link href={getFilterUrl('count', null)} className={`px-4 py-2 rounded transition-colors font-bold ${!count ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>All Counts</Link>
+                {allCounts.map(c => (
+                  <Link key={c} href={getFilterUrl('count', c)} className={`px-4 py-2 rounded transition-colors font-bold ${count === c ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}>{c}</Link>
+                ))}
               </div>
-            )}
+            </div>
 
           </div>
 

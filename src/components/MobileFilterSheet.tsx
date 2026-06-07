@@ -155,43 +155,37 @@ export default function MobileFilterSheet({
                 </div>
 
                 {/* Colors */}
-                {allColors.length > 0 && (
-                  <div>
-                    <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4">Color</h3>
-                    <div className="flex flex-wrap gap-2 font-sans">
-                      <Link onClick={() => setIsOpen(false)} href={getFilterUrl('color', null)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${!currentColor ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>All</Link>
-                      {allColors.map(c => (
-                        <Link key={c} onClick={() => setIsOpen(false)} href={getFilterUrl('color', c)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${currentColor === c ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>{c}</Link>
-                      ))}
-                    </div>
+                <div>
+                  <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4">Color</h3>
+                  <div className="flex flex-wrap gap-2 font-sans">
+                    <Link onClick={() => setIsOpen(false)} href={getFilterUrl('color', null)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${!currentColor ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>All</Link>
+                    {allColors.map(c => (
+                      <Link key={c} onClick={() => setIsOpen(false)} href={getFilterUrl('color', c)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${currentColor === c ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>{c}</Link>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 {/* Construction */}
-                {allConstructions.length > 0 && (
-                  <div>
-                    <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4">Construction</h3>
-                    <div className="flex flex-wrap gap-2 font-sans">
-                      <Link onClick={() => setIsOpen(false)} href={getFilterUrl('construction', null)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${!currentConstruction ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>All</Link>
-                      {allConstructions.map(c => (
-                        <Link key={c} onClick={() => setIsOpen(false)} href={getFilterUrl('construction', c)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${currentConstruction === c ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>{c}</Link>
-                      ))}
-                    </div>
+                <div>
+                  <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4">Construction</h3>
+                  <div className="flex flex-wrap gap-2 font-sans">
+                    <Link onClick={() => setIsOpen(false)} href={getFilterUrl('construction', null)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${!currentConstruction ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>All</Link>
+                    {allConstructions.map(c => (
+                      <Link key={c} onClick={() => setIsOpen(false)} href={getFilterUrl('construction', c)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${currentConstruction === c ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>{c}</Link>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 {/* Count */}
-                {allCounts.length > 0 && (
-                  <div>
-                    <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4">Thread Count</h3>
-                    <div className="flex flex-wrap gap-2 font-sans">
-                      <Link onClick={() => setIsOpen(false)} href={getFilterUrl('count', null)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${!currentCount ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>All</Link>
-                      {allCounts.map(c => (
-                        <Link key={c} onClick={() => setIsOpen(false)} href={getFilterUrl('count', c)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${currentCount === c ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>{c}</Link>
-                      ))}
-                    </div>
+                <div>
+                  <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4">Thread Count</h3>
+                  <div className="flex flex-wrap gap-2 font-sans">
+                    <Link onClick={() => setIsOpen(false)} href={getFilterUrl('count', null)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${!currentCount ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>All</Link>
+                    {allCounts.map(c => (
+                      <Link key={c} onClick={() => setIsOpen(false)} href={getFilterUrl('count', c)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${currentCount === c ? 'bg-[var(--charcoal-ink)] text-white border-[var(--charcoal-ink)]' : 'border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)]'}`}>{c}</Link>
+                    ))}
                   </div>
-                )}
+                </div>
 
               </div>
             </motion.div>

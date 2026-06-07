@@ -13,6 +13,8 @@ export const MOCK_VARIANTS = [
       description: 'Premium hand-spun cotton tunic featuring intricate Jamdani weave patterns. Perfect for casual or semi-formal wear with deep crimson hues naturally dyed from botanical sources.',
       weave: 'Jamdani',
       gsm: 150,
+      count: '60s',
+      construction: 'Percale',
       is_featured: true,
       tags: ['cotton', 'stitched'],
       categories: { name: 'Stitched Wear' }
@@ -32,6 +34,8 @@ export const MOCK_VARIANTS = [
       description: 'Pure, unbleached Tussar silk yardage. Loomed by heritage artisans, this fabric showcases the raw, natural elegance and texture of organic silk. Sold per meter.',
       weave: 'Tussar',
       gsm: 120,
+      count: '40s',
+      construction: 'Satin',
       is_featured: false,
       tags: ['silk'],
       categories: { name: 'Fabric' }
@@ -51,6 +55,8 @@ export const MOCK_VARIANTS = [
       description: 'Highly breathable linen, dyed using fermented indigo plants. This plain weave fabric offers superior comfort and gets softer with every wash.',
       weave: 'Plain',
       gsm: 180,
+      count: '80s',
+      construction: 'Twill',
       is_featured: true,
       tags: ['linen'],
       categories: { name: 'Fabric' }
