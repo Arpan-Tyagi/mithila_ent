@@ -90,17 +90,17 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   const categoriesList = [
     { name: 'All Fabrics', slug: '' },
-    { name: 'Pure Linen', slug: 'linen' },
-    { name: 'Woven Cotton', slug: 'cotton' },
-    { name: 'Fluid Viscose', slug: 'viscose' },
-    { name: 'Brushed Flannel', slug: 'flannel' },
-    { name: 'Wale Corduroy', slug: 'corduroy' },
-    { name: 'Diagonal Twill', slug: 'twill' },
-    { name: 'Faux Suede', slug: 'suede' },
-    { name: 'Pile Velvet', slug: 'velvet' },
-    { name: 'Virgin Wool', slug: 'wool' },
-    { name: 'Thermal Fleece', slug: 'fleece' },
-    { name: 'Heritage Tweed', slug: 'tweed' }
+    { name: 'Linen', slug: 'linen' },
+    { name: 'Cotton', slug: 'cotton' },
+    { name: 'Viscose', slug: 'viscose' },
+    { name: 'Flannel', slug: 'flannel' },
+    { name: 'Corduroy', slug: 'corduroy' },
+    { name: 'Twill', slug: 'twill' },
+    { name: 'Suede', slug: 'suede' },
+    { name: 'Velvet', slug: 'velvet' },
+    { name: 'Wool', slug: 'wool' },
+    { name: 'Fleece', slug: 'fleece' },
+    { name: 'Tweed', slug: 'tweed' },
   ];
 
   const getFilterUrl = (key: string, value: string | null) => {
