@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { updateProduct, updateVariant, addVariant } from '@/actions/admin';
+import { updateProduct, updateVariant, addVariant, uploadProductImage } from '@/actions/admin';
 
 export default function EditProductForm({ product, categories }: { product: any; categories: any[] }) {
   const router = useRouter();
@@ -33,12 +33,37 @@ export default function EditProductForm({ product, categories }: { product: any;
       color: v.color || '',
       price: Number(v.price) || 0,
       stock_quantity: Number(v.stock_quantity) || 0,
+      images: Array.isArray(v.images) ? v.images : [],
     }))
   );
 
   const setField = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
   const setVariantField = (id: string, key: string, value: any) =>
     setVariants((prev) => prev.map((v) => (v.id === id ? { ...v, [key]: value } : v)));
+
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+
+  const handleVariantImage = (id: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingId(id);
+    setMessage(null);
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Could not read file'));
+        reader.readAsDataURL(file);
+      });
+      const { url } = await uploadProductImage(dataUrl);
+      setVariantField(id, 'images', [url]);
+      setMessage({ type: 'ok', text: 'Image uploaded — click Save Changes to apply.' });
+    } catch (err: any) {
+      setMessage({ type: 'err', text: err?.message || 'Image upload failed.' });
+    } finally {
+      setUploadingId(null);
+    }
+  };
 
   const [newVar, setNewVar] = useState({ color: '', price: 0, stock_quantity: 0 });
   const [addingVariant, setAddingVariant] = useState(false);
@@ -101,6 +126,7 @@ export default function EditProductForm({ product, categories }: { product: any;
           color: v.color,
           price: Number(v.price) || 0,
           stock_quantity: Number(v.stock_quantity) || 0,
+          images: v.images,
         });
       }
 
@@ -247,25 +273,46 @@ export default function EditProductForm({ product, categories }: { product: any;
               <span>Stock</span>
             </div>
             {variants.map((v) => (
-              <div key={v.id} className="grid grid-cols-3 gap-4">
-                <input
-                  className={inputClass}
-                  value={v.color}
-                  onChange={(e) => setVariantField(v.id, 'color', e.target.value)}
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  className={inputClass}
-                  value={v.price}
-                  onChange={(e) => setVariantField(v.id, 'price', e.target.value)}
-                />
-                <input
-                  type="number"
-                  className={inputClass}
-                  value={v.stock_quantity}
-                  onChange={(e) => setVariantField(v.id, 'stock_quantity', e.target.value)}
-                />
+              <div key={v.id} className="space-y-2 border-b border-[var(--charcoal-ink)]/10 pb-3 last:border-0">
+                <div className="grid grid-cols-3 gap-4">
+                  <input
+                    className={inputClass}
+                    value={v.color}
+                    onChange={(e) => setVariantField(v.id, 'color', e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={inputClass}
+                    value={v.price}
+                    onChange={(e) => setVariantField(v.id, 'price', e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    className={inputClass}
+                    value={v.stock_quantity}
+                    onChange={(e) => setVariantField(v.id, 'stock_quantity', e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 border-2 border-[var(--charcoal-ink)]/20 overflow-hidden bg-[var(--unbleached-cotton)] flex items-center justify-center shrink-0">
+                    {v.images && v.images[0] ? (
+                      <img src={v.images[0]} alt={v.color || 'variant'} className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon size={18} className="opacity-40" />
+                    )}
+                  </div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest cursor-pointer border-2 border-[var(--charcoal-ink)] px-3 py-2 hover:bg-[var(--turmeric)] transition-colors">
+                    {uploadingId === v.id ? 'Uploading…' : v.images && v.images[0] ? 'Replace Image' : 'Upload Image'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingId === v.id}
+                      onChange={handleVariantImage(v.id)}
+                    />
+                  </label>
+                </div>
               </div>
             ))}
           </div>

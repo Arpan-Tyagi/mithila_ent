@@ -10,7 +10,11 @@
     "seed": "node scripts/seed-sample.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "supabase:login": "npx supabase login",
+    "supabase:link": "npx supabase link --project-ref nhmarliyovmucuqryceg",
+    "supabase:push": "npx supabase db push",
+    "supabase:types": "npx supabase gen types typescript --linked > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

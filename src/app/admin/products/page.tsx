@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Trash2, Edit, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { deleteProduct } from '@/actions/admin';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -25,8 +26,15 @@ export default function ProductsPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this product and all its variants?')) return;
-    await supabase.from('products').delete().eq('id', id);
+    if (!confirm('Remove this product? If it has past orders it will be archived (hidden from the store) instead of deleted, to keep order history intact.')) return;
+    try {
+      const res = await deleteProduct(id);
+      if (res?.archived) {
+        alert('This product has existing orders, so it was archived (hidden from the storefront) rather than deleted.');
+      }
+    } catch (e: any) {
+      alert('Could not remove product: ' + (e?.message || 'unknown error'));
+    }
     fetchProducts();
   };
 

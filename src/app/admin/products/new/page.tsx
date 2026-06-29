@@ -6,7 +6,7 @@ import { UploadCloud, Sparkles, Check, ArrowRight, RefreshCw } from 'lucide-reac
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { createProduct } from '@/actions/admin';
+import { createProduct, uploadProductImage } from '@/actions/admin';
 
 export default function AIProductIngestion() {
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -18,6 +18,7 @@ export default function AIProductIngestion() {
   
   const [step, setStep] = useState<'upload' | 'scanning' | 'review'>('upload');
   const [newColor, setNewColor] = useState('');
+  const [publishing, setPublishing] = useState(false);
 
   const [draft, setDraft] = useState({
     title: '',
@@ -107,18 +108,36 @@ export default function AIProductIngestion() {
     }
   };
 
+  const handleManualEntry = () => {
+    // Skip AI extraction: jump straight to the editable ledger with sensible
+    // defaults so the owner can add a product by hand (no image required).
+    setDraft((d) => ({ ...d, categoryId: categories.length > 0 ? categories[0].id : '' }));
+    setStep('review');
+  };
+
   const handlePublish = async () => {
     if (!draft.categoryId) {
       alert("Please select a category.");
       return;
     }
 
+    setPublishing(true);
     try {
-      await createProduct(draft, imagePreview);
-      alert('Draft Published to Live Collection!');
+      // Upload the swatch to Supabase Storage and store the public URL (not base64).
+      let imageUrl: string | null = null;
+      if (imagePreview && imagePreview.startsWith('data:')) {
+        const up = await uploadProductImage(imagePreview);
+        imageUrl = up.url;
+      } else if (imagePreview) {
+        imageUrl = imagePreview;
+      }
+      await createProduct(draft, imageUrl);
+      alert('Published to Live Collection!');
       router.push('/admin/products');
     } catch (err: any) {
-      alert("Failed to publish: " + err.message);
+      alert("Failed to publish: " + (err?.message || 'error'));
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -176,6 +195,13 @@ export default function AIProductIngestion() {
                   >
                     <Sparkles size={16} /> Initiate Extraction
                   </Button>
+                  <button
+                    type="button"
+                    onClick={handleManualEntry}
+                    className="w-full mt-3 text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/70 hover:text-[var(--madder-red)] underline underline-offset-4"
+                  >
+                    Or enter product details manually
+                  </button>
                 </motion.div>
               )}
 
@@ -206,13 +232,17 @@ export default function AIProductIngestion() {
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   className="flex-1 flex flex-col items-center justify-center text-center"
                 >
-                  <div className="w-32 h-32 rounded-full border-4 border-[var(--charcoal-ink)] overflow-hidden shadow-[4px_4px_0_var(--turmeric)] mb-6">
-                    <img src={imagePreview!} alt="Scanned" className="w-full h-full object-cover" />
+                  <div className="w-32 h-32 rounded-full border-4 border-[var(--charcoal-ink)] overflow-hidden shadow-[4px_4px_0_var(--turmeric)] mb-6 flex items-center justify-center bg-[var(--unbleached-cotton)]">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Scanned" className="w-full h-full object-cover" />
+                    ) : (
+                      <Sparkles size={28} className="opacity-40" />
+                    )}
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-[var(--charcoal-ink)] flex items-center gap-2 text-green-700">
-                    <Check size={24} /> Extraction Complete
+                    <Check size={24} /> {imagePreview ? 'Extraction Complete' : 'Manual Entry'}
                   </h3>
-                  <p className="font-sans text-xs opacity-70 uppercase tracking-widest mt-2 mb-6">Please review the drafted ledger to the right.</p>
+                  <p className="font-sans text-xs opacity-70 uppercase tracking-widest mt-2 mb-6">{imagePreview ? 'Please review the drafted ledger to the right.' : 'Fill in the ledger to the right, then publish.'}</p>
                   <Button 
                     onClick={() => setStep('upload')}
                     variant="outline"
@@ -339,8 +369,8 @@ export default function AIProductIngestion() {
                 </div>
               </div>
 
-              <Button onClick={handlePublish} className="w-full mt-6 bg-[var(--madder-red)] text-white hover:bg-[var(--charcoal-ink)] py-6 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-[4px_4px_0_var(--turmeric)] hover:translate-x-1 hover:-translate-y-1 transition-all">
-                Publish to Collection <ArrowRight size={18} />
+              <Button onClick={handlePublish} disabled={publishing} className="w-full mt-6 bg-[var(--madder-red)] text-white hover:bg-[var(--charcoal-ink)] py-6 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-[4px_4px_0_var(--turmeric)] hover:translate-x-1 hover:-translate-y-1 transition-all">
+                {publishing ? 'Publishing…' : <>Publish to Collection <ArrowRight size={18} /></>}
               </Button>
             </motion.div>
           ) : (

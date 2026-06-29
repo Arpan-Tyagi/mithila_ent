@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
-  const baseUrl = 'https://mithilaenterprises.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mithilaenterprises.com';
 
   const { data: products } = await supabase.from('products').select('slug, created_at');
   const { data: categories } = await supabase.from('categories').select('slug, created_at');

@@ -1,0 +1,4 @@
+-- Supabase Seed File
+-- Insert your local testing data here.
+-- Example:
+-- INSERT INTO public.profiles (id, email, role) VALUES ('...uuid...', 'test@example.com', 'admin');

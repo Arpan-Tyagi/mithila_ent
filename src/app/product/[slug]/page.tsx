@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { MotionDiv } from '@/components/Motion';
+import ProductImage from '@/components/ProductImage';
 
 export const revalidate = 3600;
 
@@ -69,11 +70,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             className="space-y-4 sticky top-32"
           >
             <div className="aspect-[3/4] bg-white/60 backdrop-blur-sm rounded-lg overflow-hidden relative shadow-sm border border-[var(--charcoal-ink)]/10">
-               {defaultVariant.images[0] ? (
-                  <img src={defaultVariant.images[0]} alt={product.title} className="w-full h-full object-cover" />
-               ) : (
-                  <div className="w-full h-full bg-[var(--unbleached-cotton)]"></div>
-               )}
+               <ProductImage
+                 src={defaultVariant.images?.[0]}
+                 alt={product.title}
+                 sizes="(max-width: 1024px) 100vw, 50vw"
+                 priority
+               />
             </div>
             {/* Thumbnail Gallery Placeholder */}
             {defaultVariant.images.length > 1 && (

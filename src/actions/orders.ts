@@ -2,11 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import React from 'react'
-import { Resend } from 'resend'
-import { render } from '@react-email/components'
-import { OrderConfirmationEmail } from '@/components/emails/OrderConfirmationEmail'
-import { generateInvoiceBuffer } from '@/utils/pdf/generateInvoice'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
 
 export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
   const supabase = await createClient()
@@ -28,6 +25,39 @@ export async function updateOrderStatus(orderId: string, status: string, trackin
     .eq('id', orderId)
 
   if (error) throw new Error(error.message)
+
+  // Notify the customer on shipment / delivery (durable queue + instant best-effort).
+  if (status === 'shipped' || status === 'delivered') {
+    try {
+      const admin = createAdminClient()
+      const { data: ord } = await admin
+        .from('orders')
+        .select('id, shipping_address, user_id')
+        .eq('id', orderId)
+        .single()
+      let recipient: string | undefined = (ord?.shipping_address as any)?.email
+      if (!recipient && ord?.user_id) {
+        const { data: u } = await admin.auth.admin.getUserById(ord.user_id)
+        recipient = u?.user?.email || undefined
+      }
+      if (recipient) {
+        const row = await enqueueOrderEmail(admin, {
+          orderId,
+          recipient,
+          kind: status === 'shipped' ? 'order_shipped' : 'order_delivered',
+        })
+        if (row) {
+          try {
+            await processEmailRow(admin, row)
+          } catch (sendErr) {
+            console.error('inline status send failed (will retry via cron):', sendErr)
+          }
+        }
+      }
+    } catch (statusEmailErr) {
+      console.error('Failed to queue status email:', statusEmailErr)
+    }
+  }
 
   revalidatePath('/admin/orders')
   revalidatePath('/account/orders')
@@ -92,46 +122,33 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
   const { error: piErr } = await supabase.rpc('log_payment_intent', { p_order_id: orderIdStr })
   if (piErr) console.error('log_payment_intent failed:', piErr)
 
-  // Generate and dispatch the invoice email (best-effort; never blocks the order).
+  // Queue the confirmation + invoice email durably, then try to send it right
+  // away (best-effort). Anything not sent now is retried by the cron worker, so
+  // a transient Resend/PDF failure no longer loses the email.
   try {
-    const { data: fullOrder } = await supabase
-      .from('orders')
-      .select('*, order_items(*, product_variants(color, products(title)))')
-      .eq('id', orderIdStr)
-      .single()
-
-    if (fullOrder && userData.user.email) {
-      const resend = new Resend(process.env.RESEND_API_KEY)
-      const pdfBuffer = await generateInvoiceBuffer(fullOrder, fullOrder.order_items)
+    if (userData.user.email) {
+      const admin = createAdminClient()
       const customerName =
         shippingAddress?.fullName ||
         [shippingAddress?.firstName, shippingAddress?.lastName].filter(Boolean).join(' ') ||
         'Customer'
-
-      const emailHtml = await render(
-        React.createElement(OrderConfirmationEmail, {
-          orderId: orderIdStr,
-          customerName: customerName,
-          totalAmount: Number(fullOrder.total_amount),
-        })
-      )
-
-      await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'Mithila Enterprises <onboarding@resend.dev>',
-        to: [userData.user.email],
-        subject: 'Order Confirmation & Official Invoice',
-        html: emailHtml,
-        attachments: [
-          {
-            filename: `Invoice_${orderIdStr.split('-')[0].toUpperCase()}.pdf`,
-            content: pdfBuffer,
-          },
-        ],
+      const row = await enqueueOrderEmail(admin, {
+        orderId: orderIdStr,
+        recipient: userData.user.email,
+        kind: 'order_confirmation',
+        payload: { customerName },
       })
+      if (row) {
+        try {
+          await processEmailRow(admin, row)
+        } catch (sendErr) {
+          console.error('inline confirmation send failed (will retry via cron):', sendErr)
+        }
+      }
     }
   } catch (emailErr) {
-    console.error('Failed to send invoice email:', emailErr)
-    // We do not throw to prevent crashing the order checkout flow
+    console.error('Failed to queue invoice email:', emailErr)
+    // Never block the order on email.
   }
 
   revalidatePath('/account/orders')

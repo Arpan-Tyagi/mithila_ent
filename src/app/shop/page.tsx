@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MOCK_VARIANTS } from '@/lib/mock-data';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { MotionDiv, MotionLink } from '@/components/Motion';
+import ProductImage from '@/components/ProductImage';
 
 import MobileFilterSheet from '@/components/MobileFilterSheet';
 import SortDropdown from '@/components/SortDropdown';
@@ -299,15 +300,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   >
                     {/* Fixed aspect ratio container for imagery */}
                     <div className="aspect-[3/4] bg-neutral-100 rounded-lg overflow-hidden border border-[var(--charcoal-ink)]/5 relative mb-4">
-                      {variant.images && variant.images[0] ? (
-                        <img 
-                          src={variant.images[0]} 
-                          alt={variant.products?.title || 'Product'} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-neutral-200"></div>
-                      )}
+                      <ProductImage
+                        src={variant.images?.[0]}
+                        alt={variant.products?.title || 'Product'}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        className="group-hover:scale-105 transition-transform duration-500"
+                      />
                       {variant.products?.is_featured && (
                         <span className="absolute top-4 left-4 bg-[var(--madder-red)] text-white text-[9px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md shadow-sm">
                           Featured

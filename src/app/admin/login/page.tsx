@@ -1,62 +1,53 @@
 "use client";
 
-import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
+import { useActionState } from 'react';
+import { login } from '@/actions/auth';
+
+const initialState = { error: '' };
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const supabase = createClient();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setMessage(error.message);
-        return;
-      }
-      // Verify admin role
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-      if (profile?.role === 'admin') {
-        window.location.href = '/admin/dashboard';
-      } else {
-        await supabase.auth.signOut();
-        setMessage('Access Denied. You do not have admin privileges.');
-      }
-    } catch (err) {
-      setMessage('Network error or invalid credentials.');
-    }
-  };
+  // Uses the same hardened server action as /login: failed-attempt lockout,
+  // security-alert email, and server-side admin redirect. No client-side auth.
+  const [state, formAction, isPending] = useActionState(login, initialState);
 
   return (
     <div className="min-h-screen bg-[var(--charcoal-ink)] flex items-center justify-center py-16 px-4">
       <div className="max-w-md w-full bg-[var(--unbleached-cotton)] p-8 shadow-[8px_8px_0_var(--turmeric)]">
         <h1 className="font-serif text-2xl font-bold mb-2 text-[var(--charcoal-ink)]">Owner Portal</h1>
-        <p className="font-sans text-sm opacity-70 mb-6">Restricted Access.</p>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input 
-            type="email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Admin Email" 
-            required 
+        <p className="font-sans text-sm opacity-70 mb-6">Restricted access. Admin credentials only.</p>
+        <form action={formAction} className="space-y-4">
+          <input type="hidden" name="next" value="/admin/dashboard" />
+          {state?.error && (
+            <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm font-sans">
+              {state.error}
+            </p>
+          )}
+          <input
+            type="email"
+            name="email"
+            placeholder="Admin Email"
+            required
             className="w-full border-2 border-[var(--charcoal-ink)] p-3 font-sans focus:outline-none bg-transparent"
           />
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password" 
-            required 
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
             className="w-full border-2 border-[var(--charcoal-ink)] p-3 font-sans focus:outline-none bg-transparent"
           />
-          <Button type="submit" className="w-full bg-[var(--charcoal-ink)] text-white hover:bg-[var(--madder-red)]">Authenticate</Button>
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full bg-[var(--charcoal-ink)] text-white hover:bg-[var(--madder-red)]"
+          >
+            {isPending ? 'Authenticating…' : 'Authenticate'}
+          </Button>
         </form>
-        {message && <p className="mt-4 text-sm font-sans font-bold text-[var(--madder-red)]">{message}</p>}
+        <p className="font-sans text-xs opacity-60 mt-6 text-center">
+          Non-admin accounts are denied access to this portal.
+        </p>
       </div>
     </div>
   );

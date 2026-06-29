@@ -23,12 +23,12 @@ export default function ForgotPassword() {
       <div className="max-w-md w-full bg-white p-8 border-2 border-[var(--charcoal-ink)] shadow-[4px_4px_0_var(--charcoal-ink)]">
         <h1 className="font-serif text-2xl font-bold mb-4">Reset Password</h1>
         <form onSubmit={handleReset} className="space-y-4">
-          <input 
-            type="email" 
+          <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email" 
-            required 
+            placeholder="Enter your email"
+            required
             className="w-full border-2 border-[var(--charcoal-ink)] p-3 font-sans focus:outline-none"
           />
           <Button type="submit" className="w-full">Send Link</Button>

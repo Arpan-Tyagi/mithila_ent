@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export interface ProductDraft {
   title: string
@@ -72,6 +73,7 @@ export async function createProduct(draft: ProductDraft, imagePreview: string | 
 
   revalidatePath('/admin')
   revalidatePath('/shop')
+  revalidatePath('/product/[slug]', 'page')
   revalidateTag('latest-products', 'max')
   return { success: true, slug }
 }
@@ -157,24 +159,28 @@ export async function updateProduct(productId: string, fields: ProductUpdate) {
   revalidatePath('/admin/products')
   revalidatePath('/admin/inventory')
   revalidatePath('/shop')
+  revalidatePath('/product/[slug]', 'page')
   revalidateTag('latest-products', 'max')
   return { success: true }
 }
 
 export async function updateVariant(
   variantId: string,
-  fields: { color: string; price: number; stock_quantity: number }
+  fields: { color: string; price: number; stock_quantity: number; images?: string[] }
 ) {
   const supabase = await createClient()
   await assertAdmin(supabase)
 
+  const payload: { color: string; price: number; stock_quantity: number; images?: string[] } = {
+    color: fields.color,
+    price: fields.price,
+    stock_quantity: Math.max(0, Math.floor(fields.stock_quantity)),
+  }
+  if (fields.images !== undefined) payload.images = fields.images
+
   const { error } = await supabase
     .from('product_variants')
-    .update({
-      color: fields.color,
-      price: fields.price,
-      stock_quantity: Math.max(0, Math.floor(fields.stock_quantity)),
-    })
+    .update(payload)
     .eq('id', variantId)
 
   if (error) throw new Error(error.message)
@@ -182,6 +188,7 @@ export async function updateVariant(
   revalidatePath('/admin/products')
   revalidatePath('/admin/inventory')
   revalidatePath('/shop')
+  revalidatePath('/product/[slug]', 'page')
   revalidateTag('latest-products', 'max')
   return { success: true }
 }
@@ -208,7 +215,7 @@ export async function updateStoreSettings(formData: FormData) {
 
 export async function addVariant(
   productId: string,
-  fields: { color: string; price: number; stock_quantity: number }
+  fields: { color: string; price: number; stock_quantity: number; images?: string[] }
 ) {
   const supabase = await createClient()
   await assertAdmin(supabase)
@@ -226,7 +233,7 @@ export async function addVariant(
       color: fields.color || 'Default',
       price: fields.price,
       stock_quantity: Math.max(0, Math.floor(fields.stock_quantity)),
-      images: [],
+      images: fields.images ?? [],
     })
     .select()
     .single()
@@ -236,6 +243,7 @@ export async function addVariant(
   revalidatePath('/admin/products')
   revalidatePath('/admin/inventory')
   revalidatePath('/shop')
+  revalidatePath('/product/[slug]', 'page')
   revalidateTag('latest-products', 'max')
   return { success: true, variant: data }
 }
@@ -274,6 +282,7 @@ export async function updateCategory(id: string, fields: CategoryUpdate) {
 
   revalidatePath('/admin/categories')
   revalidatePath('/shop')
+  revalidatePath('/product/[slug]', 'page')
   return { success: true }
 }
 
@@ -297,4 +306,75 @@ export async function updateSiteContent(formData: FormData) {
   revalidatePath('/legal', 'layout')
   revalidateTag('site-content', 'max')
   redirect('/admin/content?saved=1')
+}
+
+export async function deleteProduct(productId: string) {
+  const supabase = await createClient()
+  await assertAdmin(supabase)
+
+  // Use the service-role client for the integrity check + write so it doesn't
+  // depend on RLS nuances. We've already verified the caller is an admin.
+  const admin = createAdminClient()
+
+  // Has this product ever been ordered? order_items.variant_id is ON DELETE
+  // SET NULL, so a hard delete would silently strip the product from past
+  // invoices. If referenced, archive instead (hidden from storefront via the
+  // status='active' RLS read policy); otherwise hard-delete (variants cascade).
+  const { data: variants } = await admin
+    .from('product_variants')
+    .select('id')
+    .eq('product_id', productId)
+  const variantIds = (variants || []).map((v: { id: string }) => v.id)
+
+  let referenced = false
+  if (variantIds.length > 0) {
+    const { count } = await admin
+      .from('order_items')
+      .select('id', { count: 'exact', head: true })
+      .in('variant_id', variantIds)
+    referenced = (count || 0) > 0
+  }
+
+  if (referenced) {
+    const { error } = await admin.from('products').update({ status: 'archived' }).eq('id', productId)
+    if (error) throw new Error(error.message)
+  } else {
+    const { error } = await admin.from('products').delete().eq('id', productId)
+    if (error) throw new Error(error.message)
+  }
+
+  revalidatePath('/admin/products')
+  revalidatePath('/admin/inventory')
+  revalidatePath('/shop')
+  revalidatePath('/product/[slug]', 'page')
+  revalidateTag('latest-products', 'max')
+  return { success: true, archived: referenced }
+}
+
+export async function uploadProductImage(dataUrl: string) {
+  const supabase = await createClient()
+  await assertAdmin(supabase)
+
+  if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+    throw new Error('Invalid image data')
+  }
+  const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/)
+  if (!match) throw new Error('Unsupported image format')
+  const contentType = match[1]
+  const ext = contentType.split('/')[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg')
+  const buffer = Buffer.from(match[2], 'base64')
+  if (buffer.byteLength > 6 * 1024 * 1024) throw new Error('Image too large (max 6MB)')
+
+  // Service-role upload (admin already verified above). Bypasses Storage RLS.
+  const admin = createAdminClient()
+  const path = `${globalThis.crypto.randomUUID()}.${ext}`
+  const { error } = await admin.storage.from('product-images').upload(path, buffer, {
+    contentType,
+    upsert: false,
+    cacheControl: '31536000',
+  })
+  if (error) throw new Error(error.message)
+
+  const { data } = admin.storage.from('product-images').getPublicUrl(path)
+  return { url: data.publicUrl }
 }
