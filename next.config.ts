@@ -32,10 +32,6 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: [
           {
-            key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' https://panarchdigital.com http://localhost:3000",
-          },
-          {
             key: "x-frame-options",
             value: "",
           },
