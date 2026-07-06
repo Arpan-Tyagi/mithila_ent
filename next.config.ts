@@ -36,8 +36,8 @@ const nextConfig: NextConfig = {
             value: "frame-ancestors 'self' https://panarchdigital.com http://localhost:3000",
           },
           {
-            key: "X-Frame-Options",
-            value: "ALLOW-FROM https://panarchdigital.com",
+            key: "x-frame-options",
+            value: "",
           },
         ],
       },
