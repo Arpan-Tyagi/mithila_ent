@@ -14,7 +14,6 @@ export default async function proxy(request: NextRequest) {
   // Basic security headers
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-Content-Type-Options', 'nosniff');
 
   // Cloudflare GEO logic
