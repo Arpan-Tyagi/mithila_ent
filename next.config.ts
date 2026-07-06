@@ -26,6 +26,19 @@ const nextConfig: NextConfig = {
   experimental: {
     staticGenerationMaxConcurrency: 1,
   },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self' https://panarchdigital.com http://localhost:3000",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);
