@@ -36,6 +36,7 @@ export default function Header() {
   const navLinks = [
     ['Shop Fabrics', '/shop'],
     ['Our Story', '/about'],
+    ['Blog', '/blog'],
     ['Wholesale', '/wholesale'],
     ['Contact', '/contact']
   ];
@@ -71,10 +72,10 @@ export default function Header() {
               alt="Mithila Enterprises Logo" 
               className="w-9 h-9 rounded-full object-cover transition-transform group-hover:scale-105 shadow-sm"
             />
-            <span className="font-serif italic font-bold text-lg tracking-tight text-[var(--indigo-dye)] transition-colors">
+            <span className="font-serif italic font-bold text-lg tracking-tight text-[var(--madder-red)] transition-colors">
               Mithila
             </span>
-            <span className="font-sans text-[9px] uppercase tracking-widest text-[var(--charcoal-ink)] opacity-70 font-bold border-l border-[var(--charcoal-ink)]/20 pl-2 hidden sm:block">
+            <span className="font-sans text-[9px] uppercase tracking-widest text-[var(--madder-red)] opacity-70 font-bold border-l border-[var(--charcoal-ink)]/20 pl-2 hidden sm:block">
               Enterprises
             </span>
           </Link>

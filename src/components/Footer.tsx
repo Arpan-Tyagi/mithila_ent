@@ -31,6 +31,7 @@ export default async function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/about" className="hover:text-[var(--turmeric)] transition-colors">Our Legacy</Link></li>
               <li><Link href="/shop" className="hover:text-[var(--turmeric)] transition-colors">Shop Fabrics</Link></li>
+              <li><Link href="/blog" className="hover:text-[var(--turmeric)] transition-colors">Blog</Link></li>
               <li><Link href="/wholesale" className="hover:text-[var(--turmeric)] transition-colors">Wholesale Accounts</Link></li>
               <li><Link href="/contact" className="hover:text-[var(--turmeric)] transition-colors">Contact</Link></li>
             </ul>

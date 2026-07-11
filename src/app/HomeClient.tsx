@@ -131,19 +131,22 @@ export default function HomeClient({
       title: "Wireless Looms: The Evolution of Shuttle Weaving",
       date: "Feb 1, 2026",
       desc: "Stay updated with the latest trends in organic weaving, handloom innovations, and expert tips to enhance your fabric durability.",
-      img: "/images/about/loom.png"
+      img: "/images/about/loom.png",
+      slug: "wireless-looms-evolution-of-shuttle-weaving"
     },
     {
       title: "Indigo Dyeing and Beyond: Organic Pigment Fermentation",
       date: "Feb 4, 2026",
       desc: "Delving deep into traditional vat indigo fermentation methods and vegetable-based natural dye preservation techniques.",
-      img: "/images/about/dyes.png"
+      img: "/images/about/dyes.png",
+      slug: "indigo-dyeing-organic-pigment-fermentation"
     },
     {
       title: "Eco-Friendly Handloom Solutions for Modern Brands",
       date: "Feb 7, 2026",
       desc: "How boutique designers are leveraging organic GOTS certified cotton and fair-trade artisans to build sustainable luxury lines.",
-      img: "/images/about/fibers.png"
+      img: "/images/about/fibers.png",
+      slug: "eco-friendly-handloom-solutions-modern-brands"
     }
   ];
 
@@ -598,7 +601,7 @@ export default function HomeClient({
                       <h3 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)] mt-1 line-clamp-2 group-hover:text-[var(--madder-red)] transition-colors leading-snug">{blog.title}</h3>
                       <p className="font-sans text-xs text-zinc-500 mt-2 line-clamp-3 leading-relaxed">{blog.desc}</p>
                     </div>
-                    <Link href="/shop" className="text-xs font-bold text-[var(--madder-red)] hover:text-[var(--charcoal-ink)] transition-colors uppercase tracking-wider block mt-4 pt-2 border-t border-zinc-50">
+                    <Link href={`/blog/${blog.slug}`} className="text-xs font-bold text-[var(--madder-red)] hover:text-[var(--charcoal-ink)] transition-colors uppercase tracking-wider block mt-4 pt-2 border-t border-zinc-50">
                       Read Article &rarr;
                     </Link>
                   </div>
