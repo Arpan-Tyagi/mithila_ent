@@ -12,7 +12,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   const { data: product } = await supabase
     .from('products')
-    .select('*, product_variants(*)')
+    .select('*, product_variants(*), product_collections(collection_id)')
     .eq('id', id)
     .single();
 
@@ -25,5 +25,12 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     .select('id, name')
     .order('name');
 
-  return <EditProductForm product={product} categories={categories || []} />;
+  const { data: collections } = await supabase
+    .from('collections')
+    .select('id, title')
+    .order('title');
+
+  const collectionIds = (product.product_collections || []).map((pc: any) => pc.collection_id);
+
+  return <EditProductForm product={product} categories={categories || []} collections={collections || []} initialCollectionIds={collectionIds} />;
 }

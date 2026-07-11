@@ -15,7 +15,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     const { data } = await supabase
       .from('products')
-      .select('*, categories(name), product_variants(id, stock_quantity, price)')
+      .select('*, categories(name), product_variants(id, stock_quantity, price, images)')
       .order('created_at', { ascending: false });
     if (data) setProducts(data);
     setLoading(false);
@@ -61,10 +61,22 @@ export default function ProductsPage() {
         ) : (
           products.map((p) => {
             const totalStock = p.product_variants?.reduce((acc: number, v: any) => acc + v.stock_quantity, 0) || 0;
+            const firstImage = p.product_variants?.find((v: any) => v.images && v.images.length > 0)?.images[0];
             return (
               <div key={p.id} className="bg-white border-2 border-[var(--charcoal-ink)] p-4 shadow-[4px_4px_0_var(--charcoal-ink)]">
                 <div className="flex justify-between items-start gap-3">
-                  <h3 className="font-serif font-bold text-lg leading-tight">{p.title}</h3>
+                  <div className="flex items-center gap-3">
+                    {firstImage ? (
+                      <div className="w-12 h-12 rounded border border-[var(--charcoal-ink)]/20 overflow-hidden relative shrink-0">
+                        <img src={firstImage} alt={p.title} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded border border-[var(--charcoal-ink)]/20 bg-gray-100 flex items-center justify-center shrink-0">
+                        <span className="text-[10px] opacity-50 text-center leading-tight">No<br/>img</span>
+                      </div>
+                    )}
+                    <h3 className="font-serif font-bold text-lg leading-tight">{p.title}</h3>
+                  </div>
                   <span className={`shrink-0 px-2 py-1 text-[10px] font-bold uppercase tracking-widest border-2 ${p.status === 'active' ? 'border-green-600 text-green-700 bg-green-50' : 'border-orange-600 text-orange-700 bg-orange-50'}`}>{p.status}</span>
                 </div>
                 <p className="text-sm opacity-70 mt-1">{p.categories?.name || 'Uncategorized'}</p>
@@ -97,9 +109,23 @@ export default function ProductsPage() {
             <tbody>
               {products.map((p) => {
                 const totalStock = p.product_variants?.reduce((acc: number, v: any) => acc + v.stock_quantity, 0) || 0;
+                const firstImage = p.product_variants?.find((v: any) => v.images && v.images.length > 0)?.images[0];
                 return (
                   <tr key={p.id} className="border-b border-[var(--charcoal-ink)]/10 hover:bg-[var(--unbleached-cotton)] transition-colors">
-                    <td className="py-4 font-serif font-bold text-lg">{p.title}</td>
+                    <td className="py-4">
+                      <div className="flex items-center gap-3">
+                        {firstImage ? (
+                          <div className="w-10 h-10 rounded border border-[var(--charcoal-ink)]/20 overflow-hidden relative shrink-0">
+                            <img src={firstImage} alt={p.title} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded border border-[var(--charcoal-ink)]/20 bg-gray-100 flex items-center justify-center shrink-0">
+                            <span className="text-[10px] opacity-50">No img</span>
+                          </div>
+                        )}
+                        <span className="font-serif font-bold text-lg">{p.title}</span>
+                      </div>
+                    </td>
                     <td className="py-4 opacity-70 text-sm">{p.categories?.name || 'Uncategorized'}</td>
                     <td className="py-4 text-sm">{p.product_variants?.length || 0} ({totalStock} in stock)</td>
                     <td className="py-4">

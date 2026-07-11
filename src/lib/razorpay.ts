@@ -6,19 +6,48 @@ export function razorpayConfigured(): boolean {
   return !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
 }
 
-export async function createRazorpayOrder(amountPaise: number, receipt: string, notes?: Record<string, string>) {
+export async function createRazorpayOrder(amountPaise: number, receipt: string, notes?: Record<string, string>, customer_id?: string) {
   const keyId = process.env.RAZORPAY_KEY_ID || '';
   const keySecret = process.env.RAZORPAY_KEY_SECRET || '';
   const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+  
+  const payload: any = { amount: amountPaise, currency: 'INR', receipt, payment_capture: 1, notes: notes || {} };
+  if (customer_id) {
+    payload.customer_id = customer_id;
+  }
+
   const res = await fetch(`${RP_BASE}/orders`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
-    body: JSON.stringify({ amount: amountPaise, currency: 'INR', receipt, payment_capture: 1, notes: notes || {} }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     throw new Error(`Razorpay order create failed: ${res.status} ${await res.text()}`);
   }
   return res.json() as Promise<{ id: string; amount: number; currency: string }>;
+}
+
+export async function getOrCreateRazorpayCustomer(name: string, email: string, contact?: string): Promise<string> {
+  const keyId = process.env.RAZORPAY_KEY_ID || '';
+  const keySecret = process.env.RAZORPAY_KEY_SECRET || '';
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+  
+  const res = await fetch(`${RP_BASE}/customers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
+    body: JSON.stringify({
+      name,
+      email,
+      contact,
+      fail_existing: 0 // if it already exists, razorpay returns the existing one!
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Razorpay customer create failed: ${res.status} ${await res.text()}`);
+  }
+  const data = await res.json();
+  return data.id;
 }
 
 function safeEqual(a: string, b: string): boolean {

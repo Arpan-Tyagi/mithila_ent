@@ -1,9 +1,10 @@
-'use server'
+'use server';
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
+import { calculateShippingRates, calculateGST } from '@/lib/shipping'
 
 export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
   const supabase = await createClient()
@@ -85,6 +86,40 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
     return { success: false, error: 'Your cart is empty.' }
   }
 
+  // --- Dynamic Shipping & Tax Calculation (Server-side validation) ---
+  let totalWeightGrams = 0;
+  let baseAmount = 0;
+  let totalGst = 0;
+  
+  const itemIds = items.map(i => i.variant_id);
+  const { data: variants } = await supabase.from('product_variants').select('id, weight_grams, price, products(gst_rate)').in('id', itemIds);
+  
+  if (variants) {
+    for (const item of items) {
+      const variant = variants.find(v => v.id === item.variant_id);
+      if (variant) {
+        totalWeightGrams += (variant.weight_grams || 200) * item.quantity;
+        const lineBaseAmount = (variant.price || 0) * item.quantity;
+        baseAmount += lineBaseAmount;
+        
+        const gstRate = (variant.products as any)?.gst_rate || 5;
+        const state = shippingAddress?.state || 'Delhi';
+        const taxInfo = calculateGST(state, lineBaseAmount, Number(gstRate));
+        totalGst += taxInfo.totalTax;
+      }
+    }
+  }
+
+  const weightKg = totalWeightGrams / 1000;
+  let validatedShippingAmount = 50; 
+  if (weightKg > 0 && shippingAddress?.pinCode) {
+    const shipRes = await calculateShippingRates(shippingAddress.pinCode, weightKg);
+    if (shipRes && !shipRes.error) {
+      validatedShippingAmount = shipRes.rate;
+    }
+  }
+  // -------------------------------------------------------------------
+
   // Create the order atomically on the DB: prices are read server-side, stock
   // rows are locked FOR UPDATE, and the whole thing is one transaction that
   // rolls back on any failure. See supabase/migrations/0007_create_order_atomic.sql.
@@ -93,6 +128,8 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
     p_shipping: shippingAddress ?? {},
     p_discount_code: discountCode && discountCode.trim() ? discountCode.trim() : null,
     p_idempotency_key: idempotencyKey || null,
+    p_tax_amount_override: totalGst, // Assuming we modify SQL to accept absolute amount
+    p_shipping_amount: validatedShippingAmount,
   })
 
   if (error || !orderId) {
@@ -208,18 +245,98 @@ export async function requestCancellation(orderId: string) {
   return { success: true }
 }
 
-export async function cancelOrder(orderId: string) {
+export async function cancelOrder(orderId: string, restock: boolean = true) {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
   if (!userData?.user) throw new Error('Unauthorized')
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
   if (profile?.role !== 'admin') throw new Error('Forbidden')
 
-  const { data, error } = await supabase.rpc('cancel_order_restock', { p_order_id: orderId })
-  if (error || !(data as any)?.ok) throw new Error('Failed to cancel order')
+  const admin = createAdminClient()
+
+  if (restock) {
+    const { data, error } = await admin.rpc('cancel_order_restock', { p_order_id: orderId })
+    if (error || !(data as any)?.ok) throw new Error('Failed to cancel order')
+  } else {
+    // Refund Only (Shrinkage)
+    const { error } = await admin.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
+    await admin.from('order_items').update({ status: 'cancelled' }).eq('order_id', orderId)
+    await admin.from('order_events').insert({ order_id: orderId, status: 'cancelled', description: 'Order cancelled (No restock - Shrinkage)' })
+    if (error) throw new Error('Failed to cancel order')
+  }
 
   revalidatePath('/admin/orders')
   revalidatePath(`/admin/orders/${orderId}`)
   revalidatePath('/account/orders')
+  return { success: true }
+}
+
+export async function partialCancelOrderItem(orderId: string, orderItemId: string, restock: boolean) {
+  const supabase = await createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData?.user) throw new Error('Unauthorized')
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
+  if (profile?.role !== 'admin') throw new Error('Forbidden')
+
+  const admin = createAdminClient()
+
+  // 1. Get the order item
+  const { data: item, error: itemErr } = await admin.from('order_items').select('*').eq('id', orderItemId).single()
+  if (itemErr || !item) throw new Error('Order item not found')
+  if (item.status === 'cancelled' || item.status === 'refunded') throw new Error('Item is already cancelled')
+
+  // 2. Mark item as cancelled
+  await admin.from('order_items').update({ status: 'cancelled' }).eq('id', orderItemId)
+
+  // 3. Optional restock
+  if (restock) {
+    const { data: variant } = await admin.from('product_variants').select('stock_quantity').eq('id', item.variant_id).single()
+    if (variant) {
+      await admin.from('product_variants').update({ stock_quantity: variant.stock_quantity + item.quantity }).eq('id', item.variant_id)
+    }
+  }
+
+  // 4. Refund calculation (Proportional discount and Tax)
+  const { data: order } = await admin.from('orders').select('subtotal, total_discount, total_amount, shipping_address').eq('id', orderId).single()
+  if (order) {
+    const itemSubtotal = item.price * item.quantity
+    let refundAmount = itemSubtotal
+    if (order.total_discount > 0 && order.subtotal > 0) {
+      const discountShare = (itemSubtotal / order.subtotal) * order.total_discount
+      refundAmount = itemSubtotal - discountShare
+    }
+    
+    // Calculate tax to refund
+    let taxRefund = 0;
+    const { data: variantData } = await admin.from('product_variants').select('products(gst_rate)').eq('id', item.variant_id).single()
+    if ((variantData?.products as any)?.gst_rate) {
+      const gstRate = Number((variantData?.products as any)?.gst_rate)
+      const state = (order.shipping_address as any)?.state || 'Delhi'
+      const { calculateGST } = await import('@/lib/shipping')
+      const taxInfo = calculateGST(state, itemSubtotal, gstRate)
+      taxRefund = taxInfo.totalTax
+    }
+
+    refundAmount += taxRefund;
+    
+    // Decrease totals on order
+    const newSubtotal = Math.max(0, order.subtotal - itemSubtotal)
+    const newTotal = Math.max(0, order.total_amount - refundAmount)
+    
+    await admin.from('orders').update({
+      subtotal: newSubtotal,
+      total_amount: newTotal
+    }).eq('id', orderId)
+
+    // Log the event
+    await admin.from('order_events').insert({ 
+      order_id: orderId, 
+      status: 'refunded', 
+      description: `Line item cancelled. Refunded ₹${refundAmount.toFixed(2)} (inc. tax ₹${taxRefund.toFixed(2)})${restock ? ' (Restocked)' : ' (Shrinkage)'}` 
+    })
+  }
+
+  revalidatePath('/admin/orders')
+  revalidatePath(`/admin/orders/${orderId}`)
   return { success: true }
 }

@@ -108,11 +108,18 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               Customer requested cancellation
             </span>
           )}
-          <form action={async () => { 'use server'; await cancelOrder(order.id); }} className="ml-auto">
-            <button type="submit" className="text-[10px] uppercase tracking-widest font-bold border border-red-500/50 text-red-400 px-3 py-1.5 hover:bg-red-500 hover:text-white transition-colors">
-              Cancel &amp; Restock
-            </button>
-          </form>
+          <div className="ml-auto flex gap-2">
+            <form action={async () => { 'use server'; await cancelOrder(order.id, false); }}>
+              <button type="submit" className="text-[10px] uppercase tracking-widest font-bold border border-orange-500/50 text-orange-400 px-3 py-1.5 hover:bg-orange-500 hover:text-white transition-colors" title="Cancel order without returning items to active stock.">
+                Refund Only (Shrinkage)
+              </button>
+            </form>
+            <form action={async () => { 'use server'; await cancelOrder(order.id, true); }}>
+              <button type="submit" className="text-[10px] uppercase tracking-widest font-bold border border-red-500/50 text-red-400 px-3 py-1.5 hover:bg-red-500 hover:text-white transition-colors" title="Cancel order and return items to active stock.">
+                Cancel &amp; Restock
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
@@ -142,6 +149,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                   <th className="px-6 py-2 font-bold text-center">Qty</th>
                   <th className="px-6 py-2 font-bold text-right">Unit</th>
                   <th className="px-6 py-2 font-bold text-right">Line</th>
+                  <th className="px-6 py-2 font-bold text-right">Status / Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -157,11 +165,39 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                     <td className="px-6 py-3 text-center">{it.quantity}</td>
                     <td className="px-6 py-3 text-right">{money(it.unit_price)}</td>
                     <td className="px-6 py-3 text-right">{money(it.unit_price * it.quantity)}</td>
+                    <td className="px-6 py-3 text-right flex justify-end items-center gap-2">
+                      {it.status !== 'pending' && it.status !== 'fulfilled' ? (
+                        <span className={`text-[9px] uppercase tracking-widest font-bold ${it.status === 'refunded' ? 'text-orange-400' : 'text-red-400'}`}>
+                          {it.status}
+                        </span>
+                      ) : (
+                        <>
+                          <form action={async () => {
+                            'use server';
+                            const { partialCancelOrderItem } = await import('@/actions/orders');
+                            await partialCancelOrderItem(order.id, it.id, false);
+                          }}>
+                            <button type="submit" className="text-[9px] uppercase tracking-widest border border-orange-500/30 text-orange-400 px-2 py-1 hover:bg-orange-500 hover:text-white" title="Refund Only">
+                              Shrinkage
+                            </button>
+                          </form>
+                          <form action={async () => {
+                            'use server';
+                            const { partialCancelOrderItem } = await import('@/actions/orders');
+                            await partialCancelOrderItem(order.id, it.id, true);
+                          }}>
+                            <button type="submit" className="text-[9px] uppercase tracking-widest border border-red-500/30 text-red-400 px-2 py-1 hover:bg-red-500 hover:text-white" title="Cancel & Restock">
+                              Restock
+                            </button>
+                          </form>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
                 {(!order.order_items || order.order_items.length === 0) && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-6 text-center opacity-50 text-xs uppercase tracking-widest">
+                    <td colSpan={5} className="px-6 py-6 text-center opacity-50 text-xs uppercase tracking-widest">
                       No line items recorded.
                     </td>
                   </tr>
@@ -187,6 +223,39 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
 
         {/* Right: payments ledger + event timeline */}
         <div className="space-y-8">
+          
+          <section className="border border-white/15 bg-[#111] p-6">
+            <h2 className="text-[10px] uppercase tracking-widest font-bold text-[var(--turmeric)] mb-4">Fulfillment</h2>
+            <form action={async (formData) => {
+              'use server';
+              const { updateOrderStatus } = await import('@/actions/orders');
+              await updateOrderStatus(
+                order.id, 
+                formData.get('status') as string, 
+                formData.get('trackingNumber') as string || undefined
+              );
+            }} className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">Update Status</label>
+                <select name="status" defaultValue={order.status} className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]">
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">Tracking Number (optional)</label>
+                <input type="text" name="trackingNumber" defaultValue={order.tracking_status || ''} placeholder="e.g. AWB123456789" className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]" />
+              </div>
+              <button type="submit" className="w-full text-[10px] uppercase tracking-widest font-bold bg-[var(--turmeric)] text-black px-3 py-2 hover:bg-white transition-colors">
+                Save Updates
+              </button>
+            </form>
+          </section>
+
           <section className="border border-white/15 bg-[#111] p-6">
             <h2 className="text-[10px] uppercase tracking-widest font-bold text-[var(--turmeric)] mb-4">Payment Ledger</h2>
             {payments && payments.length > 0 ? (

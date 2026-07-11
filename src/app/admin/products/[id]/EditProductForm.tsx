@@ -7,7 +7,7 @@ import { ChevronLeft, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { updateProduct, updateVariant, addVariant, uploadProductImage } from '@/actions/admin';
 
-export default function EditProductForm({ product, categories }: { product: any; categories: any[] }) {
+export default function EditProductForm({ product, categories, collections, initialCollectionIds }: { product: any; categories: any[]; collections: any[]; initialCollectionIds: string[] }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
@@ -25,6 +25,7 @@ export default function EditProductForm({ product, categories }: { product: any;
     stretch: product.stretch || '',
     origin: product.origin || '',
     bestSuitedFor: Array.isArray(product.best_suited_for) ? product.best_suited_for.join(', ') : '',
+    collectionIds: initialCollectionIds || [],
   });
 
   const [variants, setVariants] = useState<any[]>(
@@ -33,6 +34,7 @@ export default function EditProductForm({ product, categories }: { product: any;
       color: v.color || '',
       price: Number(v.price) || 0,
       stock_quantity: Number(v.stock_quantity) || 0,
+      min_order_quantity: Number(v.min_order_quantity) || 1,
       images: Array.isArray(v.images) ? v.images : [],
     }))
   );
@@ -65,7 +67,7 @@ export default function EditProductForm({ product, categories }: { product: any;
     }
   };
 
-  const [newVar, setNewVar] = useState({ color: '', price: 0, stock_quantity: 0 });
+  const [newVar, setNewVar] = useState({ color: '', price: 0, stock_quantity: 0, min_order_quantity: 1 });
   const [addingVariant, setAddingVariant] = useState(false);
 
   const handleAddVariant = async () => {
@@ -80,6 +82,7 @@ export default function EditProductForm({ product, categories }: { product: any;
         color: newVar.color,
         price: Number(newVar.price) || 0,
         stock_quantity: Number(newVar.stock_quantity) || 0,
+        min_order_quantity: Number(newVar.min_order_quantity) || 1,
       });
       if (res?.variant) {
         setVariants((prev) => [
@@ -89,10 +92,11 @@ export default function EditProductForm({ product, categories }: { product: any;
             color: res.variant.color || '',
             price: Number(res.variant.price) || 0,
             stock_quantity: Number(res.variant.stock_quantity) || 0,
+            min_order_quantity: Number(res.variant.min_order_quantity) || 1,
           },
         ]);
       }
-      setNewVar({ color: '', price: 0, stock_quantity: 0 });
+      setNewVar({ color: '', price: 0, stock_quantity: 0, min_order_quantity: 1 });
       setMessage({ type: 'ok', text: 'Variant added.' });
       router.refresh();
     } catch (err: any) {
@@ -119,6 +123,7 @@ export default function EditProductForm({ product, categories }: { product: any;
         stretch: form.stretch,
         origin: form.origin,
         bestSuitedFor: form.bestSuitedFor,
+        collectionIds: form.collectionIds,
       });
 
       for (const v of variants) {
@@ -126,6 +131,7 @@ export default function EditProductForm({ product, categories }: { product: any;
           color: v.color,
           price: Number(v.price) || 0,
           stock_quantity: Number(v.stock_quantity) || 0,
+          min_order_quantity: Number(v.min_order_quantity) || 1,
           images: v.images,
         });
       }
@@ -215,6 +221,28 @@ export default function EditProductForm({ product, categories }: { product: any;
               ))}
             </select>
           </div>
+          <div className="md:col-span-2">
+            <label className={labelClass}>Collections (Optional)</label>
+            <div className="border border-[var(--charcoal-ink)]/20 p-2 max-h-32 overflow-y-auto space-y-1 focus-within:border-[var(--turmeric)]">
+              {collections.map(c => (
+                <label key={c.id} className="flex items-center gap-2 text-xs cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={form.collectionIds.includes(c.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setField('collectionIds', [...form.collectionIds, c.id]);
+                      } else {
+                        setField('collectionIds', form.collectionIds.filter((id: string) => id !== c.id));
+                      }
+                    }}
+                  />
+                  {c.title}
+                </label>
+              ))}
+              {collections.length === 0 && <span className="opacity-50 text-xs">No collections found</span>}
+            </div>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -267,14 +295,15 @@ export default function EditProductForm({ product, categories }: { product: any;
           <p className="opacity-50 text-sm">No variants for this product.</p>
         ) : (
           <div className="space-y-3">
-            <div className="grid grid-cols-3 gap-4 text-[10px] uppercase tracking-widest font-bold opacity-60">
+            <div className="grid grid-cols-4 gap-4 text-[10px] uppercase tracking-widest font-bold opacity-60">
               <span>Color</span>
               <span>Price (INR)</span>
               <span>Stock</span>
+              <span>MOQ (Meters)</span>
             </div>
             {variants.map((v) => (
               <div key={v.id} className="space-y-2 border-b border-[var(--charcoal-ink)]/10 pb-3 last:border-0">
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   <input
                     className={inputClass}
                     value={v.color}
@@ -292,6 +321,13 @@ export default function EditProductForm({ product, categories }: { product: any;
                     className={inputClass}
                     value={v.stock_quantity}
                     onChange={(e) => setVariantField(v.id, 'stock_quantity', e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    className={inputClass}
+                    value={v.min_order_quantity}
+                    onChange={(e) => setVariantField(v.id, 'min_order_quantity', e.target.value)}
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -321,7 +357,7 @@ export default function EditProductForm({ product, categories }: { product: any;
 
       <div className="bg-white border-2 border-[var(--charcoal-ink)] p-6 shadow-[4px_4px_0_var(--charcoal-ink)]">
         <h2 className="font-serif text-xl font-bold mb-4">Add Variant</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
           <div>
             <label className={labelClass}>Color</label>
             <input className={inputClass} value={newVar.color} onChange={(e) => setNewVar({ ...newVar, color: e.target.value })} placeholder="e.g. Indigo" />
@@ -333,6 +369,10 @@ export default function EditProductForm({ product, categories }: { product: any;
           <div>
             <label className={labelClass}>Stock</label>
             <input type="number" className={inputClass} value={newVar.stock_quantity} onChange={(e) => setNewVar({ ...newVar, stock_quantity: Number(e.target.value) })} />
+          </div>
+          <div>
+            <label className={labelClass}>MOQ (Meters)</label>
+            <input type="number" min="1" className={inputClass} value={newVar.min_order_quantity} onChange={(e) => setNewVar({ ...newVar, min_order_quantity: Number(e.target.value) })} />
           </div>
           <Button onClick={handleAddVariant} disabled={addingVariant} className="bg-[var(--indigo-dye)] text-white hover:bg-[var(--charcoal-ink)] uppercase tracking-widest text-xs font-bold">
             {addingVariant ? 'Adding...' : 'Add Variant'}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ShoppingCart, User, Menu, Search, X } from 'lucide-react';
+import { ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useCart } from '@/store/useCart';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -36,6 +36,7 @@ export default function Header() {
   const navLinks = [
     ['Shop Fabrics', '/shop'],
     ['Our Story', '/about'],
+    ['Blog', '/blog'],
     ['Wholesale', '/wholesale'],
     ['Contact', '/contact']
   ];
@@ -66,13 +67,15 @@ export default function Header() {
           
           {/* Logo & Identity */}
           <Link href="/" className="flex items-center gap-2 group min-h-[48px] py-1">
-            <div className="w-8 h-8 rounded-full bg-[var(--madder-red)] flex items-center justify-center text-white font-bold font-serif text-sm transition-transform group-hover:scale-105 shadow-sm">
-              M
-            </div>
-            <span className="font-serif italic font-bold text-lg tracking-tight text-[var(--indigo-dye)] transition-colors">
+            <img 
+              src="/images/logo.png" 
+              alt="Mithila Enterprises Logo" 
+              className="w-9 h-9 rounded-full object-cover transition-transform group-hover:scale-105 shadow-sm"
+            />
+            <span className="font-serif italic font-bold text-lg tracking-tight text-[var(--madder-red)] transition-colors">
               Mithila
             </span>
-            <span className="font-sans text-[9px] uppercase tracking-widest text-[var(--charcoal-ink)] opacity-70 font-bold border-l border-[var(--charcoal-ink)]/20 pl-2 hidden sm:block">
+            <span className="font-sans text-[9px] uppercase tracking-widest text-[var(--madder-red)] opacity-70 font-bold border-l border-[var(--charcoal-ink)]/20 pl-2 hidden sm:block">
               Enterprises
             </span>
           </Link>
@@ -92,9 +95,7 @@ export default function Header() {
 
           {/* Action Triggers - Mobile First 48px touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 text-[var(--charcoal-ink)]">
-            <Link href="/shop" className="w-12 h-12 flex items-center justify-center hover:text-[var(--madder-red)] transition-colors" aria-label="Search">
-              <Search size={20} strokeWidth={2} />
-            </Link>
+
             
             <Link href="/login" className="w-12 h-12 hidden sm:flex items-center justify-center hover:text-[var(--madder-red)] transition-colors" aria-label="User Account">
               <User size={20} strokeWidth={2} />

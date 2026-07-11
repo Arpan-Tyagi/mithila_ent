@@ -21,6 +21,10 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Mithila Enterprises | Premium Cotton & Linen",
   description: "Wholesale B2C Premium Cotton & Linen Fabrics inspired by Madhubani Art.",
+  icons: {
+    icon: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export default async function RootLayout({
@@ -34,6 +38,7 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <StructuredData />

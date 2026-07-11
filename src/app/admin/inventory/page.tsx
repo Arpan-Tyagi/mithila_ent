@@ -13,6 +13,7 @@ export default async function AdminInventoryPage() {
       color,
       price,
       stock_quantity,
+      images,
       products!inner(title, slug)
     `)
     .order('stock_quantity', { ascending: true })
@@ -40,13 +41,26 @@ export default async function AdminInventoryPage() {
                 </div>
               </div>
 
-              <h2 className="font-serif text-xl font-bold mb-1 group-hover:text-[var(--turmeric)] transition-colors">
-                {(variant.products as any)?.title || 'Unknown Product'}
-              </h2>
-              <div className="text-sm font-bold uppercase tracking-widest opacity-60 flex gap-2">
-                <span>{variant.color}</span>
-                <span className="opacity-50">|</span>
-                <span>₹{variant.price} / m</span>
+              <div className="flex gap-4">
+                {variant.images && variant.images[0] ? (
+                  <div className="w-16 h-16 rounded border border-white/20 overflow-hidden relative shrink-0">
+                    <img src={variant.images[0]} alt="Variant" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded border border-white/20 bg-white/5 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] opacity-50 text-center leading-tight">No<br/>img</span>
+                  </div>
+                )}
+                <div>
+                  <h2 className="font-serif text-xl font-bold mb-1 group-hover:text-[var(--turmeric)] transition-colors">
+                    {(variant.products as any)?.title || 'Unknown Product'}
+                  </h2>
+                  <div className="text-sm font-bold uppercase tracking-widest opacity-60 flex gap-2">
+                    <span>{variant.color}</span>
+                    <span className="opacity-50">|</span>
+                    <span>₹{variant.price} / m</span>
+                  </div>
+                </div>
               </div>
             </div>
 

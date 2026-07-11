@@ -17,8 +17,10 @@ export interface ProductDraft {
   origin: string
   bestSuitedFor: string
   pricePerMeter: number
+  minOrderQuantity?: number
   colors: string[]
   categoryId: string
+  collectionIds?: string[]
 }
 
 export async function createProduct(draft: ProductDraft, imagePreview: string | null) {
@@ -63,12 +65,22 @@ export async function createProduct(draft: ProductDraft, imagePreview: string | 
     color: color,
     price: draft.pricePerMeter,
     stock_quantity: 50,
+    min_order_quantity: draft.minOrderQuantity || 1,
     images: imagePreview ? [imagePreview] : []
   }))
 
   if (variantsToInsert.length > 0) {
     const { error: variantError } = await supabase.from('product_variants').insert(variantsToInsert)
     if (variantError) throw new Error(variantError.message)
+  }
+
+  // Insert collections
+  if (draft.collectionIds && draft.collectionIds.length > 0) {
+    const collectionInserts = draft.collectionIds.map(cId => ({
+      product_id: prodData.id,
+      collection_id: cId
+    }))
+    await supabase.from('product_collections').insert(collectionInserts)
   }
 
   revalidatePath('/admin')
@@ -130,6 +142,7 @@ export interface ProductUpdate {
   stretch: string
   origin: string
   bestSuitedFor: string
+  collectionIds?: string[]
 }
 
 export async function updateProduct(productId: string, fields: ProductUpdate) {
@@ -156,6 +169,17 @@ export async function updateProduct(productId: string, fields: ProductUpdate) {
 
   if (error) throw new Error(error.message)
 
+  if (fields.collectionIds) {
+    await supabase.from('product_collections').delete().eq('product_id', productId)
+    if (fields.collectionIds.length > 0) {
+      const collectionInserts = fields.collectionIds.map(cId => ({
+        product_id: productId,
+        collection_id: cId
+      }))
+      await supabase.from('product_collections').insert(collectionInserts)
+    }
+  }
+
   revalidatePath('/admin/products')
   revalidatePath('/admin/inventory')
   revalidatePath('/shop')
@@ -166,16 +190,17 @@ export async function updateProduct(productId: string, fields: ProductUpdate) {
 
 export async function updateVariant(
   variantId: string,
-  fields: { color: string; price: number; stock_quantity: number; images?: string[] }
+  fields: { color: string; price: number; stock_quantity: number; min_order_quantity?: number; images?: string[] }
 ) {
   const supabase = await createClient()
   await assertAdmin(supabase)
 
-  const payload: { color: string; price: number; stock_quantity: number; images?: string[] } = {
+  const payload: any = {
     color: fields.color,
     price: fields.price,
     stock_quantity: Math.max(0, Math.floor(fields.stock_quantity)),
   }
+  if (fields.min_order_quantity !== undefined) payload.min_order_quantity = Math.max(1, Math.floor(fields.min_order_quantity))
   if (fields.images !== undefined) payload.images = fields.images
 
   const { error } = await supabase
@@ -215,7 +240,7 @@ export async function updateStoreSettings(formData: FormData) {
 
 export async function addVariant(
   productId: string,
-  fields: { color: string; price: number; stock_quantity: number; images?: string[] }
+  fields: { color: string; price: number; stock_quantity: number; min_order_quantity?: number; images?: string[] }
 ) {
   const supabase = await createClient()
   await assertAdmin(supabase)
@@ -233,6 +258,7 @@ export async function addVariant(
       color: fields.color || 'Default',
       price: fields.price,
       stock_quantity: Math.max(0, Math.floor(fields.stock_quantity)),
+      min_order_quantity: Math.max(1, Math.floor(fields.min_order_quantity || 1)),
       images: fields.images ?? [],
     })
     .select()
@@ -286,18 +312,57 @@ export async function updateCategory(id: string, fields: CategoryUpdate) {
   return { success: true }
 }
 
+export async function updateCollection(id: string, fields: { title: string, slug: string, is_active: boolean }) {
+  const supabase = await createClient()
+  await assertAdmin(supabase)
+
+  const slug = (fields.slug || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  if (!fields.title?.trim() || !slug) throw new Error('Title and slug are required')
+
+  const { error } = await supabase
+    .from('collections')
+    .update({ title: fields.title.trim(), slug, is_active: !!fields.is_active })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/admin/collections')
+  revalidatePath('/shop')
+  return { success: true }
+}
+
 export async function updateSiteContent(formData: FormData) {
   const supabase = await createClient()
   await assertAdmin(supabase)
 
   const key = ((formData.get('key') as string) || '').trim()
   const title = ((formData.get('title') as string) || '').trim()
-  const body = (formData.get('body') as string) || ''
+  
   if (!key) throw new Error('Missing content key')
+
+  // Collect all fields that are not 'key' or 'title'
+  const payload: any = {}
+  let hasExtraFields = false
+  for (const [k, v] of formData.entries()) {
+    if (k !== 'key' && k !== 'title') {
+      payload[k] = (v as string).trim()
+      hasExtraFields = true
+    }
+  }
+
+  // If the only field is 'body', store it as a raw string for backwards compatibility,
+  // unless we have multiple custom fields, in which case we stringify the whole payload.
+  let bodyContent = ''
+  if (hasExtraFields) {
+    if (Object.keys(payload).length === 1 && payload['body'] !== undefined) {
+      bodyContent = payload['body']
+    } else {
+      bodyContent = JSON.stringify(payload)
+    }
+  }
 
   const { error } = await supabase
     .from('site_content')
-    .upsert({ key, title, body, updated_at: new Date().toISOString() })
+    .upsert({ key, title, body: bodyContent, updated_at: new Date().toISOString() })
   if (error) throw new Error(error.message)
 
   revalidatePath('/admin/content')

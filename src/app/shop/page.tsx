@@ -12,12 +12,13 @@ import { getSiteContentMap } from '@/lib/content';
 
 export const revalidate = 3600; // ISR cache for 1 hour
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string, style?: string, color?: string, gsm?: string, construction?: string, count?: string, price?: string, sort?: string }> }) {
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string, style?: string, color?: string, gsm?: string, construction?: string, count?: string, price?: string, sort?: string, collection?: string }> }) {
   const contentMap = await getSiteContentMap();
   const header = contentMap['shop_header'] || { title: '', body: '' };
   
   const params = await searchParams;
   const category = params.category?.toLowerCase();
+  const collection = params.collection;
   const style = params.style?.toLowerCase();
   const color = params.color;
   const gsmFilter = params.gsm;
@@ -27,72 +28,81 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const sort = params.sort;
   
   const supabase = await createClient();
-  const { data: dbVariants, error } = await supabase
+  let query = supabase
     .from('product_variants')
-    .select('*, products(title, slug, weave, count, construction, gsm, is_featured, tags, categories(name, slug))');
+    .select('*, products!inner(title, slug, weave, count, construction, gsm, is_featured, tags, categories!inner(name, slug))');
+    
+  if (category) {
+    // fallback if no relation works, but products!inner(categories!inner()) allows this:
+    query = query.eq('products.categories.slug', category);
+  }
+  if (collection) {
+    const { data: pcData } = await supabase.from('collections')
+      .select('id, product_collections(product_id)')
+      .eq('slug', collection)
+      .single();
+      
+    const productIds = pcData?.product_collections?.map((pc: any) => pc.product_id) || [];
+    if (productIds.length > 0) {
+      query = query.in('product_id', productIds);
+    } else {
+      query = query.in('product_id', ['00000000-0000-0000-0000-000000000000']);
+    }
+  }
+  if (style) {
+    query = query.contains('products.tags', [style]);
+  }
+  if (color) {
+    query = query.eq('color', color);
+  }
+  if (construction) {
+    query = query.eq('products.construction', construction);
+  }
+  if (count) {
+    query = query.eq('products.count', count);
+  }
+  
+  if (gsmFilter === 'light') {
+    query = query.lt('products.gsm', 150);
+  } else if (gsmFilter === 'medium') {
+    query = query.gte('products.gsm', 150).lte('products.gsm', 250);
+  } else if (gsmFilter === 'heavy') {
+    query = query.gt('products.gsm', 250);
+  }
+
+  if (priceFilter === 'budget') {
+    query = query.lt('price', 1000);
+  } else if (priceFilter === 'standard') {
+    query = query.gte('price', 1000).lte('price', 2000);
+  } else if (priceFilter === 'premium') {
+    query = query.gt('price', 2000);
+  }
+
+  if (sort === 'price_asc') {
+    query = query.order('price', { ascending: true });
+  } else if (sort === 'price_desc') {
+    query = query.order('price', { ascending: false });
+  } else {
+    // Default sorting - we can't easily order by foreign table column in PostgREST unless we do some tricks. 
+    // We'll leave it default and sort featured in memory or rely on default ID sort.
+  }
+
+  const { data: dbVariants, error } = await query;
     
   if (error) {
     console.warn("Supabase fetch failed (expected if no DB configured), falling back to mock data.");
   }
 
-  // Use actual database data or mock data fallback
-  const baseVariants = (dbVariants && dbVariants.length > 0) ? dbVariants : MOCK_VARIANTS;
+  let variants = (dbVariants && dbVariants.length > 0) ? dbVariants : MOCK_VARIANTS;
 
-  // Dynamically extract available values from the FULL database to populate dropdowns
-  const allColors = Array.from(new Set(baseVariants.map(v => v.color).filter(Boolean))) as string[];
-  const allConstructions = Array.from(new Set(baseVariants.map(v => v.products?.construction).filter(Boolean))) as string[];
-  const allCounts = Array.from(new Set(baseVariants.map(v => v.products?.count).filter(Boolean))) as string[];
-
-  let variants = [...baseVariants];
-
-  // Apply filters
-  if (category) {
-    variants = variants.filter(v =>
-      v.products?.tags?.includes(category) ||
-      v.products?.categories?.slug === category ||
-      v.products?.categories?.name?.toLowerCase() === category
-    );
-  }
-  if (style) {
-    variants = variants.filter(v => v.products?.tags?.includes(style));
-  }
-  if (color) {
-    variants = variants.filter(v => v.color === color);
-  }
-  if (construction) {
-    variants = variants.filter(v => v.products?.construction === construction);
-  }
-  if (count) {
-    variants = variants.filter(v => v.products?.count === count);
-  }
-  if (gsmFilter) {
-    variants = variants.filter(v => {
-      const gsm = v.products?.gsm || 0;
-      if (gsmFilter === 'light') return gsm < 150;
-      if (gsmFilter === 'medium') return gsm >= 150 && gsm <= 250;
-      if (gsmFilter === 'heavy') return gsm > 250;
-      return true;
-    });
-  }
-  if (priceFilter) {
-    variants = variants.filter(v => {
-      const price = v.price || 0;
-      if (priceFilter === 'budget') return price < 1000;
-      if (priceFilter === 'standard') return price >= 1000 && price <= 2000;
-      if (priceFilter === 'premium') return price > 2000;
-      return true;
-    });
+  if (!sort) {
+    variants.sort((a: any, b: any) => (b.products?.is_featured ? 1 : 0) - (a.products?.is_featured ? 1 : 0));
   }
 
-  // Apply sorting
-  if (sort === 'price_asc') {
-    variants.sort((a, b) => (a.price || 0) - (b.price || 0));
-  } else if (sort === 'price_desc') {
-    variants.sort((a, b) => (b.price || 0) - (a.price || 0));
-  } else {
-    // Default sort by featured
-    variants.sort((a, b) => (b.products?.is_featured ? 1 : 0) - (a.products?.is_featured ? 1 : 0));
-  }
+  // Fallback for options
+  const allColors = Array.from(new Set(MOCK_VARIANTS.map(v => v.color).filter(Boolean))) as string[];
+  const allConstructions = Array.from(new Set(MOCK_VARIANTS.map(v => v.products?.construction).filter(Boolean))) as string[];
+  const allCounts = Array.from(new Set(MOCK_VARIANTS.map(v => v.products?.count).filter(Boolean))) as string[];
 
   const categoryDescriptions: Record<string, string> = {
     linen: "Pure linen holds tension and breathes. The long flax fibers provide high tensile strength and distinct surface slubs. This textile naturally resists heat retention and molds to the wearer over time.",
@@ -127,9 +137,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     { name: 'Tweed', slug: 'tweed' },
   ];
 
+  const { data: dbCollections } = await supabase.from('collections').select('title, slug').eq('is_active', true).order('title');
+  const collectionsList = dbCollections || [];
+
   const getFilterUrl = (key: string, value: string | null) => {
     const q = new URLSearchParams();
     if (category) q.set('category', category);
+    if (collection) q.set('collection', collection);
     if (style) q.set('style', style);
     if (color) q.set('color', color);
     if (gsmFilter) q.set('gsm', gsmFilter);
@@ -219,6 +233,30 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 })}
               </div>
             </div>
+
+            {/* Curated Collections */}
+            {collectionsList.length > 0 && (
+              <div>
+                <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Collections</h3>
+                <div className="flex flex-col gap-1 font-sans text-sm">
+                  <Link 
+                    href={getFilterUrl('collection', null)} 
+                    className={`px-4 py-2 rounded transition-colors font-bold ${!collection ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}
+                  >
+                    All Items
+                  </Link>
+                  {collectionsList.map(coll => (
+                    <Link 
+                      key={coll.slug}
+                      href={getFilterUrl('collection', coll.slug)} 
+                      className={`px-4 py-2 rounded transition-colors font-bold ${collection === coll.slug ? 'text-[var(--madder-red)]' : 'text-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)]/5'}`}
+                    >
+                      {coll.title}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Weight (GSM) */}
             <div>
