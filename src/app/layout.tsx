@@ -21,6 +21,10 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Mithila Enterprises | Premium Cotton & Linen",
   description: "Wholesale B2C Premium Cotton & Linen Fabrics inspired by Madhubani Art.",
+  icons: {
+    icon: "/images/logo.jpg",
+    apple: "/images/logo.jpg",
+  },
 };
 
 export default async function RootLayout({

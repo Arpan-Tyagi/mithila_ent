@@ -13,9 +13,11 @@ export default async function Footer() {
           {/* Identity Column */}
           <div className="space-y-4 col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 font-serif italic font-bold text-xl text-[var(--unbleached-cotton)] hover:text-[var(--turmeric)] transition-colors">
-              <div className="w-6 h-6 rounded-full bg-[var(--madder-red)] flex items-center justify-center text-white font-bold font-serif text-xs">
-                M
-              </div>
+              <img 
+                src="/images/logo.jpg" 
+                alt="Mithila Enterprises Logo" 
+                className="w-7 h-7 rounded-full object-cover"
+              />
               Mithila
             </Link>
             <p className="text-xs text-zinc-400 max-w-xs leading-relaxed">

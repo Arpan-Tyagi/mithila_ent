@@ -37,13 +37,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-6 border-b-2 border-[var(--charcoal-ink)]/20 flex items-center justify-between overflow-hidden whitespace-nowrap h-[88px]">
           <AnimatePresence mode="wait">
             {!isCollapsed ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col">
-                <h1 className="font-serif text-2xl font-bold tracking-tight text-[var(--turmeric)]">MITHILA</h1>
-                <p className="text-xs tracking-widest opacity-70 uppercase">Owner Portal</p>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3">
+                <img src="/images/logo.jpg" alt="ME" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                <div className="flex flex-col">
+                  <h1 className="font-serif text-2xl font-bold tracking-tight text-[var(--turmeric)]">MITHILA</h1>
+                  <p className="text-xs tracking-widest opacity-70 uppercase">Owner Portal</p>
+                </div>
               </motion.div>
             ) : (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center w-full">
-                <span className="font-serif text-2xl font-bold text-[var(--turmeric)]">M</span>
+                <img src="/images/logo.jpg" alt="ME" className="w-9 h-9 rounded-full object-cover" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -88,7 +91,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
         <header className="md:hidden bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)] p-4 flex justify-between items-center border-b-2 border-[var(--turmeric)]">
-          <span className="font-serif font-bold text-[var(--turmeric)]">MITHILA</span>
+          <span className="flex items-center gap-2 font-serif font-bold text-[var(--turmeric)]">
+            <img src="/images/logo.jpg" alt="ME" className="w-8 h-8 rounded-full object-cover" />
+            MITHILA
+          </span>
           <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="w-10 h-10 flex items-center justify-center">
             <Menu />
           </button>
@@ -119,9 +125,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="fixed top-0 left-0 bottom-0 w-72 max-w-[82%] bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)] z-50 md:hidden flex flex-col border-r-2 border-[var(--turmeric)]"
             >
               <div className="p-6 border-b-2 border-[var(--charcoal-ink)]/20 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <h1 className="font-serif text-2xl font-bold text-[var(--turmeric)]">MITHILA</h1>
-                  <p className="text-xs tracking-widest opacity-70 uppercase">Owner Portal</p>
+                <div className="flex items-center gap-3">
+                  <img src="/images/logo.jpg" alt="ME" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                  <div className="flex flex-col">
+                    <h1 className="font-serif text-2xl font-bold text-[var(--turmeric)]">MITHILA</h1>
+                    <p className="text-xs tracking-widest opacity-70 uppercase">Owner Portal</p>
+                  </div>
                 </div>
                 <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="w-10 h-10 flex items-center justify-center hover:text-[var(--turmeric)]">
                   <X />
