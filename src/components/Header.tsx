@@ -67,7 +67,7 @@ export default function Header() {
           {/* Logo & Identity */}
           <Link href="/" className="flex items-center gap-2 group min-h-[48px] py-1">
             <img 
-              src="/images/logo.jpg" 
+              src="/images/logo.png" 
               alt="Mithila Enterprises Logo" 
               className="w-9 h-9 rounded-full object-cover transition-transform group-hover:scale-105 shadow-sm"
             />
