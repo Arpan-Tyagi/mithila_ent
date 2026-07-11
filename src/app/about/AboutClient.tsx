@@ -76,7 +76,7 @@ export default function AboutClient({
         {/* Layered Heritage Section with Parallax */}
         <section className="relative w-full mb-12 md:mb-8">
           <div className="relative w-full md:w-[70%] h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-[var(--charcoal-ink)]/10 z-10">
-            <Image src="/images/about/loom.png" alt="Antique Wooden Shuttle Loom" fill className="object-cover" />
+            <Image src="/images/about/loom.png" alt="Antique Wooden Shuttle Loom" fill sizes="(max-width: 768px) 100vw, 70vw" className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--charcoal-ink)]/50 to-transparent mix-blend-multiply" />
           </div>
           
@@ -138,7 +138,7 @@ export default function AboutClient({
                 </div>
               </div>
               <div className="w-full md:w-1/2 relative h-[300px] md:h-[500px] rounded-2xl overflow-hidden shadow-lg z-10 border border-[var(--charcoal-ink)]/10 group order-1 md:order-2">
-                <Image src="/images/about/fibers.png" alt="Raw Fibers" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                <Image src="/images/about/fibers.png" alt="Raw Fibers" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/10 mix-blend-multiply group-hover:bg-transparent transition-colors duration-700" />
               </div>
             </motion.div>
@@ -168,7 +168,7 @@ export default function AboutClient({
                 </div>
               </div>
               <div className="w-full md:w-1/2 relative h-[300px] md:h-[500px] rounded-2xl overflow-hidden shadow-lg z-10 border border-[var(--charcoal-ink)]/10 group order-1 md:order-2">
-                <Image src="/images/about/loom.png" alt="Finishing" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                <Image src="/images/about/loom.png" alt="Finishing" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/10 mix-blend-multiply group-hover:bg-transparent transition-colors duration-700" />
               </div>
             </motion.div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ShoppingCart, User, Menu, Search, X } from 'lucide-react';
+import { ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useCart } from '@/store/useCart';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -92,9 +92,7 @@ export default function Header() {
 
           {/* Action Triggers - Mobile First 48px touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 text-[var(--charcoal-ink)]">
-            <Link href="/shop" className="w-12 h-12 flex items-center justify-center hover:text-[var(--madder-red)] transition-colors" aria-label="Search">
-              <Search size={20} strokeWidth={2} />
-            </Link>
+
             
             <Link href="/login" className="w-12 h-12 hidden sm:flex items-center justify-center hover:text-[var(--madder-red)] transition-colors" aria-label="User Account">
               <User size={20} strokeWidth={2} />

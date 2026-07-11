@@ -45,12 +45,21 @@ export const getStoreSettings = unstable_cache(
 );
 
 export const getSiteContentMap = unstable_cache(
-  async (): Promise<Record<string, { title: string; body: string }>> => {
+  async (): Promise<Record<string, any>> => {
     try {
       const { data } = await anon().from('site_content').select('key, title, body');
-      const map: Record<string, { title: string; body: string }> = {};
+      const map: Record<string, any> = {};
       for (const r of data || []) {
-        map[(r as any).key] = { title: (r as any).title || '', body: (r as any).body || '' };
+        let bodyData = { body: (r as any).body || '' };
+        if ((r as any).body) {
+          try {
+            const parsed = JSON.parse((r as any).body);
+            bodyData = { ...bodyData, ...parsed };
+          } catch (e) {
+            // keep default body string
+          }
+        }
+        map[(r as any).key] = { title: (r as any).title || '', ...bodyData };
       }
       return map;
     } catch {

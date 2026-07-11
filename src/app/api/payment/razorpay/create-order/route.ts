@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createRazorpayOrder, razorpayConfigured } from '@/lib/razorpay';
+import { createRazorpayOrder, razorpayConfigured, getOrCreateRazorpayCustomer } from '@/lib/razorpay';
 import { checkApiRateLimit, clientIp } from '@/lib/ratelimit';
 
 // Creates a Razorpay order for one of OUR orders (which must already exist and
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: order } = await supabase
       .from('orders')
-      .select('id, total_amount, is_paid')
+      .select('id, total_amount, is_paid, user_id, shipping_address')
       .eq('id', orderId)
       .single();
 
@@ -28,13 +28,34 @@ export async function POST(request: Request) {
     if (order.is_paid) return NextResponse.json({ error: 'Order already paid' }, { status: 409 });
 
     const amountPaise = Math.round(Number(order.total_amount) * 100);
-    const rp = await createRazorpayOrder(amountPaise, String(order.id), { order_id: String(order.id) });
+    
+    // Fetch or create Razorpay Customer ID for vaulting cards
+    let customerId = undefined;
+    if (order.user_id) {
+      const { data: profile } = await supabase.from('profiles').select('razorpay_customer_id').eq('id', order.user_id).single();
+      customerId = profile?.razorpay_customer_id;
+      
+      if (!customerId) {
+        const addr = order.shipping_address as any;
+        const name = [addr?.firstName, addr?.lastName].filter(Boolean).join(' ') || 'Customer';
+        const email = addr?.email || 'customer@example.com';
+        
+        customerId = await getOrCreateRazorpayCustomer(name, email);
+        if (customerId) {
+          // Fire and forget update
+          supabase.from('profiles').update({ razorpay_customer_id: customerId }).eq('id', order.user_id).then();
+        }
+      }
+    }
+
+    const rp = await createRazorpayOrder(amountPaise, String(order.id), { order_id: String(order.id) }, customerId);
 
     return NextResponse.json({
       razorpayOrderId: rp.id,
       amount: rp.amount,
       currency: rp.currency,
       keyId: process.env.RAZORPAY_KEY_ID,
+      customerId,
     });
   } catch (err) {
     console.error('razorpay create-order:', err);

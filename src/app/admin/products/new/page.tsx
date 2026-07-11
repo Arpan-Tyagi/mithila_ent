@@ -13,6 +13,7 @@ export default function AIProductIngestion() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [baseName, setBaseName] = useState('');
   const [categories, setCategories] = useState<any[]>([]);
+  const [collections, setCollections] = useState<any[]>([]);
   const supabase = createClient();
   const router = useRouter();
   
@@ -30,7 +31,9 @@ export default function AIProductIngestion() {
     pricePerMeter: 0,
     colors: [] as string[],
     categoryId: '',
+    collectionIds: [] as string[],
     gsm: 320,
+    minOrderQuantity: 1,
     width: '54 inches / 137 cm',
     stretch: '0% Mechanical Stretch',
     origin: 'Mithila Artisanal Cluster, India',
@@ -40,6 +43,9 @@ export default function AIProductIngestion() {
   useEffect(() => {
     supabase.from('categories').select('*').then(({ data }) => {
       if (data) setCategories(data);
+    });
+    supabase.from('collections').select('*').eq('is_active', true).then(({ data }) => {
+      if (data) setCollections(data);
     });
   }, [supabase]);
 
@@ -93,7 +99,9 @@ export default function AIProductIngestion() {
         pricePerMeter: 0, 
         colors: Array.isArray(data.colors) ? data.colors : [],
         categoryId: categories.length > 0 ? categories[0].id : '',
+        collectionIds: [],
         gsm: data.gsm || 0,
+        minOrderQuantity: 1,
         width: data.width || '',
         stretch: data.stretch || '',
         origin: data.origin || '',
@@ -291,6 +299,28 @@ export default function AIProductIngestion() {
                       ))}
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Collections (Optional)</label>
+                    <div className="border border-[var(--charcoal-ink)]/20 p-2 max-h-32 overflow-y-auto space-y-1 bg-transparent focus-within:border-[var(--madder-red)]">
+                      {collections.map(c => (
+                        <label key={c.id} className="flex items-center gap-2 text-xs">
+                          <input 
+                            type="checkbox" 
+                            checked={draft.collectionIds.includes(c.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setDraft({...draft, collectionIds: [...draft.collectionIds, c.id]});
+                              } else {
+                                setDraft({...draft, collectionIds: draft.collectionIds.filter(id => id !== c.id)});
+                              }
+                            }}
+                          />
+                          {c.title}
+                        </label>
+                      ))}
+                      {collections.length === 0 && <span className="opacity-50 text-xs">No collections found</span>}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -298,6 +328,13 @@ export default function AIProductIngestion() {
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Weight (GSM)</label>
                     <input type="number" value={draft.gsm} onChange={e => setDraft({...draft, gsm: parseInt(e.target.value) || 0})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
                   </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Minimum Order Quantity (Meters)</label>
+                    <input type="number" min="1" value={draft.minOrderQuantity} onChange={e => setDraft({...draft, minOrderQuantity: parseInt(e.target.value) || 1})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Width</label>
                     <input type="text" value={draft.width} onChange={e => setDraft({...draft, width: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />

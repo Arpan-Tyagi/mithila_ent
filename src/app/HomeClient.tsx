@@ -100,9 +100,9 @@ export default function HomeClient({
   cta,
   latest 
 }: { 
-  hero: { title?: string; body?: string }; 
-  features: { title?: string; body?: string }; 
-  cta: { title?: string; body?: string }; 
+  hero: { title?: string; body?: string; subtitle?: string; button_text?: string; button_link?: string }; 
+  features: { title?: string; body?: string; subtitle?: string }; 
+  cta: { title?: string; body?: string; subtitle?: string; button_text?: string; button_link?: string }; 
   latest?: any[] 
 }) {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -182,7 +182,7 @@ export default function HomeClient({
               variants={fadeUpItem}
               className="inline-block px-3 py-1 rounded-full border border-[var(--charcoal-ink)]/20 bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)] text-xs font-semibold uppercase tracking-wider shadow-sm"
             >
-              Artisanal Heritage Revival
+              {hero.subtitle || "Artisanal Heritage Revival"}
             </motion.span>
             
             <AnimatedTitle text={hero.title || "Premium Textiles Engineered for Living."} />
@@ -199,10 +199,10 @@ export default function HomeClient({
               className="flex flex-wrap gap-4 pt-2"
             >
               <Link 
-                href="/shop" 
+                href={hero.button_link || "/shop"} 
                 className="px-6 py-3.5 bg-black hover:bg-zinc-800 text-white font-sans text-xs uppercase font-bold tracking-widest rounded-lg transition-all duration-300 shadow-sm"
               >
-                Buy now
+                {hero.button_text || "Buy now"}
               </Link>
             </motion.div>
           </motion.div>
@@ -227,6 +227,7 @@ export default function HomeClient({
                 src="/images/madhubani_mandala.png" 
                 alt="Heritage Madhubani Mandala" 
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-contain object-center" 
                 priority
               />
@@ -284,7 +285,9 @@ export default function HomeClient({
           variants={scrollRevealVariants}
           className="text-center max-w-3xl mx-auto mb-16 space-y-3"
         >
-          <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">Climate Engineering</span>
+          <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">
+            {features.subtitle || "Climate Engineering"}
+          </span>
           <h2 className="font-serif italic text-3xl md:text-5xl font-bold leading-tight text-[var(--charcoal-ink)]">
             {features?.title || "Fabric Functionality"}
           </h2>
@@ -305,7 +308,7 @@ export default function HomeClient({
                 variants={slideInLeftVariants}
                 className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
               >
-                <Image src="/images/fabrics/spring_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Spring Transition" />
+                <Image src="/images/fabrics/spring_weave.png" fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Spring Transition" priority />
               </motion.div>
               
               <motion.div 
@@ -334,7 +337,7 @@ export default function HomeClient({
                 variants={slideInRightVariants}
                 className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
               >
-                <Image src="/images/fabrics/summer_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Summer Airflow" />
+                <Image src="/images/fabrics/summer_weave.png" fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Summer Airflow" />
               </motion.div>
               
               <motion.div 
@@ -363,7 +366,7 @@ export default function HomeClient({
                 variants={slideInLeftVariants}
                 className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
               >
-                <Image src="/images/fabrics/autumn_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Autumn Insulation" />
+                <Image src="/images/fabrics/autumn_weave.png" fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Autumn Insulation" />
               </motion.div>
               
               <motion.div 
@@ -392,7 +395,7 @@ export default function HomeClient({
                 variants={slideInRightVariants}
                 className="w-full lg:w-3/5 h-[24rem] md:h-[28rem] relative rounded-[2rem] overflow-hidden shadow-2xl z-10"
               >
-                <Image src="/images/fabrics/winter_weave.png" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Winter Barriers" />
+                <Image src="/images/fabrics/winter_weave.png" fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt="Winter Barriers" />
               </motion.div>
               
               <motion.div 
@@ -681,7 +684,9 @@ export default function HomeClient({
         <div className="bg-[var(--indigo-dye)] text-[var(--unbleached-cotton)] rounded-2xl p-8 md:p-16 shadow-lg relative overflow-hidden">
           <BackgroundPattern className="opacity-10 stroke-[var(--unbleached-cotton)] mix-blend-overlay" />
           <div className="relative z-10 max-w-2xl space-y-6">
-            <span className="text-xs uppercase font-bold tracking-widest text-zinc-400">Bring every room together</span>
+            <span className="text-xs uppercase font-bold tracking-widest text-zinc-400">
+              {cta.subtitle || "Bring every room together"}
+            </span>
             <h2 className="font-serif italic text-3xl md:text-5xl font-bold leading-tight">
               {cta?.title || "Get yours - 15% off"}
             </h2>
@@ -690,10 +695,10 @@ export default function HomeClient({
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <Link 
-                href="/shop" 
+                href={cta.button_link || "/shop"} 
                 className="px-6 py-3 bg-[var(--madder-red)] text-white hover:bg-[var(--turmeric)] hover:text-[var(--charcoal-ink)] font-sans text-xs uppercase font-bold tracking-widest rounded-lg transition-colors shadow-sm hover:scale-[1.02]"
               >
-                Buy now
+                {cta.button_text || "Buy now"}
               </Link>
             </div>
           </div>

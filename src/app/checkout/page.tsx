@@ -6,6 +6,9 @@ import { useEffect, useRef, useState } from 'react';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { Button } from '@/components/ui/Button';
 import { computeOrderTotals } from '@/lib/pricing';
+import AuthModal from '@/components/AuthModal';
+import { createClient } from '@/lib/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 type AppliedDiscount = { code: string; type: string; discountAmount: number; label: string };
 
@@ -20,19 +23,84 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const idemKeyRef = useRef<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  const [shippingState, setShippingState] = useState('');
+  const [pinCode, setPinCode] = useState('');
+  const [dynamicTotals, setDynamicTotals] = useState<{ shippingAmount: number, totalGst: number, breakdown: any, baseAmount: number } | null>(null);
+  const [calculatingShipping, setCalculatingShipping] = useState(false);
+
+  const supabase = createClient();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-  }, []);
+    
+    // Check auth status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (!session) {
+        setShowAuthModal(true);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session) {
+        setShowAuthModal(false);
+      } else {
+        setShowAuthModal(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
   if (!mounted) return null;
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const { tax, shipping, total, isFreeShip } = computeOrderTotals(
+  
+  // Use dynamic totals if available, otherwise fallback to static computeOrderTotals
+  const staticTotals = computeOrderTotals(
     subtotal,
     applied ? { type: applied.type, amount: applied.discountAmount } : null
   );
+
+  const shipping = dynamicTotals ? dynamicTotals.shippingAmount : staticTotals.shipping;
+  const tax = dynamicTotals ? dynamicTotals.totalGst : staticTotals.tax;
+  const isFreeShip = staticTotals.isFreeShip; // Keep discount logic for free shipping
+  const finalShipping = isFreeShip ? 0 : shipping;
+  const total = dynamicTotals ? (dynamicTotals.baseAmount - (staticTotals.subtotal - staticTotals.total + staticTotals.shipping + staticTotals.tax) + tax + finalShipping) : staticTotals.total;
+
+  useEffect(() => {
+    if (pinCode.length >= 6 && shippingState && items.length > 0) {
+      const fetchDynamicShipping = async () => {
+        setCalculatingShipping(true);
+        try {
+          const res = await fetch('/api/shipping/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items, pinCode, state: shippingState })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (!data.error) {
+              setDynamicTotals(data);
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setCalculatingShipping(false);
+        }
+      };
+      const timer = setTimeout(fetchDynamicShipping, 500); // debounce
+      return () => clearTimeout(timer);
+    } else {
+      setDynamicTotals(null);
+    }
+  }, [pinCode, shippingState, items]);
 
   const handleApplyCoupon = async () => {
     setCouponError(null);
@@ -171,9 +239,28 @@ export default function CheckoutPage() {
     }
   };
 
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-[var(--unbleached-cotton)] flex flex-col pt-24 pb-12">
+        <BackgroundPattern />
+        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center min-h-[50vh]">
+          <h1 className="font-serif italic text-4xl mb-6 text-[var(--charcoal-ink)]">Your Cart is Empty</h1>
+          <Button variant="primary" onClick={() => router.push('/shop')}>
+            Continue Shopping
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <main className="flex-grow bg-[var(--unbleached-cotton)] py-16 relative overflow-hidden">
-      <BackgroundPattern className="opacity-40" />
+    <div className="min-h-screen bg-[var(--unbleached-cotton)] flex flex-col pt-24 pb-12">
+      <BackgroundPattern />
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => router.push('/cart')} 
+        title="Sign In to Checkout" 
+      />
       <div className="container mx-auto px-4 md:px-8 max-w-6xl relative z-10">
         <h1 className="font-serif text-4xl font-bold text-[var(--charcoal-ink)] mb-12">Finalize Procurement</h1>
 
@@ -191,8 +278,8 @@ export default function CheckoutPage() {
               <input type="text" name="address2" placeholder="Address Line 2 (Optional)" className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
               <div className="grid grid-cols-3 gap-4">
                 <input type="text" name="city" placeholder="City" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-                <input type="text" name="state" placeholder="State" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-                <input type="text" name="pinCode" placeholder="PIN Code" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+                <input type="text" name="state" placeholder="State" required value={shippingState} onChange={e => setShippingState(e.target.value)} className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+                <input type="text" name="pinCode" placeholder="PIN Code" required value={pinCode} onChange={e => setPinCode(e.target.value)} className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
               </div>
             </div>
 
@@ -264,36 +351,60 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               )}
+            </div>
+            
+            <div className="space-y-2 font-sans text-sm opacity-80 mb-4">
               {couponError && <p className="text-xs text-[var(--madder-red)] font-bold mt-2">{couponError}</p>}
             </div>
 
-            <div className="space-y-2 font-sans text-sm opacity-80 mb-4">
+            <div className="border-t border-dashed border-[var(--charcoal-ink)]/20 pt-6 space-y-3 font-mono text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>GST (18%)</span>
-                <span>₹{tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>{isFreeShip ? 'FREE' : `₹${shipping.toFixed(2)}`}</span>
-              </div>
+              
               {applied && (
-                <div className="flex justify-between text-green-700 font-bold">
+                <div className="flex justify-between text-[var(--madder-red)] font-bold">
                   <span>Discount ({applied.code})</span>
-                  <span>- ₹{applied.discountAmount.toFixed(2)}</span>
+                  <span>-₹{applied.discountAmount.toFixed(2)}</span>
                 </div>
               )}
+              
+              <div className="flex justify-between">
+                <span>GST (Dynamic)</span>
+                <span>
+                  {calculatingShipping ? <span className="opacity-50 animate-pulse">Calculating...</span> : `₹${tax.toFixed(2)}`}
+                </span>
+              </div>
+              {dynamicTotals?.breakdown && !calculatingShipping && (
+                <div className="text-[9px] uppercase tracking-widest opacity-50 flex flex-col items-end">
+                  {dynamicTotals.breakdown.igst > 0 && <span>IGST: ₹{dynamicTotals.breakdown.igst.toFixed(2)}</span>}
+                  {dynamicTotals.breakdown.cgst > 0 && <span>CGST: ₹{dynamicTotals.breakdown.cgst.toFixed(2)}</span>}
+                  {dynamicTotals.breakdown.sgst > 0 && <span>SGST: ₹{dynamicTotals.breakdown.sgst.toFixed(2)}</span>}
+                </div>
+              )}
+
+              <div className="flex justify-between">
+                <span>Shipping</span>
+                <span>
+                  {isFreeShip ? (
+                    <span className="text-[var(--madder-red)]">FREE</span>
+                  ) : calculatingShipping ? (
+                    <span className="opacity-50 animate-pulse">Calculating...</span>
+                  ) : (
+                    `₹${finalShipping.toFixed(2)}`
+                  )}
+                </span>
+              </div>
             </div>
+
             <div className="flex justify-between items-center font-serif text-2xl font-bold text-[var(--madder-red)] mt-6 pt-6 border-t-2 border-[var(--charcoal-ink)]">
               <span>Total</span>
-              <span>₹{total.toFixed(2)}</span>
+              <span>{calculatingShipping ? '...' : `₹${total.toFixed(2)}`}</span>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

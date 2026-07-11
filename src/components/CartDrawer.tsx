@@ -3,17 +3,42 @@
 import { useCart } from "@/store/useCart";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Plus, Minus } from "lucide-react";
-import { Button } from "./ui/Button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { syncCartVariants } from "@/actions/cart";
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { ease: [0.32, 0.72, 0, 1] as any, duration: 0.6 } },
+};
 
 export default function CartDrawer() {
-  const { isOpen, closeCart, items, updateQuantity, removeItem } = useCart();
+  const { isOpen, closeCart, items, updateQuantity, removeItem, syncItems } = useCart();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+    
+    // Sync cart with database to ensure MOQ and prices are up to date
+    if (items.length > 0) {
+      syncCartVariants(items.map(i => i.id)).then(updates => {
+        if (updates && updates.length > 0) {
+          syncItems(updates);
+        }
+      });
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!mounted) return null;
@@ -29,8 +54,9 @@ export default function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
             onClick={closeCart}
-            className="fixed inset-0 z-[60] bg-[var(--charcoal-ink)]/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-md"
           />
 
           {/* Drawer */}
@@ -38,76 +64,143 @@ export default function CartDrawer() {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 z-[70] h-full w-full max-w-md bg-[var(--unbleached-cotton)] shadow-2xl flex flex-col border-l-2 border-[var(--charcoal-ink)]"
+            transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed right-0 top-0 z-[70] h-[100dvh] w-full max-w-lg bg-[#FDFBF7] shadow-2xl flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b-4 border-[var(--charcoal-ink)] bg-[var(--lotus-pink)] text-white">
-              <h2 className="font-serif text-3xl font-bold tracking-tight">Your Canvas</h2>
-              <button onClick={closeCart} className="hover:text-[var(--turmeric)] hover:rotate-90 transition-all duration-300">
-                <X size={28} />
+            <div className="flex items-center justify-between px-8 py-10">
+              <h2 className="font-serif italic text-4xl font-bold tracking-tight text-[#1A1A1A]">
+                Your Canvas
+              </h2>
+              <button
+                onClick={closeCart}
+                className="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center text-[#1A1A1A] hover:bg-black/5 hover:scale-105 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+              >
+                <X size={20} strokeWidth={1.5} />
               </button>
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-8 pb-8">
               {items.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center">
-                  {/* Playful Bouncing Motif Placeholder for Empty Cart */}
-                  <motion.div 
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                    className="w-24 h-24 hand-drawn-border bg-[var(--turmeric)] opacity-80 mb-6 flex items-center justify-center"
-                  >
-                    <span className="text-4xl">🐟</span>
-                  </motion.div>
-                  <p className="font-serif text-2xl font-bold text-[var(--peacock-blue)]">Your canvas is empty.</p>
-                  <p className="font-sans text-sm mt-2 opacity-70">Fill it with the vibrant colors of Mithila!</p>
-                </div>
-              ) : (
-                items.map((item) => (
-                  <div key={item.id} className="flex gap-4 border-b-2 border-[var(--charcoal-ink)]/20 pb-6">
-                    <div className="w-24 h-32 bg-[var(--unbleached-cotton)] rounded-sm overflow-hidden flex-shrink-0 border border-[var(--charcoal-ink)]/10">
-                      {/* Image placeholder */}
-                      <div className="w-full h-full bg-[var(--charcoal-ink)]/5"></div>
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-serif font-bold text-lg text-[var(--charcoal-ink)]">{item.title}</h3>
-                        <p className="font-sans text-sm opacity-70">Color: {item.color}</p>
-                        <p className="font-sans font-bold mt-1 text-[var(--madder-red)]">₹{item.price}</p>
-                      </div>
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center border-2 border-[var(--charcoal-ink)] rounded-sm">
-                          <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-1 hover:bg-[var(--turmeric)] transition-colors">
-                            <Minus size={16} />
-                          </button>
-                          <span className="px-4 font-sans font-bold">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 hover:bg-[var(--turmeric)] transition-colors">
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                        <button onClick={() => removeItem(item.id)} className="text-[var(--charcoal-ink)] hover:text-[var(--madder-red)] transition-colors p-2">
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
+                <motion.div 
+                  initial={{ opacity: 0, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, filter: 'blur(0px)' }}
+                  transition={{ delay: 0.2, duration: 0.8 }}
+                  className="h-full flex flex-col items-center justify-center text-center space-y-6"
+                >
+                  <div className="w-24 h-24 rounded-full border border-black/10 bg-black/5 flex items-center justify-center">
+                    <span className="text-4xl opacity-50">✦</span>
                   </div>
-                ))
+                  <div>
+                    <p className="font-serif italic text-2xl text-[#1A1A1A] mb-2">It's quiet here.</p>
+                    <p className="font-sans text-xs tracking-widest uppercase opacity-60 text-[#1A1A1A]">
+                      Select a fabric to begin.
+                    </p>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="space-y-6"
+                >
+                  {items.map((item) => (
+                    <motion.div
+                      key={item.id}
+                      variants={staggerItem}
+                      className="relative rounded-[2rem] bg-black/5 p-1.5 ring-1 ring-black/5"
+                    >
+                      {/* Double Bezel Inner Core */}
+                      <div className="flex gap-6 rounded-[calc(2rem-0.375rem)] bg-[#FDFBF7] p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]">
+                        <div className="w-24 h-32 rounded-xl overflow-hidden bg-black/5 relative shrink-0">
+                          {item.image && (
+                            <Image src={item.image} alt={item.title} fill className="object-cover" />
+                          )}
+                        </div>
+                        <div className="flex-1 flex flex-col justify-between py-1">
+                          <div>
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="font-serif font-bold text-xl text-[#1A1A1A] leading-tight pr-4">
+                                {item.title}
+                              </h3>
+                              <button
+                                onClick={() => removeItem(item.id)}
+                                className="text-black/40 hover:text-[#1A1A1A] transition-colors p-1"
+                              >
+                                <Trash2 size={18} strokeWidth={1.5} />
+                              </button>
+                            </div>
+                            <p className="font-sans text-[10px] uppercase tracking-[0.2em] opacity-60 text-[#1A1A1A]">
+                              {item.color}
+                            </p>
+                          </div>
+                          
+                          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4">
+                            <div className="flex flex-col gap-1">
+                               {item.min_order_quantity > 1 && (
+                                 <span className="text-[9px] uppercase tracking-widest text-red-800 font-bold">MOQ: {item.min_order_quantity}M</span>
+                               )}
+                               <div className="flex items-center gap-4 bg-black/5 rounded-full px-1 py-1 w-fit">
+                                 <button
+                                   onClick={() => updateQuantity(item.id, Math.max(item.min_order_quantity || 1, item.quantity - 1))}
+                                   className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-300"
+                                 >
+                                   <Minus size={14} strokeWidth={2} />
+                                 </button>
+                                 <span className="font-sans font-bold text-sm w-4 text-center text-[#1A1A1A]">
+                                   {item.quantity}
+                                 </span>
+                                 <button
+                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                   className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:scale-105 transition-transform duration-300"
+                                 >
+                                   <Plus size={14} strokeWidth={2} />
+                                 </button>
+                               </div>
+                            </div>
+                            <p className="font-sans font-bold text-lg text-[#1A1A1A]">
+                              ₹{(item.price * item.quantity).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
               )}
             </div>
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="p-6 border-t-2 border-[var(--charcoal-ink)] bg-[var(--unbleached-cotton)]">
-                <div className="flex items-center justify-between font-serif text-xl font-bold mb-6">
-                  <span>Subtotal</span>
-                  <span>₹{total.toFixed(2)}</span>
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+                className="p-8 pt-6 border-t border-black/5 bg-[#FDFBF7]"
+              >
+                <div className="flex items-end justify-between mb-8">
+                  <span className="font-sans text-xs uppercase tracking-widest font-bold opacity-60 text-[#1A1A1A]">
+                    Subtotal
+                  </span>
+                  <span className="font-serif italic text-3xl font-bold text-[#1A1A1A]">
+                    ₹{total.toLocaleString()}
+                  </span>
                 </div>
-                <Link href="/checkout" onClick={closeCart}>
-                  <Button className="w-full text-lg">Secure Checkout</Button>
+                <Link href="/checkout" onClick={closeCart} className="block w-full">
+                  <button className="group relative w-full flex items-center justify-between rounded-full bg-[#1A1A1A] text-white p-2 pl-8 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] hover:bg-black overflow-hidden">
+                    <span className="text-sm uppercase tracking-widest font-bold">
+                      Secure Checkout
+                    </span>
+                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:-translate-y-[1px]">
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </div>
+                  </button>
                 </Link>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         </>

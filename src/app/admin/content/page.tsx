@@ -11,9 +11,37 @@ const CMS_SCHEMA = [
     label: 'Homepage',
     description: 'Edit the main landing page sections.',
     blocks: [
-      { key: 'home_hero', title: 'Hero Section', hasTitle: true, hasBody: true },
-      { key: 'home_features', title: 'Features Overview', hasTitle: true, hasBody: true },
-      { key: 'home_cta', title: 'Call to Action Banner', hasTitle: true, hasBody: true },
+      { 
+        key: 'home_hero', 
+        title: 'Hero Section',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'subtitle', label: 'Overline Subtitle', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' },
+          { name: 'button_text', label: 'Button Text', type: 'text' },
+          { name: 'button_link', label: 'Button Link', type: 'text' }
+        ]
+      },
+      { 
+        key: 'home_features', 
+        title: 'Features Overview',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'subtitle', label: 'Overline Subtitle', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
+      { 
+        key: 'home_cta', 
+        title: 'Call to Action Banner',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'subtitle', label: 'Overline Subtitle', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' },
+          { name: 'button_text', label: 'Button Text', type: 'text' },
+          { name: 'button_link', label: 'Button Link', type: 'text' }
+        ]
+      },
     ]
   },
   {
@@ -21,9 +49,30 @@ const CMS_SCHEMA = [
     label: 'About Page',
     description: 'Edit the company story and mission statement.',
     blocks: [
-      { key: 'about_intro', title: 'Introduction', hasTitle: true, hasBody: true },
-      { key: 'about_mission', title: 'Our Mission', hasTitle: true, hasBody: true },
-      { key: 'about_heritage', title: 'Our Heritage', hasTitle: true, hasBody: true },
+      { 
+        key: 'about_intro', 
+        title: 'Introduction',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
+      { 
+        key: 'about_mission', 
+        title: 'Our Mission',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
+      { 
+        key: 'about_heritage', 
+        title: 'Our Heritage',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
     ]
   },
   {
@@ -31,7 +80,14 @@ const CMS_SCHEMA = [
     label: 'Shop',
     description: 'Edit the storefront headers.',
     blocks: [
-      { key: 'shop_header', title: 'Main Shop Header', hasTitle: true, hasBody: true },
+      { 
+        key: 'shop_header', 
+        title: 'Main Shop Header',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
     ]
   },
   {
@@ -39,9 +95,30 @@ const CMS_SCHEMA = [
     label: 'Legal Pages',
     description: 'Edit policies and terms.',
     blocks: [
-      { key: 'legal_privacy-policy', title: 'Privacy Policy', hasTitle: true, hasBody: true },
-      { key: 'legal_terms-of-service', title: 'Terms of Service', hasTitle: true, hasBody: true },
-      { key: 'legal_shipping-returns', title: 'Shipping & Returns', hasTitle: true, hasBody: true },
+      { 
+        key: 'legal_privacy-policy', 
+        title: 'Privacy Policy',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
+      { 
+        key: 'legal_terms-of-service', 
+        title: 'Terms of Service',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
+      { 
+        key: 'legal_shipping-returns', 
+        title: 'Shipping & Returns',
+        fields: [
+          { name: 'title', label: 'Main Heading (Title)', type: 'text' },
+          { name: 'body', label: 'Description (Body)', type: 'textarea' }
+        ]
+      },
     ]
   },
   {
@@ -49,7 +126,13 @@ const CMS_SCHEMA = [
     label: 'Global Elements',
     description: 'Elements that appear on multiple pages.',
     blocks: [
-      { key: 'announcement', title: 'Announcement Bar', hasTitle: false, hasBody: true },
+      { 
+        key: 'announcement', 
+        title: 'Announcement Bar',
+        fields: [
+          { name: 'body', label: 'Announcement Text (Body)', type: 'textarea' }
+        ]
+      },
     ]
   }
 ];
@@ -66,7 +149,20 @@ export default async function AdminContent({
   
   // Map DB records for easy lookup
   const contentMap = (dbBlocks || []).reduce((acc: any, curr: any) => {
-    acc[curr.key] = curr;
+    // Parse body as JSON if possible to extract custom fields
+    let bodyData: any = {};
+    if (curr.body) {
+      try {
+        bodyData = JSON.parse(curr.body);
+      } catch (e) {
+        // Fallback for legacy plain text body
+        bodyData = { body: curr.body };
+      }
+    }
+    acc[curr.key] = {
+      title: curr.title || '',
+      ...bodyData
+    };
     return acc;
   }, {});
 
@@ -93,7 +189,7 @@ export default async function AdminContent({
             
             <div className="grid grid-cols-1 gap-6">
               {group.blocks.map((block) => {
-                const data = contentMap[block.key] || { title: '', body: '' };
+                const data = contentMap[block.key] || {};
                 
                 return (
                   <form
@@ -112,35 +208,31 @@ export default async function AdminContent({
                       </span>
                     </div>
 
-                    <div className="space-y-4">
-                      {block.hasTitle && (
-                        <div>
+                    <div className="grid grid-cols-1 gap-4">
+                      {block.fields.map((field) => (
+                        <div key={field.name}>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-1">
-                            Heading / Title
+                            {field.label}
                           </label>
-                          <input
-                            name="title"
-                            defaultValue={data.title}
-                            placeholder="Leave empty to use default"
-                            className="w-full border-2 border-[var(--charcoal-ink)]/20 bg-zinc-50/50 p-2 text-sm focus:outline-none focus:border-[var(--charcoal-ink)] transition-colors"
-                          />
+                          {field.type === 'textarea' ? (
+                            <textarea
+                              name={field.name}
+                              rows={4}
+                              defaultValue={data[field.name] || ''}
+                              placeholder="Leave empty to use default"
+                              className="w-full border-2 border-[var(--charcoal-ink)]/20 bg-zinc-50/50 p-2 font-sans text-sm focus:outline-none focus:border-[var(--charcoal-ink)] resize-y transition-colors"
+                            />
+                          ) : (
+                            <input
+                              type="text"
+                              name={field.name}
+                              defaultValue={data[field.name] || ''}
+                              placeholder="Leave empty to use default"
+                              className="w-full border-2 border-[var(--charcoal-ink)]/20 bg-zinc-50/50 p-2 text-sm focus:outline-none focus:border-[var(--charcoal-ink)] transition-colors"
+                            />
+                          )}
                         </div>
-                      )}
-
-                      {block.hasBody && (
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-1">
-                            Body Text
-                          </label>
-                          <textarea
-                            name="body"
-                            rows={4}
-                            defaultValue={data.body}
-                            placeholder="Leave empty to use default"
-                            className="w-full border-2 border-[var(--charcoal-ink)]/20 bg-zinc-50/50 p-2 font-sans text-sm focus:outline-none focus:border-[var(--charcoal-ink)] resize-y transition-colors"
-                          />
-                        </div>
-                      )}
+                      ))}
                     </div>
 
                     <div className="pt-2 flex justify-end">

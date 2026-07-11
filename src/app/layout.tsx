@@ -34,6 +34,7 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <StructuredData />
