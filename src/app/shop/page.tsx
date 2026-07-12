@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import Image from 'next/image';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { MotionDiv, MotionLink } from '@/components/Motion';
 import ProductImage from '@/components/ProductImage';
