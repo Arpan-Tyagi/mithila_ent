@@ -448,7 +448,7 @@ export default function HomeClient({
               { title: "Fleece", desc: "High-loft fleece fabric structured to trap body heat without adding excess weight.", slug: "fleece" },
               { title: "Tweed", desc: "Heavily textured wool tweed crafted for structured outerwear and regional weather defense.", slug: "tweed" }
             ].map((cat, idx) => (
-              <Link key={idx} href={`/shop?category=${cat.slug}`} className="block h-full">
+              <Link key={idx} href={`/category/${cat.slug}`} className="block h-full">
               <motion.div
                 variants={gridItemVariants}
                 whileHover={{ y: -4 }}
