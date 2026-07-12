@@ -12,13 +12,12 @@ export default async function Footer() {
           
           {/* Identity Column */}
           <div className="space-y-4 col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 font-serif italic font-bold text-xl text-[var(--unbleached-cotton)] hover:text-[var(--turmeric)] transition-colors">
+            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img 
                 src="/images/logo.png" 
                 alt="Mithila Enterprises Logo" 
-                className="w-7 h-7 rounded-full object-cover"
+                className="h-12 w-auto object-contain"
               />
-              Mithila
             </Link>
             <p className="text-xs text-zinc-400 max-w-xs leading-relaxed">
               Premium handloom fabrics and fine line artistry loomed with devotion and contemporary elegance.
