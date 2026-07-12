@@ -163,7 +163,7 @@ export default function HomeClient({
   ];
 
   return (
-    <main className="flex-grow w-full bg-[var(--unbleached-cotton)] text-zinc-900 pt-20 md:pt-24 lg:pt-24 pb-24 font-sans overflow-x-hidden relative">
+    <main className="flex-grow w-full bg-transparent text-zinc-900 pt-20 md:pt-24 lg:pt-24 pb-24 font-sans overflow-x-hidden relative">
       
       {/* 1. HERO SECTION */}
       <section className="relative w-full max-w-7xl mx-auto px-6 pt-4 pb-8 md:pt-6 md:pb-12 rounded-3xl">
@@ -245,10 +245,10 @@ export default function HomeClient({
       />
 
       {/* 2. INFINITE SCROLLING CERTIFICATION TICKER */}
-      <section className="w-full py-8 bg-[var(--unbleached-cotton)] border-y border-[var(--charcoal-ink)]/10 overflow-hidden relative">
+      <section className="w-full py-8 bg-[#f7f3cc] border-y border-zinc-900/10 overflow-hidden relative">
         <BackgroundPattern className="opacity-10" />
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[var(--unbleached-cotton)] to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[var(--unbleached-cotton)] to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#f7f3cc] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#f7f3cc] to-transparent z-10 pointer-events-none" />
         
         <div className="container mx-auto px-6 max-w-7xl mb-4">
           <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-zinc-400 text-center">
@@ -318,7 +318,7 @@ export default function HomeClient({
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 variants={slideInRightVariants}
-                className="w-full lg:w-1/2 lg:-ml-24 mt-[-4rem] lg:mt-0 z-20 bg-white/95 backdrop-blur-xl p-10 md:p-14 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-3xl"
+                className="w-full lg:w-1/2 lg:-ml-24 mt-[-4rem] lg:mt-0 z-20 bg-white p-10 md:p-14 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-3xl"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <span className="w-2 h-2 rounded-full bg-[var(--turmeric)] animate-pulse" />
@@ -347,7 +347,7 @@ export default function HomeClient({
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 variants={slideInLeftVariants}
-                className="w-full lg:w-1/2 lg:-mr-24 mt-[-4rem] lg:mt-0 z-20 bg-[var(--charcoal-ink)]/95 backdrop-blur-xl p-10 md:p-14 border border-white/10 shadow-2xl rounded-3xl"
+                className="w-full lg:w-1/2 lg:-mr-24 mt-[-4rem] lg:mt-0 z-20 bg-[#1c1917] p-10 md:p-14 border border-white/10 shadow-2xl rounded-3xl"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <span className="w-2 h-2 rounded-full bg-[var(--madder-red)] animate-pulse" />
@@ -376,7 +376,7 @@ export default function HomeClient({
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 variants={slideInRightVariants}
-                className="w-full lg:w-1/2 lg:-ml-24 mt-[-4rem] lg:mt-0 z-20 bg-white/95 backdrop-blur-xl p-10 md:p-14 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-3xl"
+                className="w-full lg:w-1/2 lg:-ml-24 mt-[-4rem] lg:mt-0 z-20 bg-white p-10 md:p-14 border border-[var(--charcoal-ink)]/10 shadow-2xl rounded-3xl"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <span className="w-2 h-2 rounded-full bg-[var(--turmeric)] animate-pulse" />
@@ -405,7 +405,7 @@ export default function HomeClient({
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 variants={slideInLeftVariants}
-                className="w-full lg:w-1/2 lg:-mr-24 mt-[-4rem] lg:mt-0 z-20 bg-[var(--charcoal-ink)]/95 backdrop-blur-xl p-10 md:p-14 border border-white/10 shadow-2xl rounded-3xl"
+                className="w-full lg:w-1/2 lg:-mr-24 mt-[-4rem] lg:mt-0 z-20 bg-[#1c1917] p-10 md:p-14 border border-white/10 shadow-2xl rounded-3xl"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <span className="w-2 h-2 rounded-full bg-[var(--madder-red)] animate-pulse" />
@@ -421,7 +421,7 @@ export default function HomeClient({
       </section>
 
       {/* 4. SHOP BY CATEGORY GRID */}
-      <section className="w-full py-24 bg-[var(--unbleached-cotton)] border-y border-[var(--charcoal-ink)]/10">
+      <section className="w-full py-24 bg-transparent border-y border-zinc-900/10">
         <div className="container mx-auto px-6 max-w-7xl">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">The Navigation Grid</span>
@@ -452,7 +452,7 @@ export default function HomeClient({
               <motion.div
                 variants={gridItemVariants}
                 whileHover={{ y: -4 }}
-                className="sonic-bento-card relative group p-0 flex flex-col overflow-hidden min-h-[18rem] bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10 hover:border-[var(--madder-red)]/50 transition-colors"
+                className="sonic-bento-card relative group p-0 flex flex-col overflow-hidden min-h-[18rem] bg-[#f7f3cc] border border-zinc-900/10 hover:border-red-600/50 transition-colors"
               >
                 {/* Image Section */}
                 <div className="h-44 w-full relative overflow-hidden bg-[var(--unbleached-cotton)]">
@@ -464,7 +464,7 @@ export default function HomeClient({
                     className="object-cover transition-transform duration-700 group-hover:scale-105" 
                   />
                   {/* Subtle gradient overlay to merge image with card body */}
-                  <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[var(--charcoal-ink)]/10 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-zinc-900/10 to-transparent"></div>
                 </div>
                 
                 {/* Text Section */}
@@ -483,7 +483,7 @@ export default function HomeClient({
       </section>
 
       {/* 5. LATEST COLLECTION */}
-      <section className="w-full py-24 bg-[var(--unbleached-cotton)]">
+      <section className="w-full py-24 bg-transparent">
         <div className="container mx-auto px-6 max-w-7xl">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <span className="text-[var(--madder-red)] font-sans text-xs uppercase tracking-wider font-semibold">Fresh Arrivals</span>
@@ -495,7 +495,7 @@ export default function HomeClient({
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerGridContainer}
-            className="w-full relative sonic-bento-card bg-[var(--unbleached-cotton)] overflow-hidden min-h-[500px] flex items-center justify-center p-8 md:p-16 mt-8"
+            className="w-full relative bg-[#f7f3cc] border border-[#d5cbb1] shadow-md rounded-[12px] overflow-hidden min-h-[500px] flex items-center justify-center p-8 md:p-16 mt-8"
           >
             {/* Elegant Background Texture */}
             <div className="absolute inset-0 pointer-events-none opacity-20">
@@ -529,8 +529,8 @@ export default function HomeClient({
               
               {/* Right Side: Editorial Image/Shape Collage */}
               <div className="flex-1 w-full relative h-[350px] md:h-[500px] flex items-center justify-center mt-10 md:mt-0">
-                <div className="absolute w-[80%] h-[90%] bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/20 rounded-t-full rotate-[-6deg] transform origin-bottom" />
-                <div className="absolute w-[75%] h-[85%] bg-[var(--charcoal-ink)]/10 border border-[var(--charcoal-ink)]/30 rounded-t-full rotate-[4deg] transform origin-bottom overflow-hidden shadow-2xl">
+                <div className="absolute w-[80%] h-[90%] bg-zinc-900/5 border border-zinc-900/20 rounded-t-full rotate-[-6deg] transform origin-bottom" />
+                <div className="absolute w-[75%] h-[85%] bg-zinc-900/10 border border-zinc-900/30 rounded-t-full rotate-[4deg] transform origin-bottom overflow-hidden shadow-2xl">
                    <Image 
                      src="/images/hero_desktop.png" 
                      fill 
@@ -540,7 +540,7 @@ export default function HomeClient({
                    />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center z-20">
-                   <div className="bg-[var(--unbleached-cotton)]/95 backdrop-blur-md border-2 border-[var(--charcoal-ink)] px-10 py-12 shadow-[8px_8px_0_var(--charcoal-ink)] text-center max-w-[220px] transform -rotate-2">
+                   <div className="bg-[#f7f3cc] border-2 border-zinc-900 px-10 py-12 shadow-[8px_8px_0_#1c1917] text-center max-w-[220px] transform -rotate-2">
                       <span className="block font-serif italic text-5xl text-[var(--charcoal-ink)] mb-3">SS/26</span>
                       <span className="block font-sans text-[10px] uppercase tracking-[0.3em] font-bold text-[var(--charcoal-ink)] border-t border-[var(--charcoal-ink)]/20 pt-3">In Progress</span>
                    </div>
