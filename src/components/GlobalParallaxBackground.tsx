@@ -5,8 +5,6 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
-import MadhubaniArt from './vectors/MadhubaniArt';
-
 export default function GlobalParallaxBackground() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -28,32 +26,41 @@ export default function GlobalParallaxBackground() {
   // Transform scroll position into parallax Y offsets and subtle rotations
   const y1 = useTransform(smoothScrollY, [0, 5000], [0, -300]);
   const y2 = useTransform(smoothScrollY, [0, 5000], [0, 400]);
-
-  const r1 = useTransform(smoothScrollY, [0, 5000], [0, 20]);
-  const r2 = useTransform(smoothScrollY, [0, 5000], [180, 160]);
+  const y3 = useTransform(smoothScrollY, [0, 5000], [0, -600]);
 
   // Don't render on server to avoid hydration mismatches, and hide on admin
   if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
-    <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden mix-blend-multiply opacity-[0.08]">
+    <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden mix-blend-multiply opacity-25 md:opacity-30">
       
-      {/* Top Right Generative Mandala */}
+      {/* Top Right Premium Sketch */}
       <motion.div 
-        style={{ y: y1, rotate: r1 }}
-        className="absolute -top-[30%] -right-[20%] w-[1200px] h-[1200px] text-[var(--charcoal-ink)] will-change-transform"
+        style={{ y: y1 }}
+        className="absolute -top-[10%] -right-[10%] w-[800px] h-[800px] grayscale contrast-125 opacity-40 will-change-transform"
       >
-        <MadhubaniArt className="w-full h-full stroke-current" />
+        <Image 
+          src="/images/madhubani_premium.png" 
+          alt="Premium Madhubani Sketch" 
+          fill 
+          className="object-contain" 
+          priority
+        />
       </motion.div>
 
-      {/* Bottom Left Generative Mandala */}
+      {/* Bottom Left Premium Sketch (Rotated for variety) */}
       <motion.div 
-        style={{ y: y2, rotate: r2 }}
-        className="absolute top-[40%] -left-[20%] w-[1000px] h-[1000px] text-[var(--charcoal-ink)] will-change-transform"
+        style={{ y: y2 }}
+        className="absolute top-[50%] -left-[15%] w-[900px] h-[900px] grayscale contrast-125 opacity-30 rotate-180 will-change-transform"
       >
-        <MadhubaniArt className="w-full h-full stroke-current" />
+        <Image 
+          src="/images/madhubani_premium.png" 
+          alt="Premium Madhubani Sketch" 
+          fill 
+          className="object-contain" 
+        />
       </motion.div>
-      
+
     </div>
   );
 }
