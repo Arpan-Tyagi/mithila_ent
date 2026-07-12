@@ -21,31 +21,45 @@ export default function GlobalParallaxBackground() {
     mass: 1.2,
   });
 
-  // A subtle, unified parallax scroll that moves the entire massive SVG
-  const yParallax = useTransform(smoothScrollY, [0, 5000], [0, -300]);
+  // Opposing parallax transforms
+  const yUp = useTransform(smoothScrollY, [0, 5000], [0, -500]);   // Moves UP when scrolling down
+  const yDown = useTransform(smoothScrollY, [0, 5000], [0, 500]); // Moves DOWN when scrolling down
 
   if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
     <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden mix-blend-multiply opacity-25">
       
-      {/* 
-        A single, massive container that is larger than the viewport (120vw/120vh).
-        We use inline styles for width/height to guarantee they are applied properly,
-        preventing any "0 height" issues with Next.js or Tailwind JIT.
-      */}
+      {/* LEFT SIDE: Moves DOWN when scrolling down */}
       <motion.div 
         style={{ 
-          y: yParallax,
+          y: yDown,
           position: 'absolute',
-          width: '120vw',
-          height: '200vh', // extra height for parallax scrolling
-          left: '-10vw',
-          top: '-20vh',
+          width: '60vw', // Covers the left half plus some overlap buffer
+          height: '250vh', // Massive height to allow scrolling without clipping
+          left: '-5vw',
+          top: '-75vh', // Start way up so it has room to move down
           backgroundImage: 'url(/images/madhubani_premium.svg)',
-          backgroundSize: '800px', // Large enough to be visible, small enough to repeat and cover
+          backgroundSize: '800px',
           backgroundRepeat: 'repeat',
-          backgroundPosition: 'center top'
+          backgroundPosition: 'left top'
+        }}
+        className="grayscale contrast-125 opacity-50 will-change-transform"
+      />
+
+      {/* RIGHT SIDE: Moves UP when scrolling down */}
+      <motion.div 
+        style={{ 
+          y: yUp,
+          position: 'absolute',
+          width: '60vw', // Covers the right half plus buffer
+          height: '250vh', // Massive height
+          right: '-5vw',
+          top: '-25vh', // Start near the top so it has room to move up
+          backgroundImage: 'url(/images/madhubani_premium.svg)',
+          backgroundSize: '800px',
+          backgroundRepeat: 'repeat',
+          backgroundPosition: 'right top'
         }}
         className="grayscale contrast-125 opacity-50 will-change-transform"
       />
