@@ -37,12 +37,12 @@ export default function GlobalParallaxBackground() {
   if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden mix-blend-multiply opacity-[0.4] md:opacity-[0.6]">
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-multiply opacity-50 md:opacity-75">
       
       {/* Layer 1: Left */}
       <motion.div 
         style={{ y: y1, rotate: r1 }}
-        className="absolute -top-32 -left-32 w-[800px] h-[1200px] opacity-[0.05] will-change-transform"
+        className="absolute -top-32 -left-32 w-[800px] h-[1200px] opacity-30 will-change-transform"
       >
         <Image 
           src="/images/bng_.svg" 
@@ -56,7 +56,7 @@ export default function GlobalParallaxBackground() {
       {/* Layer 2: Right */}
       <motion.div 
         style={{ y: y2, rotate: r2 }}
-        className="absolute top-[20%] -right-48 w-[1000px] h-[1500px] opacity-[0.04] will-change-transform"
+        className="absolute top-[20%] -right-48 w-[1000px] h-[1500px] opacity-25 will-change-transform"
       >
         <Image 
           src="/images/bng_.svg" 
@@ -69,7 +69,7 @@ export default function GlobalParallaxBackground() {
       {/* Layer 3: Bottom Left */}
       <motion.div 
         style={{ y: y3, rotate: r3 }}
-        className="absolute top-[60%] -left-32 w-[900px] h-[1200px] opacity-[0.05] will-change-transform"
+        className="absolute top-[60%] -left-32 w-[900px] h-[1200px] opacity-30 will-change-transform"
       >
         <Image 
           src="/images/bng_.svg" 
