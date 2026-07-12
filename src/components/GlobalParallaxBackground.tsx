@@ -37,43 +37,43 @@ export default function GlobalParallaxBackground() {
   if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-multiply opacity-50 md:opacity-75">
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-multiply opacity-[0.15] md:opacity-[0.25]">
       
-      {/* Layer 1: Left */}
+      {/* Massive Mandala: Center/Right */}
       <motion.div 
-        style={{ y: y1, rotate: r1 }}
-        className="absolute -top-32 -left-32 w-[800px] h-[1200px] opacity-30 will-change-transform"
+        style={{ y: y1, rotate: r2 }}
+        className="absolute -top-[10%] -right-[15%] w-[1200px] h-[1200px] will-change-transform"
       >
         <Image 
-          src="/images/bng_.svg" 
-          alt="Madhubani Background Pattern" 
+          src="/images/madhubani_mandala.png" 
+          alt="Madhubani Mandala Art" 
           fill 
           className="object-contain" 
           priority
         />
       </motion.div>
 
-      {/* Layer 2: Right */}
+      {/* Peacock Artwork: Bottom Left */}
       <motion.div 
-        style={{ y: y2, rotate: r2 }}
-        className="absolute top-[20%] -right-48 w-[1000px] h-[1500px] opacity-25 will-change-transform"
+        style={{ y: y2 }}
+        className="absolute top-[40%] -left-[10%] w-[800px] h-[800px] will-change-transform"
       >
         <Image 
-          src="/images/bng_.svg" 
-          alt="Madhubani Background Pattern" 
+          src="/images/madhubani_peacock.png" 
+          alt="Madhubani Peacock Art" 
           fill 
           className="object-contain" 
         />
       </motion.div>
 
-      {/* Layer 3: Bottom Left */}
+      {/* Second Mandala: Top Left */}
       <motion.div 
-        style={{ y: y3, rotate: r3 }}
-        className="absolute top-[60%] -left-32 w-[900px] h-[1200px] opacity-30 will-change-transform"
+        style={{ y: y3, rotate: r1 }}
+        className="absolute -top-[30%] -left-[20%] w-[1000px] h-[1000px] will-change-transform"
       >
         <Image 
-          src="/images/bng_.svg" 
-          alt="Madhubani Background Pattern" 
+          src="/images/madhubani_mandala.png" 
+          alt="Madhubani Mandala Art" 
           fill 
           className="object-contain" 
         />
