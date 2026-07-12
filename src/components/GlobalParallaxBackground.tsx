@@ -37,7 +37,7 @@ export default function GlobalParallaxBackground() {
   if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-multiply opacity-[0.15] md:opacity-[0.25]">
+    <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden mix-blend-multiply opacity-[0.15] md:opacity-[0.25]">
       
       {/* Massive Mandala: Center/Right */}
       <motion.div 
