@@ -175,38 +175,7 @@ export default function AboutClient({
           </div>
         </section>
 
-        {/* Section 2: Weaver Profiles */}
-        <section>
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-2">
-            <span className="text-[var(--madder-red)] font-sans uppercase text-xs tracking-wider font-semibold">Meet the Masters</span>
-            <h2 className="font-serif italic text-3xl md:text-4xl font-bold text-[var(--charcoal-ink)]">The Hands Behind the Thread</h2>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 max-w-4xl mx-auto">
-            {weavers.slice(0, 2).map((weaver, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: idx * 0.15 }}
-                className={`polaroid-card group flex flex-col relative pb-8 w-full max-w-sm mx-auto bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10 ${idx === 1 ? 'md:mt-12' : ''}`}
-              >
-                <div className="aspect-[4/5] bg-neutral-100 rounded-lg overflow-hidden border border-[var(--charcoal-ink)]/5 mb-6 relative">
-                  <Image src={weaver.img} alt={weaver.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 768px) 100vw, 33vw" />
-                </div>
-                <div className="px-4 space-y-2 relative z-10 bg-[var(--unbleached-cotton)]/50 backdrop-blur-sm pt-2 -mt-10 mx-2 rounded-lg border border-[var(--charcoal-ink)]/5">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--madder-red)] block pt-2">{weaver.role}</span>
-                  <h3 className="font-serif italic font-bold text-xl text-[var(--charcoal-ink)]">{weaver.name}</h3>
-                  <p className="font-sans text-[10px] text-[var(--charcoal-ink)]/50 uppercase tracking-widest">{weaver.village}</p>
-                  <p className="font-sans text-xs leading-relaxed text-zinc-600 pt-3 border-t border-[var(--charcoal-ink)]/10 mt-2 pb-2">
-                    {weaver.bio}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
 
       </div>
     </main>
