@@ -27,7 +27,7 @@ export default function GlobalParallaxBackground() {
   if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
-    <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden mix-blend-multiply opacity-10">
+    <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden opacity-90">
       
       {/* SINGLE UNIFIED BACKGROUND */}
       <motion.div 
@@ -38,12 +38,12 @@ export default function GlobalParallaxBackground() {
           height: '115vh', // Taller than the screen to allow for parallax
           left: '0',
           top: '-5vh', // Start slightly offset to allow scrolling up
-          backgroundImage: 'url(/images/madhubani_widescreen.png)',
-          backgroundSize: 'cover', // Now that the image is 16:9, cover will fit perfectly without extreme cropping!
+          backgroundImage: 'url(/images/madhubani_premium_bg.png)',
+          backgroundSize: 'cover', 
           backgroundRepeat: 'no-repeat', 
           backgroundPosition: 'center center'
         }}
-        className="grayscale contrast-125 opacity-30 will-change-transform"
+        className="will-change-transform"
       />
 
     </div>
