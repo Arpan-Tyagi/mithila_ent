@@ -77,6 +77,8 @@ export async function register(prevState: any, formData: FormData) {
     return { error: pwError }
   }
 
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -84,6 +86,7 @@ export async function register(prevState: any, formData: FormData) {
       data: {
         full_name: fullName,
       },
+      emailRedirectTo: `${origin}/api/auth/callback?next=${nextPath}`,
     },
   })
 
