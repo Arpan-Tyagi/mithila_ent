@@ -97,7 +97,7 @@ export default function Header() {
           <div className="flex items-center gap-1 sm:gap-2 text-[var(--charcoal-ink)]">
 
             
-            <Link href="/login" className="w-12 h-12 hidden sm:flex items-center justify-center hover:text-[var(--madder-red)] transition-colors" aria-label="User Account">
+            <Link href="/account" className="w-12 h-12 hidden sm:flex items-center justify-center hover:text-[var(--madder-red)] transition-colors" aria-label="User Account">
               <User size={20} strokeWidth={2} />
             </Link>
             
@@ -171,12 +171,12 @@ export default function Header() {
                 className="mt-8 pt-8 border-t border-[var(--charcoal-ink)]/10"
               >
                 <Link 
-                  href="/login" 
+                  href="/account" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-4 text-xl font-sans font-bold text-[var(--charcoal-ink)] py-4"
+                  className="flex items-center space-x-4 py-4 px-6 text-xl font-sans font-bold hover:text-[var(--madder-red)] hover:bg-[var(--charcoal-ink)]/5 transition-colors border-b border-[var(--charcoal-ink)]/10"
                 >
-                  <User size={24} />
-                  <span>Account Login</span>
+                  <User size={24} strokeWidth={1.5} />
+                  <span>My Account</span>
                 </Link>
               </motion.div>
             </nav>
