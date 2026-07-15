@@ -1,10 +1,43 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 
 export default function WholesalePage() {
+  const [formState, setFormState] = useState({
+    businessName: '',
+    taxId: '',
+    email: '',
+    requirements: ''
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch('/api/wholesale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to submit application.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="flex-grow w-full bg-transparent text-[var(--charcoal-ink)] pt-32 pb-24 font-sans relative overflow-hidden">
       <BackgroundPattern className="opacity-40" />
@@ -88,32 +121,67 @@ export default function WholesalePage() {
           >
             <div className="space-y-6 w-full">
               <h3 className="font-serif text-2xl italic font-bold text-zinc-950">Submit Inquiry</h3>
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Business Name</label>
-                    <input type="text" className="sonic-input" placeholder="e.g. Atelier Studios" />
+              {submitted ? (
+                <div className="bg-green-50 text-green-800 p-6 rounded-lg text-sm">
+                  <h4 className="font-bold mb-2">Application Received</h4>
+                  <p>Your wholesale application has been successfully submitted. Our team will review your requirements and reach out to you within 1-2 business days.</p>
+                </div>
+              ) : (
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Business Name</label>
+                      <input 
+                        type="text" 
+                        className="sonic-input" 
+                        placeholder="e.g. Atelier Studios"
+                        value={formState.businessName}
+                        onChange={(e) => setFormState(s => ({...s, businessName: e.target.value}))}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Tax ID / GST</label>
+                      <input 
+                        type="text" 
+                        className="sonic-input" 
+                        placeholder="Registration Number"
+                        value={formState.taxId}
+                        onChange={(e) => setFormState(s => ({...s, taxId: e.target.value}))}
+                      />
+                    </div>
                   </div>
+
                   <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Tax ID / GST</label>
-                    <input type="text" className="sonic-input" placeholder="Registration Number" />
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Contact Email</label>
+                    <input 
+                      type="email" 
+                      className="sonic-input" 
+                      placeholder="purchasing@domain.com"
+                      value={formState.email}
+                      onChange={(e) => setFormState(s => ({...s, email: e.target.value}))}
+                      required
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Contact Email</label>
-                  <input type="email" className="sonic-input" placeholder="purchasing@domain.com" />
-                </div>
+                  <div className="space-y-1">
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Fabric Requirements & Estimated Volume</label>
+                    <textarea 
+                      rows={4} 
+                      className="sonic-input resize-none" 
+                      placeholder="Detail your specific textile needs, weight requirements, and expected monthly yardage."
+                      value={formState.requirements}
+                      onChange={(e) => setFormState(s => ({...s, requirements: e.target.value}))}
+                      required
+                    ></textarea>
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Fabric Requirements & Estimated Volume</label>
-                  <textarea rows={4} className="sonic-input resize-none" placeholder="Detail your specific textile needs, weight requirements, and expected monthly yardage."></textarea>
-                </div>
-
-                <button type="submit" className="sonic-btn-primary w-full text-xs">
-                  Submit Application
-                </button>
-              </form>
+                  {error && <p className="text-red-500 text-xs font-bold font-sans">{error}</p>}
+                  <button type="submit" disabled={isSubmitting} className="sonic-btn-primary w-full text-xs">
+                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                  </button>
+                </form>
+              )}
             </div>
           </motion.div>
 

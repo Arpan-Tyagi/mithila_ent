@@ -13,9 +13,30 @@ export default function ContactPage() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to send message.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -189,11 +210,9 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <button 
-                    type="submit" 
-                    className="sonic-btn-primary w-full text-xs"
-                  >
-                    Submit Request
+                  {error && <p className="text-red-500 text-xs font-bold font-sans">{error}</p>}
+                  <button type="submit" disabled={isSubmitting} className="sonic-btn-primary w-full text-xs">
+                    {isSubmitting ? 'Sending...' : 'Submit Request'}
                   </button>
                 </form>
               )}

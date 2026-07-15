@@ -22,6 +22,19 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: false })
     .limit(6);
 
+  let wholesaleApps: any[] = [];
+  try {
+    const { data: apps } = await supabase
+      .from('wholesale_applications')
+      .select('id, business_name, email, status, created_at')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(5);
+    if (apps) wholesaleApps = apps;
+  } catch (e) {
+    console.log('Wholesale apps table not found yet');
+  }
+
   const { data: lowStock } = await supabase
     .from('product_variants')
     .select('id, color, stock_quantity, products(title)')
@@ -144,6 +157,28 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Wholesale Apps */}
+      {wholesaleApps.length > 0 && (
+        <div className="bg-[var(--unbleached-cotton)] border-2 border-[var(--charcoal-ink)] p-6 shadow-[4px_4px_0_var(--charcoal-ink)] mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-xl font-bold text-[var(--charcoal-ink)]">Pending Wholesale Applications</h2>
+          </div>
+          <div className="divide-y divide-[var(--charcoal-ink)]/10">
+            {wholesaleApps.map((app: any) => (
+              <div key={app.id} className="flex items-center justify-between py-3">
+                <div>
+                  <div className="font-bold text-sm">{app.business_name}</div>
+                  <div className="text-[10px] opacity-50">{app.email}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--turmeric)]">Pending</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Top Sellers */}
       <div className="bg-white border-2 border-[var(--charcoal-ink)] p-6 shadow-[4px_4px_0_var(--charcoal-ink)]">
