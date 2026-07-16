@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/Button';
 import { useActionState } from 'react';
 import { login } from '@/actions/auth';
+import { PasswordInput } from '@/components/PasswordInput';
 
 const initialState = { error: '' };
 
@@ -30,12 +31,11 @@ export default function AdminLogin() {
             required
             className="w-full border-2 border-[var(--charcoal-ink)] p-3 font-sans focus:outline-none bg-transparent"
           />
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             placeholder="Password"
             required
-            className="w-full border-2 border-[var(--charcoal-ink)] p-3 font-sans focus:outline-none bg-transparent"
+            className="focus:border-[var(--turmeric)]"
           />
           <Button
             type="submit"

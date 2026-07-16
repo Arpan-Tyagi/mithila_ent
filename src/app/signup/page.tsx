@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useActionState, useState } from 'react';
 import { register, signInWithGoogle } from '@/actions/auth';
 import { passwordRules } from '@/lib/password';
+import { PasswordInput } from '@/components/PasswordInput';
 
 const initialState: { error?: string; success?: string } = {
   error: '',
@@ -51,13 +52,12 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               name="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--turmeric)] transition-colors"
+              onChange={(e: any) => setPassword(e.target.value)}
+              className="focus:border-[var(--turmeric)]"
             />
 
             {password.length > 0 && (

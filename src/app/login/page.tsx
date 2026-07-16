@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
 import { login, signInWithGoogle } from '@/actions/auth';
+import { PasswordInput } from '@/components/PasswordInput';
 
 const initialState = {
   error: '',
@@ -39,7 +40,7 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Password</label>
-            <input type="password" name="password" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <PasswordInput />
           </div>
           
           <div className="flex items-center justify-between">

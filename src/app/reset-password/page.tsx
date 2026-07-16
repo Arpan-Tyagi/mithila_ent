@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { passwordError, passwordRules } from '@/lib/password';
+import { PasswordInput } from '@/components/PasswordInput';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -38,10 +39,10 @@ export default function ResetPassword() {
       <div className="max-w-md w-full bg-white p-8 border-2 border-[var(--charcoal-ink)] shadow-[4px_4px_0_var(--charcoal-ink)]">
         <h1 className="font-serif text-2xl font-bold mb-4">New Password</h1>
         <form onSubmit={handleUpdate} className="space-y-4">
-          <input
-            type="password"
+          <PasswordInput
+            name="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: any) => setPassword(e.target.value)}
             placeholder="Enter new password"
             required
             className="w-full border-2 border-[var(--charcoal-ink)] p-3 font-sans focus:outline-none"
