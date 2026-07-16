@@ -7,6 +7,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import { getSiteContentMap } from "@/lib/content";
+import AuthCallbackCatcher from "@/components/AuthCallbackCatcher";
+import { Suspense } from "react";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair-display",
@@ -44,6 +46,9 @@ export default async function RootLayout({
         <StructuredData />
       </head>
       <body className="min-h-full flex flex-col font-sans relative overflow-x-hidden w-full pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+        <Suspense fallback={null}>
+          <AuthCallbackCatcher />
+        </Suspense>
         <SiteChrome 
           announcement={announcement}
           header={<Header />}
