@@ -23,7 +23,7 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 w-8 h-8 bg-[var(--madder-red)] border-b-2 border-r-2 border-[var(--charcoal-ink)]"></div>
         
         <h1 className="font-serif text-3xl font-bold text-[var(--charcoal-ink)] mb-2 mt-4 text-center">Artisan Portal</h1>
-        <p className="font-sans text-sm opacity-70 text-center mb-8">Enter your credentials to manage your fabric registry and procurement history.</p>
+        <p className="font-sans text-sm opacity-70 text-center mb-8 px-2">Enter your credentials to manage your fabric registry and procurement history.</p>
         
         <form action={formAction} className="space-y-6">
           <input type="hidden" name="next" value={nextPath} />
@@ -40,7 +40,7 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Password</label>
-            <PasswordInput />
+            <PasswordInput className="focus:border-[var(--madder-red)]" />
           </div>
           
           <div className="flex items-center justify-between">
@@ -48,10 +48,10 @@ export default function LoginPage() {
               <input type="checkbox" name="remember" className="accent-[var(--madder-red)]" />
               Remember me
             </label>
-            <Link href="/forgot-password" className="font-sans text-sm text-[var(--madder-red)] hover:underline">Forgot password?</Link>
+            <Link href="/forgot-password" className="font-sans text-sm font-bold text-[var(--madder-red)] hover:underline">Forgot password?</Link>
           </div>
 
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button type="submit" disabled={isPending} className="w-full bg-[var(--madder-red)] border-[var(--madder-red)] hover:border-[var(--charcoal-ink)] hover:bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)] hover:text-[var(--unbleached-cotton)] transition-colors">
             {isPending ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>
