@@ -8,6 +8,8 @@ export interface FabricDetails {
   benefits: string[];
   useCases: string[];
   fashionTrends: string;
+  types?: { name: string; description: string; usage: string }[];
+  
 }
 
 export const fabricData: Record<string, FabricDetails> = {

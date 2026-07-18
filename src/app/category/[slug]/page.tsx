@@ -142,6 +142,34 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           </div>
         </section>
       )}
+      {/* 2.5 FABRIC TYPES / VARIATIONS */}
+      {fabricInfo && fabricInfo.types && fabricInfo.types.length > 0 && (
+        <section className="py-24 border-t border-[var(--charcoal-ink)]/10 bg-[var(--unbleached-cotton)] relative">
+          <div className="absolute inset-0 bg-white/40" />
+          <div className="container mx-auto px-6 md:px-8 relative z-10">
+            <div className="max-w-3xl mb-16 text-center mx-auto">
+              <span className="text-[var(--madder-red)] font-sans uppercase text-xs tracking-[0.2em] font-bold block mb-4">Category Variations</span>
+              <h2 className="text-3xl md:text-5xl font-serif italic font-bold text-[var(--charcoal-ink)]">Types of {category.name}</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {fabricInfo.types.map((type, idx) => (
+                <div key={idx} className="bg-white p-8 rounded-[2rem] border border-[var(--charcoal-ink)]/5 shadow-xl shadow-[var(--charcoal-ink)]/5 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col h-full group">
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-[var(--turmeric)] text-2xl group-hover:rotate-180 transition-transform duration-700">✦</span>
+                    <h3 className="font-serif italic text-2xl font-bold text-[var(--charcoal-ink)]">{type.name}</h3>
+                  </div>
+                  <p className="font-sans text-zinc-600 text-[15px] leading-relaxed mb-8 flex-grow font-light">{type.description}</p>
+                  <div className="pt-6 border-t border-[var(--charcoal-ink)]/5">
+                    <span className="block text-[10px] font-sans uppercase tracking-[0.25em] font-bold text-[var(--charcoal-ink)]/40 mb-3">Primary Usage</span>
+                    <p className="font-sans font-semibold text-sm text-[var(--charcoal-ink)]">{type.usage}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 3. PRODUCT GRID */}
       <section className="py-24 bg-[var(--charcoal-ink)]/5 border-t border-[var(--charcoal-ink)]/10">
