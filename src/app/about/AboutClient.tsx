@@ -171,7 +171,7 @@ export default function AboutClient({
                   </div>
                   <div className="bg-[#f0ecd8]/50 p-6 rounded-lg border border-[var(--charcoal-ink)]/5">
                     <p className="text-sm text-zinc-600 leading-relaxed">
-                      Seeking a permanent anchor for our growing operations, we moved to our current headquarters at TA-106, Okhla Estate Marg, Tughlakabad Extension, Kalkaji, New Delhi - 110019. This strategic relocation provided the infrastructure necessary to scale our logistical capabilities and serve our diverse clientele with even greater efficiency.
+                      While keeping our roots and registered head office in Gandhi Nagar, we expanded to a new primary operations and dispatch hub at TA-106, Okhla Estate Marg, Tughlakabad Extension, Kalkaji, New Delhi - 110019. This strategic move provided the modern infrastructure necessary to scale our logistical capabilities and serve our diverse clientele with even greater efficiency.
                     </p>
                   </div>
                 </div>
