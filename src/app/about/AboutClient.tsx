@@ -104,7 +104,7 @@ export default function AboutClient({
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-2">
             <span className="text-[var(--madder-red)] font-sans uppercase text-xs tracking-wider font-semibold">The Legacy</span>
             <h2 className="font-serif italic text-4xl md:text-5xl font-bold text-[var(--charcoal-ink)]">Our Journey</h2>
-            <p className="font-sans text-sm text-zinc-500 mt-4 leading-relaxed">
+            <p className="font-sans text-sm mt-4 leading-relaxed" style={{ color: 'lab(2 0.16 -0.58)' }}>
               From our humble beginnings in Delhi to catering pan-India, our commitment to quality textiles has remained unwavering for over four decades.
             </p>
           </div>
