@@ -5,7 +5,7 @@ import { sendWhatsAppNotification } from '@/lib/whatsapp';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build_only');
 const FROM = process.env.EMAIL_FROM || 'Mithila Enterprises <onboarding@resend.dev>';
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@mithilaenterprises.co.in';
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'mithlaenterprises11@gmail.com';
 const ADMIN_WHATSAPP = process.env.ADMIN_WHATSAPP || '+910000000000'; // Replace with real admin number
 
 export async function POST(req: Request) {

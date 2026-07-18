@@ -52,7 +52,7 @@ export default async function Footer() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--unbleached-cotton)]">Connect</h4>
             <div className="space-y-3 text-sm text-[var(--unbleached-cotton)]/70">
               <div>
-                <p>{settings.support_email}</p>
+                <a href={`mailto:${settings.support_email}`} className="block hover:text-[var(--turmeric)] transition-colors">{settings.support_email}</a>
                 <p>{settings.support_phone}</p>
               </div>
               <div className="text-xs opacity-80 leading-relaxed">
