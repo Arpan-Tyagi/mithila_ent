@@ -58,7 +58,7 @@ export default async function Footer() {
               <div className="text-xs opacity-80 leading-relaxed">
                 <p className="font-bold mb-1">GSTIN : 07AGUPM2548P1ZH</p>
                 <p className="mb-2"><strong>Reg. Office:</strong> X-3458/7, Street -1, Raghubar Pura -2, Gandhi Nagar, DELHI - 110031</p>
-                <p><strong>Warehouse:</strong> TA-106, Okhla Estate Marg, Tughlakabad Extension, Kalkaji New Delhi, Delhi 110019</p>
+                <p><strong>Warehouse:</strong> TA-106, Okhla Estate Marg, Tughlakabad Extension, Alaknanda, Delhi 110019</p>
               </div>
             </div>
             <div className="flex gap-4 text-sm mt-3">
