@@ -122,23 +122,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   const currentDesc = category ? categoryDescriptions[category] || "Browse our complete catalog of premium woven yardage and seasonal textiles." : "Browse our complete catalog of premium woven yardage and seasonal textiles.";
 
-  const categoriesList = [
-    { name: 'All Fabrics', slug: '' },
-    { name: 'Linen', slug: 'linen' },
-    { name: 'Cotton', slug: 'cotton' },
-    { name: 'Viscose', slug: 'viscose' },
-    { name: 'Flannel', slug: 'flannel' },
-    { name: 'Corduroy', slug: 'corduroy' },
-    { name: 'Twill', slug: 'twill' },
-    { name: 'Suede', slug: 'suede' },
-    { name: 'Velvet', slug: 'velvet' },
-    { name: 'Wool', slug: 'wool' },
-    { name: 'Fleece', slug: 'fleece' },
-    { name: 'Tweed', slug: 'tweed' },
-  ];
-
   const { data: dbCollections } = await supabase.from('collections').select('title, slug').eq('is_active', true).order('title');
   const collectionsList = dbCollections || [];
+
+  const { data: dbCategories } = await supabase.from('categories').select('*').order('name');
+  const parentCategories = dbCategories?.filter(c => !c.parent_id) || [];
+  const subCategories = dbCategories?.filter(c => c.parent_id) || [];
 
   const getFilterUrl = (key: string, value: string | null) => {
     const q = new URLSearchParams();
@@ -215,20 +204,52 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             <div>
               <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-[var(--charcoal-ink)] mb-4 border-b border-[var(--charcoal-ink)]/10 pb-2">Category</h3>
               <div className="flex flex-col gap-1 font-sans text-sm">
-                {categoriesList.map(cat => {
-                  const isActive = (category === cat.slug) || (!category && cat.slug === '');
+                <Link 
+                  href={getFilterUrl('category', null)} 
+                  className={`px-4 py-3 rounded-lg font-bold transition-colors border ${
+                    !category
+                    ? 'bg-[var(--indigo-dye)] text-white border-[var(--indigo-dye)] shadow-sm' 
+                    : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'
+                  }`}
+                >
+                  All Fabrics
+                </Link>
+                {parentCategories.map(cat => {
+                  const isActive = (category === cat.slug);
+                  const children = subCategories.filter(sub => sub.parent_id === cat.id);
                   return (
-                    <Link 
-                      key={cat.slug}
-                      href={getFilterUrl('category', cat.slug)} 
-                      className={`px-4 py-3 rounded-lg font-bold transition-colors border ${
-                        isActive 
-                        ? 'bg-[var(--indigo-dye)] text-white border-[var(--indigo-dye)] shadow-sm' 
-                        : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'
-                      }`}
-                    >
-                      {cat.name}
-                    </Link>
+                    <div key={cat.slug} className="flex flex-col">
+                      <Link 
+                        href={getFilterUrl('category', cat.slug)} 
+                        className={`px-4 py-3 rounded-lg font-bold transition-colors border ${
+                          isActive 
+                          ? 'bg-[var(--indigo-dye)] text-white border-[var(--indigo-dye)] shadow-sm' 
+                          : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'
+                        }`}
+                      >
+                        {cat.name}
+                      </Link>
+                      {children.length > 0 && (
+                        <div className="pl-6 flex flex-col gap-1 border-l-2 border-[var(--charcoal-ink)]/10 ml-4 mt-1 mb-2">
+                          {children.map(sub => {
+                            const isSubActive = (category === sub.slug);
+                            return (
+                              <Link 
+                                key={sub.slug}
+                                href={getFilterUrl('category', sub.slug)} 
+                                className={`px-3 py-2 rounded-lg font-bold text-xs transition-colors border ${
+                                  isSubActive 
+                                  ? 'bg-[var(--madder-red)] text-white border-[var(--madder-red)] shadow-sm' 
+                                  : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]/80'
+                                }`}
+                              >
+                                {sub.name}
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>

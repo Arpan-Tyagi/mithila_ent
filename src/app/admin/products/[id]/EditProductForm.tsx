@@ -17,6 +17,7 @@ export default function EditProductForm({ product, categories, collections, init
     description: product.description || '',
     status: product.status || 'active',
     categoryId: product.category_id || '',
+    subcategoryId: product.subcategory_id || '',
     weave: product.weave || '',
     count: product.count || '',
     construction: product.construction || '',
@@ -116,6 +117,7 @@ export default function EditProductForm({ product, categories, collections, init
         description: form.description,
         status: form.status,
         categoryId: form.categoryId,
+        subcategoryId: form.subcategoryId,
         weave: form.weave,
         count: form.count,
         construction: form.construction,
@@ -213,10 +215,29 @@ export default function EditProductForm({ product, categories, collections, init
             <select
               className={inputClass}
               value={form.categoryId}
-              onChange={(e) => setField('categoryId', e.target.value)}
+              onChange={(e) => {
+                setField('categoryId', e.target.value);
+                setField('subcategoryId', '');
+              }}
             >
               <option value="">Uncategorized</option>
-              {categories.map((c) => (
+              {categories.filter(c => !c.parent_id).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Subcategory</label>
+            <select
+              className={inputClass}
+              value={form.subcategoryId}
+              onChange={(e) => setField('subcategoryId', e.target.value)}
+              disabled={!form.categoryId}
+            >
+              <option value="">None</option>
+              {categories.filter(c => c.parent_id === form.categoryId).map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>

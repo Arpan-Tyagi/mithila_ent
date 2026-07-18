@@ -20,6 +20,7 @@ export interface ProductDraft {
   minOrderQuantity?: number
   colors: string[]
   categoryId: string
+  subcategoryId?: string
   collectionIds?: string[]
   print?: string
 }
@@ -43,6 +44,7 @@ export async function createProduct(draft: ProductDraft, imagePreview: string | 
   // Insert the core product record securely on the server side
   const { data: prodData, error: prodError } = await supabase.from('products').insert({
     category_id: draft.categoryId,
+    subcategory_id: draft.subcategoryId || null,
     slug: slug,
     title: draft.title,
     description: draft.description,
@@ -136,6 +138,7 @@ export interface ProductUpdate {
   description: string
   status: string
   categoryId: string
+  subcategoryId?: string
   weave: string
   count: string
   construction: string
@@ -159,6 +162,7 @@ export async function updateProduct(productId: string, fields: ProductUpdate) {
       description: fields.description,
       status: fields.status,
       category_id: fields.categoryId || null,
+      subcategory_id: fields.subcategoryId || null,
       weave: fields.weave,
       count: fields.count || null,
       construction: fields.construction || null,

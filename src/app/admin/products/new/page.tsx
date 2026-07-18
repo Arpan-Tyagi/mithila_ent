@@ -31,6 +31,7 @@ export default function AIProductIngestion() {
     pricePerMeter: 0,
     colors: [] as string[],
     categoryId: '',
+    subcategoryId: '',
     collectionIds: [] as string[],
     gsm: 320,
     minOrderQuantity: 1,
@@ -99,7 +100,8 @@ export default function AIProductIngestion() {
         construction: data.construction || '',
         pricePerMeter: 0, 
         colors: Array.isArray(data.colors) ? data.colors : [],
-        categoryId: categories.length > 0 ? categories[0].id : '',
+        categoryId: categories.length > 0 ? categories.find(c => !c.parent_id)?.id || '' : '',
+        subcategoryId: '',
         collectionIds: [],
         gsm: parseInt(data.gsm) || 320,
         minOrderQuantity: 1,
@@ -294,9 +296,18 @@ export default function AIProductIngestion() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Category</label>
-                    <select value={draft.categoryId} onChange={e => setDraft({...draft, categoryId: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)] cursor-pointer">
+                    <select value={draft.categoryId} onChange={e => setDraft({...draft, categoryId: e.target.value, subcategoryId: ''})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)] cursor-pointer">
                       <option value="">Select Category</option>
-                      {categories.map(c => (
+                      {categories.filter(c => !c.parent_id).map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--indigo-dye)] mb-1">Subcategory (Optional)</label>
+                    <select value={draft.subcategoryId} onChange={e => setDraft({...draft, subcategoryId: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)] cursor-pointer" disabled={!draft.categoryId}>
+                      <option value="">Select Subcategory</option>
+                      {categories.filter(c => c.parent_id === draft.categoryId).map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
                     </select>

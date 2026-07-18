@@ -495,10 +495,10 @@ export default function HomeClient({
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerGridContainer}
-            className="w-full relative bg-[#f7f3cc] border border-[#d5cbb1] shadow-md rounded-[12px] overflow-hidden min-h-[500px] flex items-center justify-center p-8 md:p-16 mt-8"
+            className="w-full relative bg-[#f7f3cc] border border-[#d5cbb1] shadow-md rounded-[12px] min-h-[500px] flex items-center justify-center p-8 md:p-16 mt-8"
           >
             {/* Elegant Background Texture */}
-            <div className="absolute inset-0 pointer-events-none opacity-20">
+            <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden rounded-[12px]">
               <BackgroundPattern />
             </div>
             
