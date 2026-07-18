@@ -221,40 +221,18 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 </Link>
                 {parentCategories.map(cat => {
                   const isActive = (category === cat.slug);
-                  const children = subCategories.filter(sub => sub.parent_id === cat.id);
                   return (
-                    <div key={cat.slug} className="flex flex-col">
-                      <Link 
-                        href={getFilterUrl('category', cat.slug)} 
-                        className={`px-4 py-3 rounded-lg font-bold transition-colors border ${
-                          isActive 
-                          ? 'bg-[var(--indigo-dye)] text-white border-[var(--indigo-dye)] shadow-sm' 
-                          : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'
-                        }`}
-                      >
-                        {cat.name}
-                      </Link>
-                      {children.length > 0 && (
-                        <div className="pl-6 flex flex-col gap-1 border-l-2 border-[var(--charcoal-ink)]/10 ml-4 mt-1 mb-2">
-                          {children.map(sub => {
-                            const isSubActive = (category === sub.slug);
-                            return (
-                              <Link 
-                                key={sub.slug}
-                                href={getFilterUrl('category', sub.slug)} 
-                                className={`px-3 py-2 rounded-lg font-bold text-xs transition-colors border ${
-                                  isSubActive 
-                                  ? 'bg-[var(--madder-red)] text-white border-[var(--madder-red)] shadow-sm' 
-                                  : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]/80'
-                                }`}
-                              >
-                                {sub.name}
-                              </Link>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
+                    <Link 
+                      key={cat.slug}
+                      href={getFilterUrl('category', cat.slug)} 
+                      className={`px-4 py-3 rounded-lg font-bold transition-colors border ${
+                        isActive 
+                        ? 'bg-[var(--indigo-dye)] text-white border-[var(--indigo-dye)] shadow-sm' 
+                        : 'border-transparent hover:border-[var(--charcoal-ink)]/10 hover:bg-[var(--charcoal-ink)]/5 text-[var(--charcoal-ink)]'
+                      }`}
+                    >
+                      {cat.name}
+                    </Link>
                   );
                 })}
               </div>
