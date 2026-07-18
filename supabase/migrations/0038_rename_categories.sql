@@ -1,0 +1,9 @@
+UPDATE categories SET name = 'Linen' WHERE slug = 'linen';
+UPDATE categories SET name = 'Cotton' WHERE slug = 'cotton';
+UPDATE categories SET name = 'Viscose' WHERE slug = 'viscose';
+UPDATE categories SET name = 'Corduroy' WHERE slug = 'corduroy';
+UPDATE categories SET name = 'Suede' WHERE slug = 'suede';
+UPDATE categories SET name = 'Velvet' WHERE slug = 'velvet';
+UPDATE categories SET name = 'Wool' WHERE slug = 'wool';
+UPDATE categories SET name = 'Fleece' WHERE slug = 'fleece';
+UPDATE categories SET name = 'Tweed' WHERE slug = 'tweed';

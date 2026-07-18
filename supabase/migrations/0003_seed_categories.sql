@@ -1,14 +1,14 @@
 -- Seed script to populate all core fabric categories
 INSERT INTO categories (name, slug) VALUES 
-('Pure Linen', 'linen'),
-('Woven Cotton', 'cotton'),
-('Fluid Viscose', 'viscose'),
+('Linen', 'linen'),
+('Cotton', 'cotton'),
+('Viscose', 'viscose'),
 ('Brushed Flannel', 'flannel'),
-('Wale Corduroy', 'corduroy'),
+('Corduroy', 'corduroy'),
 ('Diagonal Twill', 'twill'),
-('Faux Suede', 'suede'),
-('Pile Velvet', 'velvet'),
-('Virgin Wool', 'wool'),
-('Thermal Fleece', 'fleece'),
-('Heritage Tweed', 'tweed')
+('Suede', 'suede'),
+('Velvet', 'velvet'),
+('Wool', 'wool'),
+('Fleece', 'fleece'),
+('Tweed', 'tweed')
 ON CONFLICT (slug) DO NOTHING;
