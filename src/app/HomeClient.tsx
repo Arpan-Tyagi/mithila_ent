@@ -452,7 +452,7 @@ export default function HomeClient({
               <motion.div
                 variants={gridItemVariants}
                 whileHover={{ y: -4 }}
-                className="sonic-bento-card relative group p-0 flex flex-col overflow-hidden min-h-[18rem] bg-[#f7f3cc] border border-zinc-900/10 hover:border-red-600/50 transition-colors"
+                className="sonic-bento-card relative group p-0 flex flex-col h-full overflow-hidden min-h-[18rem] bg-[#f7f3cc] border border-zinc-900/10 hover:border-red-600/50 transition-colors"
               >
                 {/* Image Section */}
                 <div className="h-44 w-full relative overflow-hidden bg-[var(--unbleached-cotton)]">
