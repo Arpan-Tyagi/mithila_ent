@@ -21,11 +21,34 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mithilaenterprises.co.in'),
   title: "Mithila Enterprises | Premium Cotton & Linen",
   description: "Wholesale B2C Premium Cotton & Linen Fabrics inspired by Madhubani Art.",
   icons: {
     icon: "/images/logo.png",
     apple: "/images/logo.png",
+  },
+  openGraph: {
+    title: "Mithila Enterprises | Premium Cotton & Linen",
+    description: "Wholesale B2C Premium Cotton & Linen Fabrics inspired by Madhubani Art.",
+    url: 'https://www.mithilaenterprises.co.in',
+    siteName: 'Mithila Enterprises',
+    images: [
+      {
+        url: '/images/logo.png',
+        width: 800,
+        height: 600,
+        alt: 'Mithila Enterprises Logo',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Mithila Enterprises | Premium Cotton & Linen",
+    description: "Wholesale B2C Premium Cotton & Linen Fabrics inspired by Madhubani Art.",
+    images: ['/images/logo.png'],
   },
 };
 
