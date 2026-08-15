@@ -57,8 +57,32 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     return <div className="py-24 text-center">Product is unavailable.</div>;
   }
 
+  const productLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description || 'Premium wholesale fabric',
+    image: defaultVariant.images?.[0] ? [defaultVariant.images[0]] : undefined,
+    sku: defaultVariant.sku || product.id,
+    brand: {
+      '@type': 'Brand',
+      name: 'Mithila Enterprises'
+    },
+    material: product.categories?.name || 'Organic Yarn',
+    pattern: product.print || 'Madhubani Inspired',
+    offers: {
+      '@type': 'Offer',
+      url: `https://www.mithilaenterprises.co.in/product/${product.slug}`,
+      priceCurrency: 'INR',
+      price: defaultVariant.price,
+      availability: defaultVariant.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition'
+    }
+  };
+
   return (
     <main className="flex-grow bg-transparent pt-32 pb-24 relative overflow-hidden">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
       <BackgroundPattern className="opacity-40" />
       <div className="container mx-auto px-4 md:px-8 max-w-7xl relative z-10">
         {/* Breadcrumb */}
