@@ -44,7 +44,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, title = "Sign In
           <h2 className="font-serif italic text-2xl font-bold text-[var(--charcoal-ink)]">{title}</h2>
           <button 
             onClick={onClose}
-            className="text-zinc-400 hover:text-[var(--madder-red)] transition-colors p-1"
+            className="text-zinc-800 hover:text-[var(--madder-red)] transition-colors p-1"
             aria-label="Close"
           >
             <X size={20} />

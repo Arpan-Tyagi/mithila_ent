@@ -326,7 +326,7 @@ export default function CheckoutPage() {
 
             {/* Coupon */}
             <div className="mb-6">
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/60 mb-2">Discount Code</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/90 mb-2">Discount Code</label>
               {applied ? (
                 <div className="flex items-center justify-between border-2 border-green-600 bg-green-50 px-3 py-2">
                   <span className="font-sans text-sm font-bold text-green-700">{applied.code} - {applied.label}</span>

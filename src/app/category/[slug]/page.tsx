@@ -41,7 +41,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <div className="flex-1 w-full max-w-2xl">
               <div className="flex items-center gap-4 mb-8">
                 <div className="h-[2px] w-12 bg-[var(--turmeric)]" />
-                <span className="text-[var(--charcoal-ink)]/80 font-sans uppercase text-xs tracking-[0.4em] font-bold">
+                <span className="text-[var(--charcoal-ink)]/90 font-sans uppercase text-xs tracking-[0.4em] font-bold">
                   The Material Archive
                 </span>
               </div>
@@ -85,7 +85,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               <div className="lg:col-span-4 space-y-12">
                 <div className="sonic-bento-card bg-[var(--charcoal-ink)]/5 p-8 border-l-4 border-[var(--charcoal-ink)] shadow-md">
                   <h4 className="font-serif italic font-bold text-2xl text-[var(--charcoal-ink)] mb-4">Origins</h4>
-                  <p className="font-sans text-sm text-[var(--charcoal-ink)]/80 leading-relaxed text-justify">
+                  <p className="font-sans text-sm text-[var(--charcoal-ink)]/90 leading-relaxed text-justify">
                     {fabricInfo.whereItsMade}
                   </p>
                 </div>
@@ -117,13 +117,24 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               {/* Right Column: Deep Dive */}
               <div className="lg:col-span-8 max-w-3xl">
                 
+                {/* E-E-A-T Author Block */}
+                <div className="flex items-center gap-4 p-5 mb-10 bg-[var(--charcoal-ink)]/5 border border-[var(--charcoal-ink)]/10 rounded-2xl">
+                  <div className="w-12 h-12 rounded-full bg-[var(--turmeric)] flex items-center justify-center text-[var(--charcoal-ink)] font-serif italic font-bold text-xl">
+                    S
+                  </div>
+                  <div>
+                    <p className="font-sans font-bold text-sm text-[var(--charcoal-ink)]">Expertly Curated</p>
+                    <p className="font-sans text-xs text-[var(--charcoal-ink)]/90">Fact-checked by Senior Textile Specialists at Mithila Enterprises</p>
+                  </div>
+                </div>
+                
                 <h2 className="text-3xl md:text-4xl font-serif italic font-bold text-[var(--charcoal-ink)] border-b border-[var(--charcoal-ink)]/10 pb-6 mb-8">A Brief History</h2>
-                <p className="font-sans text-lg text-[var(--charcoal-ink)]/80 leading-relaxed text-justify mb-16 first-letter:text-6xl first-letter:font-serif first-letter:italic first-letter:mr-2 first-letter:float-left first-letter:text-[var(--charcoal-ink)]">
+                <p className="font-sans text-lg text-[var(--charcoal-ink)]/90 leading-relaxed text-justify mb-16 first-letter:text-6xl first-letter:font-serif first-letter:italic first-letter:mr-2 first-letter:float-left first-letter:text-[var(--charcoal-ink)]">
                   {fabricInfo.history}
                 </p>
 
                 <h2 className="text-3xl md:text-4xl font-serif italic font-bold text-[var(--charcoal-ink)] border-b border-[var(--charcoal-ink)]/10 pb-6 mb-8">Crafting the Cloth</h2>
-                <p className="font-sans text-lg text-[var(--charcoal-ink)]/80 leading-relaxed text-justify mb-20">
+                <p className="font-sans text-lg text-[var(--charcoal-ink)]/90 leading-relaxed text-justify mb-20">
                   {fabricInfo.howItsMade}
                 </p>
 
@@ -132,7 +143,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                   <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#dc2626]/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3" />
                   <span className="text-[#f59e0b] font-sans uppercase text-[10px] tracking-[0.3em] font-bold block mb-4 relative z-10">The Market View</span>
                   <h2 className="text-3xl md:text-4xl font-serif italic font-bold text-[#f7f3cc] mb-8 relative z-10 leading-tight">Modern Fashion Trends</h2>
-                  <p className="font-sans text-[#f7f3cc]/80 text-lg md:text-xl leading-relaxed text-justify relative z-10">
+                  <p className="font-sans text-[#f7f3cc]/90 text-lg md:text-xl leading-relaxed text-justify relative z-10">
                     {fabricInfo.fashionTrends}
                   </p>
                 </div>
@@ -159,9 +170,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                     <span className="text-[var(--turmeric)] text-2xl group-hover:rotate-180 transition-transform duration-700">✦</span>
                     <h3 className="font-serif italic text-2xl font-bold text-[var(--charcoal-ink)]">{type.name}</h3>
                   </div>
-                  <p className="font-sans text-zinc-600 text-[15px] leading-relaxed mb-8 flex-grow font-light">{type.description}</p>
+                  <p className="font-sans text-zinc-800 text-[15px] leading-relaxed mb-8 flex-grow font-light">{type.description}</p>
                   <div className="pt-6 border-t border-[var(--charcoal-ink)]/5">
-                    <span className="block text-[10px] font-sans uppercase tracking-[0.25em] font-bold text-[var(--charcoal-ink)]/40 mb-3">Primary Usage</span>
+                    <span className="block text-[10px] font-sans uppercase tracking-[0.25em] font-bold text-[var(--charcoal-ink)]/90 mb-3">Primary Usage</span>
                     <p className="font-sans font-semibold text-sm text-[var(--charcoal-ink)]">{type.usage}</p>
                   </div>
                 </div>
@@ -211,7 +222,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                   <Image src="/images/logo.png" alt="Mithila Enterprises Logo" fill className="object-contain" />
                 </div>
                  <p className="font-serif italic text-4xl font-bold text-[var(--charcoal-ink)] mb-4">Curating {category.name}</p>
-                 <p className="font-sans text-lg text-[var(--charcoal-ink)]/70 max-w-lg mx-auto leading-relaxed">Our weavers are currently preparing the newest collection of {category.name.toLowerCase()} fabrics. Check back soon for fresh inventory.</p>
+                 <p className="font-sans text-lg text-[var(--charcoal-ink)]/90 max-w-lg mx-auto leading-relaxed">Our weavers are currently preparing the newest collection of {category.name.toLowerCase()} fabrics. Check back soon for fresh inventory.</p>
               </div>
             )}
           </div>

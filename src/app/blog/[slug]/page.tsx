@@ -71,10 +71,10 @@ export default async function BlogPostPage({
             <span className="inline-block px-3 py-1 bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)] font-bold uppercase tracking-widest rounded-sm">
               {post.category}
             </span>
-            <span className="text-zinc-400 font-semibold uppercase tracking-wider">
+            <span className="text-zinc-800 font-semibold uppercase tracking-wider">
               {post.date}
             </span>
-            <span className="text-zinc-400">·</span>
+            <span className="text-zinc-800">·</span>
             <span className="text-zinc-700 font-medium">{post.author}</span>
           </div>
 
@@ -166,7 +166,7 @@ export default async function BlogPostPage({
 
                   {/* Body */}
                   <div className="flex flex-col flex-grow p-6 space-y-3">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-800">
                       {related.date}
                     </span>
                     <h3 className="font-serif italic font-bold text-lg leading-snug text-[var(--charcoal-ink)] group-hover:text-[var(--madder-red)] transition-colors line-clamp-2">

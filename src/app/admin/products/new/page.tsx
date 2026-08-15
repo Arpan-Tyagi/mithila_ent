@@ -210,7 +210,7 @@ export default function AIProductIngestion() {
                   <button
                     type="button"
                     onClick={handleManualEntry}
-                    className="w-full mt-3 text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/70 hover:text-[var(--madder-red)] underline underline-offset-4"
+                    className="w-full mt-3 text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/90 hover:text-[var(--madder-red)] underline underline-offset-4"
                   >
                     Or enter product details manually
                   </button>
@@ -371,7 +371,7 @@ export default function AIProductIngestion() {
                     <input type="text" value={draft.stretch} onChange={e => setDraft({...draft, stretch: e.target.value})} className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Print / Pattern</label>
+                    <label className="block text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Print / Pattern</label>
                     <input type="text" value={draft.print} onChange={e => setDraft({...draft, print: e.target.value})} placeholder="e.g. Solid, Hand Block, Digital Print" className="w-full border-b-2 border-[var(--charcoal-ink)]/20 bg-transparent py-2 font-bold focus:outline-none focus:border-[var(--madder-red)]" />
                   </div>
                   <div>

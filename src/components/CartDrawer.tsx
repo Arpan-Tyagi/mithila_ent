@@ -130,7 +130,7 @@ export default function CartDrawer() {
                               </h3>
                               <button
                                 onClick={() => removeItem(item.id)}
-                                className="text-[var(--charcoal-ink)]/40 hover:text-[var(--madder-red)] transition-colors p-1"
+                                className="text-[var(--charcoal-ink)]/90 hover:text-[var(--madder-red)] transition-colors p-1"
                               >
                                 <Trash2 size={18} strokeWidth={2} />
                               </button>

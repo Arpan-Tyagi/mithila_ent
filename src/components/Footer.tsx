@@ -4,7 +4,7 @@ import { getStoreSettings } from '@/lib/content';
 export default async function Footer() {
   const settings = await getStoreSettings();
   return (
-    <footer className="w-full bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)]/70 font-sans border-t-[6px] border-[var(--turmeric)] py-16">
+    <footer className="w-full bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)]/90 font-sans border-t-[6px] border-[var(--turmeric)] py-16">
       <div className="container mx-auto px-6 max-w-7xl">
         
         {/* Main Footer Links Grid */}
@@ -20,7 +20,7 @@ export default async function Footer() {
               />
               Mithila
             </Link>
-            <p className="text-xs text-zinc-400 max-w-xs leading-relaxed">
+            <p className="text-xs text-zinc-800 max-w-xs leading-relaxed">
               Premium handloom fabrics and fine line artistry loomed with devotion and contemporary elegance.
             </p>
           </div>
@@ -50,7 +50,7 @@ export default async function Footer() {
           {/* Contact Details */}
           <div className="space-y-4">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--unbleached-cotton)]">Connect</h4>
-            <div className="space-y-3 text-sm text-[var(--unbleached-cotton)]/70">
+            <div className="space-y-3 text-sm text-[var(--unbleached-cotton)]/90">
               <div>
                 <a href={`mailto:${settings.support_email}`} className="block hover:text-[var(--turmeric)] transition-colors">{settings.support_email}</a>
                 <p>{settings.support_phone}</p>
@@ -73,7 +73,7 @@ export default async function Footer() {
         <div className="w-full h-[1px] bg-[var(--unbleached-cotton)]/20 mb-8"></div>
 
         {/* Bottom copyright block */}
-        <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--unbleached-cotton)]/50 gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--unbleached-cotton)]/90 gap-4">
           <p>&copy; {new Date().getFullYear()} {settings.store_name}. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/legal/privacy-policy" className="hover:underline">Privacy</Link>

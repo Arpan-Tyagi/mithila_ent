@@ -92,7 +92,7 @@ export default function AboutClient({
             <p className="font-sans text-sm leading-relaxed text-zinc-700 text-justify mb-4 whitespace-pre-wrap">
               {heritage.body || "We source, engineer, and supply premium textiles for domestic designers, individual creators and export companies. Our entire catalog is built on material physics rather than marketing trends. We focus strictly on the structural integrity, weave density, and tactile properties of our fabrics.\n\nEvery yard of linen, cotton, and wool undergoes rigorous tension and abrasion testing to ensure longevity. We bypass standard chemical finishing processes to preserve the natural memory of the raw fibers. This guarantees that garments constructed from our yardage hold their shape and adapt to the wearer over years of continued use."}
             </p>
-            <div className="border-t border-zinc-100 pt-6 mt-8 flex flex-wrap gap-6 font-sans text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/50">
+            <div className="border-t border-zinc-100 pt-6 mt-8 flex flex-wrap gap-6 font-sans text-[10px] font-bold uppercase tracking-widest text-[var(--charcoal-ink)]/90">
               <span>🌾 100% Hand-Woven</span>
               <span>🎨 Natural Pigment Dyes</span>
             </div>

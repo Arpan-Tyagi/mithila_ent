@@ -64,7 +64,7 @@ export default function SignupPage() {
               <div className="mt-3 space-y-1">
                 {passwordRules.map((rule, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs font-sans">
-                    <span className={rule.test(password) ? "text-green-600" : "text-zinc-400"}>
+                    <span className={rule.test(password) ? "text-green-600" : "text-zinc-800"}>
                       {rule.test(password) ? '✓' : '○'}
                     </span>
                     <span className={rule.test(password) ? "text-zinc-800" : "text-zinc-700"}>

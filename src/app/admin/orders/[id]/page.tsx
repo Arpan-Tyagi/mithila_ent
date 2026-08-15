@@ -15,7 +15,7 @@ function statusClasses(status: string) {
   if (status === 'delivered') return 'border-green-500/50 text-green-500';
   if (status === 'paid') return 'border-[var(--turmeric)]/50 text-[var(--turmeric)]';
   if (status === 'cancelled') return 'border-red-500/50 text-red-500';
-  return 'border-white/20 text-white/70';
+  return 'border-white/20 text-white/90';
 }
 
 function paymentStatusClasses(status: string) {
@@ -23,7 +23,7 @@ function paymentStatusClasses(status: string) {
   if (status === 'created' || status === 'authorized') return 'border-yellow-500/50 text-yellow-500';
   if (status === 'failed') return 'border-red-500/50 text-red-500';
   if (status === 'refunded') return 'border-blue-500/50 text-blue-500';
-  return 'border-white/20 text-white/70';
+  return 'border-white/20 text-white/90';
 }
 
 export default async function AdminOrderDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -93,7 +93,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
         <span className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold border ${statusClasses(order.status)}`}>
           {order.status}
         </span>
-        <span className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-500/50 text-green-500' : 'border-white/20 text-white/50'}`}>
+        <span className={`px-2 py-1 text-[10px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-500/50 text-green-500' : 'border-white/20 text-white/90'}`}>
           {order.is_paid ? 'Paid' : 'Unpaid'}
         </span>
         <span className="ml-auto text-xs opacity-60 font-mono">

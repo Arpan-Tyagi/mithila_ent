@@ -84,7 +84,7 @@ export default function BlogListingPage() {
                 {/* Card Body */}
                 <div className="flex flex-col flex-grow p-6 space-y-3">
                   {/* Date */}
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-800">
                     {post.date}
                   </span>
 

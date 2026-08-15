@@ -327,7 +327,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 {variants.length} {variants.length === 1 ? 'Fabric' : 'Fabrics'} Found
               </span>
               <div className="flex items-center gap-3">
-                <span className="font-sans text-xs font-bold text-[var(--charcoal-ink)]/60 uppercase tracking-widest">Sort By</span>
+                <span className="font-sans text-xs font-bold text-[var(--charcoal-ink)]/90 uppercase tracking-widest">Sort By</span>
                 <SortDropdown currentSort={sort || 'featured'} />
               </div>
             </div>
@@ -349,7 +349,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   Archiving Our <br/> <span className="text-[var(--madder-red)]">Past Collections</span>.
                 </h3>
                 
-                <p className="font-sans text-lg text-[var(--charcoal-ink)]/70 leading-relaxed max-w-xl mx-auto font-medium">
+                <p className="font-sans text-lg text-[var(--charcoal-ink)]/90 leading-relaxed max-w-xl mx-auto font-medium">
                   We are currently organizing our inventory and preparing the digital storefront for our newest curation of heritage textiles.
                 </p>
                 

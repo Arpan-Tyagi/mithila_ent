@@ -121,7 +121,7 @@ export default function ContactPage() {
 
             <div className="pt-6 border-t border-zinc-100 mt-8">
               <h4 className="font-sans font-bold text-xs uppercase text-zinc-800">24/7 Available</h4>
-              <p className="font-sans text-xs text-zinc-400 mt-1">We respond to email inquiries within 24 hours.</p>
+              <p className="font-sans text-xs text-zinc-800 mt-1">We respond to email inquiries within 24 hours.</p>
             </div>
           </motion.div>
 
@@ -151,7 +151,7 @@ export default function ContactPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">First Name</label>
+                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">First Name</label>
                       <input 
                         type="text" 
                         required
@@ -162,7 +162,7 @@ export default function ContactPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Last Name</label>
+                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Last Name</label>
                       <input 
                         type="text" 
                         required
@@ -175,7 +175,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Email Address</label>
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Email Address</label>
                     <input 
                       type="email" 
                       required
@@ -187,7 +187,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Location / City</label>
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Location / City</label>
                     <input 
                       type="text" 
                       required
@@ -199,7 +199,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Inquiry Details</label>
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Inquiry Details</label>
                     <textarea 
                       required
                       rows={3}

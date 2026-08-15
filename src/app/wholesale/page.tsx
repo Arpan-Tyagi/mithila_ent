@@ -130,7 +130,7 @@ export default function WholesalePage() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Business Name</label>
+                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Business Name</label>
                       <input 
                         type="text" 
                         className="sonic-input" 
@@ -141,7 +141,7 @@ export default function WholesalePage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Tax ID / GST</label>
+                      <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Tax ID / GST</label>
                       <input 
                         type="text" 
                         className="sonic-input" 
@@ -153,7 +153,7 @@ export default function WholesalePage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Contact Email</label>
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Contact Email</label>
                     <input 
                       type="email" 
                       className="sonic-input" 
@@ -165,7 +165,7 @@ export default function WholesalePage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-400">Fabric Requirements & Estimated Volume</label>
+                    <label className="block font-sans text-[10px] uppercase font-bold text-zinc-800">Fabric Requirements & Estimated Volume</label>
                     <textarea 
                       rows={4} 
                       className="sonic-input resize-none" 

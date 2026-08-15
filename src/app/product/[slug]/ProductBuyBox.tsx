@@ -49,7 +49,7 @@ export default function ProductBuyBox({
       {/* Variants (Double Bezel architecture) */}
       {variants.length > 1 && (
         <div className="space-y-4">
-          <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--charcoal-ink)]/60">
+          <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--charcoal-ink)]/90">
             Select Color
           </p>
           <div className="flex flex-wrap gap-3">
@@ -81,7 +81,7 @@ export default function ProductBuyBox({
 
       {/* Quantity Selector (Double Bezel) */}
       <div className="space-y-4">
-        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--charcoal-ink)]/60 flex items-center gap-2">
+        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--charcoal-ink)]/90 flex items-center gap-2">
           Length (Meters)
           {moq > 1 && (
             <span className="bg-[var(--madder-red)]/10 text-[var(--madder-red)] px-2 py-0.5 rounded-full tracking-widest text-[8px]">
@@ -94,7 +94,7 @@ export default function ProductBuyBox({
           <div className="flex items-center rounded-[calc(2rem-0.375rem)] bg-white/50 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]">
             <button
               type="button"
-              className="w-12 h-12 flex items-center justify-center font-bold text-xl text-[var(--charcoal-ink)]/60 hover:text-[var(--charcoal-ink)] transition-colors duration-300"
+              className="w-12 h-12 flex items-center justify-center font-bold text-xl text-[var(--charcoal-ink)]/90 hover:text-[var(--charcoal-ink)] transition-colors duration-300"
               onClick={() => setQuantity(q => Math.max(moq, q - 1))}
             >
               −
@@ -104,7 +104,7 @@ export default function ProductBuyBox({
             </span>
             <button
               type="button"
-              className="w-12 h-12 flex items-center justify-center font-bold text-xl text-[var(--charcoal-ink)]/60 hover:text-[var(--charcoal-ink)] transition-colors duration-300"
+              className="w-12 h-12 flex items-center justify-center font-bold text-xl text-[var(--charcoal-ink)]/90 hover:text-[var(--charcoal-ink)] transition-colors duration-300"
               onClick={() => setQuantity(q => q + 1)}
             >
               +

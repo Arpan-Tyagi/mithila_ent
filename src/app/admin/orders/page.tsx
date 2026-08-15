@@ -66,12 +66,12 @@ export default async function AdminOrdersPage() {
                       order.status === 'pending' ? 'border-yellow-500/50 text-yellow-500' :
                       order.status === 'shipped' ? 'border-blue-500/50 text-blue-500' :
                       order.status === 'delivered' ? 'border-green-500/50 text-green-500' :
-                      'border-white/20 text-white/70'
+                      'border-white/20 text-white/90'
                     }`}>
                       {order.status}
                     </span>
                     <div className="mt-2">
-                      <span className={`px-2 py-0.5 text-[9px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-500/50 text-green-500' : 'border-white/20 text-white/50'}`}>
+                      <span className={`px-2 py-0.5 text-[9px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-500/50 text-green-500' : 'border-white/20 text-white/90'}`}>
                         {order.is_paid ? 'Paid' : 'Unpaid'}
                       </span>
                     </div>

@@ -115,49 +115,49 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
               <div className="grid grid-cols-2 gap-y-8 gap-x-4 py-8 border-y border-[var(--charcoal-ink)]/10">
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Blend</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Blend</p>
                   <p className="font-bold text-sm">100% {product.categories?.name || 'Organic Yarn'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Width</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Width</p>
                   <p className="font-bold text-sm">{product.width || '54 inches / 137 cm'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Count</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Count</p>
                   <p className="font-bold text-sm">{product.count || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Construction</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Construction</p>
                   <p className="font-bold text-sm">{product.construction || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Weight / GSM</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Weight / GSM</p>
                   <p className="font-bold text-sm">{product.gsm ? `${product.gsm} GSM` : '320 GSM (Heavyweight)'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Stretch</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Stretch</p>
                   <p className="font-bold text-sm">{product.stretch || '0% Mechanical Stretch'}</p>
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Origin</p>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Origin</p>
                   <p className="font-bold text-sm">{product.origin || 'Mithila Artisanal Cluster, India'}</p>
                 </div>
                 {product.print && (
                   <div className="col-span-2 md:col-span-1">
-                    <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Print / Pattern</p>
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Print / Pattern</p>
                     <p className="font-bold text-sm">{product.print}</p>
                   </div>
                 )}
                 {subcategoryName && (
                   <div className="col-span-2 md:col-span-1">
-                    <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-1">Subcategory</p>
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-1">Subcategory</p>
                     <p className="font-bold text-sm">{subcategoryName}</p>
                   </div>
                 )}
               </div>
               
               <div className="pt-2">
-                 <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/50 mb-3">Best Suited For</p>
+                 <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal-ink)]/90 mb-3">Best Suited For</p>
                  <ul className="list-disc pl-4 space-y-2 text-sm font-bold opacity-90">
                    {(product.best_suited_for || ['Tailored overcoats and structural outerwear', 'Unlined summer blazers', 'Dense upholstery and domestic home goods']).map((item: string, idx: number) => (
                      <li key={idx}>{item}</li>

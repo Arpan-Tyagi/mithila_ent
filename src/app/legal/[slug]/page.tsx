@@ -155,7 +155,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
         <div className="border-b border-zinc-100 pb-6 mb-10">
           <span className="text-xs uppercase font-bold tracking-wider text-purple-600">Legal Policy</span>
           <h1 className="font-serif italic text-4xl md:text-5xl font-bold mt-2">{doc.title}</h1>
-          <p className="font-sans text-[10px] text-zinc-400 mt-3 font-semibold uppercase tracking-wider">Effective Date: {doc.date}</p>
+          <p className="font-sans text-[10px] text-zinc-800 mt-3 font-semibold uppercase tracking-wider">Effective Date: {doc.date}</p>
         </div>
 
         {/* Sections */}
@@ -176,7 +176,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
 
         {/* Document Footer */}
         <div className="border-t border-zinc-100 pt-8 mt-12 text-center">
-          <p className="font-sans text-xs text-zinc-400">
+          <p className="font-sans text-xs text-zinc-800">
             For further clarifications regarding our policies, please write to mithlaenterprises11@gmail.com.
           </p>
         </div>

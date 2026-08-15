@@ -251,7 +251,7 @@ export default function HomeClient({
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#f7f3cc] to-transparent z-10 pointer-events-none" />
         
         <div className="container mx-auto px-6 max-w-7xl mb-4">
-          <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-[var(--charcoal-ink)]/60 text-center">
+          <h3 className="font-sans font-bold text-[10px] uppercase tracking-widest text-[var(--charcoal-ink)]/90 text-center">
             Trusted by Thousands, Engineered for Excellence
           </h3>
         </div>
@@ -471,7 +471,7 @@ export default function HomeClient({
                 <div className="p-6 flex flex-col justify-between flex-grow">
                   <div>
                     <h4 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)] mb-2 group-hover:text-[var(--madder-red)] transition-colors">{cat.title}</h4>
-                    <p className="font-sans text-xs text-[var(--charcoal-ink)]/70 leading-relaxed text-justify">{cat.desc}</p>
+                    <p className="font-sans text-xs text-[var(--charcoal-ink)]/90 leading-relaxed text-justify">{cat.desc}</p>
                   </div>
 
                 </div>
@@ -516,7 +516,7 @@ export default function HomeClient({
                   of Fabric.
                 </h3>
                 
-                <p className="font-sans text-base md:text-lg text-[var(--charcoal-ink)]/70 max-w-md mx-auto md:mx-0 leading-relaxed pt-6 border-t border-[var(--charcoal-ink)]/10">
+                <p className="font-sans text-base md:text-lg text-[var(--charcoal-ink)]/90 max-w-md mx-auto md:mx-0 leading-relaxed pt-6 border-t border-[var(--charcoal-ink)]/10">
                   Our master weavers are currently curating an exclusive range of sustainable, high-density textiles. Expect rich textures, organic dyes, and uncompromising heritage quality.
                 </p>
                 
@@ -602,7 +602,7 @@ export default function HomeClient({
                   </div>
                   <div className="px-1 space-y-2 flex-grow flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 font-semibold">{blog.date}</span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-800 font-semibold">{blog.date}</span>
                       <h3 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)] mt-1 line-clamp-2 group-hover:text-[var(--madder-red)] transition-colors leading-snug">{blog.title}</h3>
                       <p className="font-sans text-xs text-zinc-700 mt-2 line-clamp-3 leading-relaxed">{blog.desc}</p>
                     </div>
@@ -650,7 +650,7 @@ export default function HomeClient({
                   className="w-full flex items-center justify-between p-6 text-left font-serif text-lg md:text-xl font-bold italic text-zinc-900 focus:outline-none"
                 >
                   <span>{faq.q}</span>
-                  <span className="text-2xl transform transition-transform duration-300 ml-4 font-sans text-zinc-400">
+                  <span className="text-2xl transform transition-transform duration-300 ml-4 font-sans text-zinc-800">
                     {isOpen ? "−" : "+"}
                   </span>
                 </button>
@@ -692,7 +692,7 @@ export default function HomeClient({
         <div className="bg-[var(--indigo-dye)] text-[var(--unbleached-cotton)] rounded-2xl p-8 md:p-16 shadow-lg relative overflow-hidden">
           <BackgroundPattern className="opacity-10 stroke-[var(--unbleached-cotton)] mix-blend-overlay" />
           <div className="relative z-10 max-w-2xl space-y-6">
-            <span className="text-xs uppercase font-bold tracking-widest text-zinc-400">
+            <span className="text-xs uppercase font-bold tracking-widest text-zinc-800">
               {cta.subtitle || "Bring every room together"}
             </span>
             <h2 className="font-serif italic text-3xl md:text-5xl font-bold leading-tight">

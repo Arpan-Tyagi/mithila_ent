@@ -182,7 +182,7 @@ export default function Header() {
             </nav>
             
             <div className="mt-auto pt-12">
-              <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-400">Mithila Enterprises © 2026</span>
+              <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-800">Mithila Enterprises © 2026</span>
             </div>
           </motion.div>
         )}
