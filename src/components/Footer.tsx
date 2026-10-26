@@ -20,7 +20,7 @@ export default async function Footer() {
               />
               Mithila
             </Link>
-            <p className="text-xs text-zinc-800 max-w-xs leading-relaxed">
+            <p className="text-xs text-[var(--unbleached-cotton)]/80 max-w-xs leading-relaxed">
               Premium handloom fabrics and fine line artistry loomed with devotion and contemporary elegance.
             </p>
           </div>
@@ -73,9 +73,20 @@ export default async function Footer() {
         <div className="w-full h-[1px] bg-[var(--unbleached-cotton)]/20 mb-8"></div>
 
         {/* Bottom copyright block */}
-        <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--unbleached-cotton)]/90 gap-4">
-          <p>&copy; {new Date().getFullYear()} {settings.store_name}. All rights reserved.</p>
-          <div className="flex gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between text-xs text-[var(--unbleached-cotton)]/80 gap-4 tracking-wide">
+          <p className="order-1 md:order-none">&copy; {new Date().getFullYear()} {settings.store_name}. All rights reserved.</p>
+          <div className="order-3 md:order-none flex items-center gap-1.5 text-[var(--unbleached-cotton)]/75">
+            <span>Crafted with Purpose by</span>
+            <a 
+              href="https://panarchdigital.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="font-medium text-[var(--unbleached-cotton)] hover:text-[var(--turmeric)] transition-colors duration-200 decoration-[var(--turmeric)]/50 underline-offset-4 hover:underline"
+            >
+              Panarch Digital
+            </a>
+          </div>
+          <div className="order-2 md:order-none flex gap-6">
             <Link href="/legal/privacy-policy" className="hover:underline">Privacy</Link>
             <Link href="/legal/terms-of-service" className="hover:underline">Terms</Link>
           </div>
