@@ -34,7 +34,7 @@ export default function CheckoutPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setMounted(true);
     
     // Check auth status
@@ -57,7 +57,7 @@ export default function CheckoutPage() {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
-  if (!mounted) return null;
+
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   
@@ -101,6 +101,8 @@ export default function CheckoutPage() {
       setDynamicTotals(null);
     }
   }, [pinCode, shippingState, items]);
+
+  if (!mounted) return null;
 
   const handleApplyCoupon = async () => {
     setCouponError(null);

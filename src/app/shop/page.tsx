@@ -93,7 +93,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     console.warn("Supabase fetch failed (expected if no DB configured), falling back to mock data.");
   }
 
-  let variants = (dbVariants && dbVariants.length > 0) ? dbVariants : [];
+  const variants = (dbVariants && dbVariants.length > 0) ? dbVariants : [];
 
   if (!sort) {
     variants.sort((a: any, b: any) => (b.products?.is_featured ? 1 : 0) - (a.products?.is_featured ? 1 : 0));

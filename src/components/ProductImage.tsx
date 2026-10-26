@@ -24,7 +24,7 @@ export default function ProductImage({
   }
   const isRemote = /^https?:\/\//i.test(src);
   if (!isRemote) {
-    // eslint-disable-next-line @next/next/no-img-element
+
     return <img src={src} alt={alt} className={`w-full h-full object-cover ${className}`} />;
   }
   return (

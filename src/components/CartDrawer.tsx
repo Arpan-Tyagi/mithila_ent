@@ -26,7 +26,7 @@ export default function CartDrawer() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setMounted(true);
     
     // Sync cart with database to ensure MOQ and prices are up to date
@@ -38,7 +38,7 @@ export default function CartDrawer() {
       });
     }
     // Only run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   if (!mounted) return null;

@@ -135,7 +135,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       />
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     return new Response(stream as any, {
       headers: {
         'Content-Type': 'application/pdf',
