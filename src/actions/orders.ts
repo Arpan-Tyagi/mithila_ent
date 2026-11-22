@@ -273,8 +273,15 @@ export async function cancelOrder(orderId: string, restock: boolean = true) {
     // Refund Only (Shrinkage)
     const { error } = await admin.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
     await admin.from('order_items').update({ status: 'cancelled' }).eq('order_id', orderId)
-    await admin.from('order_events').insert({ order_id: orderId, status: 'cancelled', description: 'Order cancelled (No restock - Shrinkage)' })
     if (error) throw new Error('Failed to cancel order')
+    // The orders status trigger logs order.status_changed; this records why.
+    const { error: eventErr } = await admin.from('order_events').insert({
+      order_id: orderId,
+      event: 'order.cancelled',
+      to_status: 'cancelled',
+      note: 'Cancelled by admin; no restock (shrinkage)',
+    })
+    if (eventErr) console.error('cancelOrder: order_events insert failed:', eventErr)
   }
 
   revalidatePath('/admin/orders')
@@ -341,11 +348,12 @@ export async function partialCancelOrderItem(orderId: string, orderItemId: strin
     }).eq('id', orderId)
 
     // Log the event
-    await admin.from('order_events').insert({ 
-      order_id: orderId, 
-      status: 'refunded', 
-      description: `Line item cancelled. Refunded ₹${refundAmount.toFixed(2)} (inc. tax ₹${taxRefund.toFixed(2)})${restock ? ' (Restocked)' : ' (Shrinkage)'}` 
+    const { error: eventErr } = await admin.from('order_events').insert({
+      order_id: orderId,
+      event: 'order_item.cancelled',
+      note: `Line item cancelled. Refunded ₹${refundAmount.toFixed(2)} (inc. tax ₹${taxRefund.toFixed(2)})${restock ? ' (Restocked)' : ' (Shrinkage)'}`,
     })
+    if (eventErr) console.error('partialCancelOrderItem: order_events insert failed:', eventErr)
   }
 
   revalidatePath('/admin/orders')
