@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
 import { calculateShippingRates } from '@/lib/shipping'
+import { checkApiRateLimit } from '@/lib/ratelimit'
 
 export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
   const supabase = await createClient()
@@ -71,6 +72,12 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
   const { data: userData } = await supabase.auth.getUser()
   if (!userData?.user) {
     return { success: false, error: 'Please sign in to complete your order.' }
+  }
+
+  // Each order holds stock until it is paid or expires, so placement is
+  // throttled per account (the database also caps unpaid orders, migration 0043).
+  if (!(await checkApiRateLimit(`create-order:${userData.user.id}`))) {
+    return { success: false, error: 'Too many order attempts. Please wait a minute and try again.' }
   }
 
   // Normalize cart items. The Zustand cart stores the variant id as `id`
@@ -148,6 +155,12 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
     }
     if (msg.includes('INVALID_DISCOUNT')) {
       return { success: false, error: 'That discount code is not valid or has expired.' }
+    }
+    if (msg.includes('TOO_MANY_PENDING_ORDERS')) {
+      return { success: false, error: 'You already have several unpaid orders. Unpaid orders are cancelled after an hour, so please try again then.' }
+    }
+    if (msg.includes('TOO_MANY_UNPAID_ORDERS')) {
+      return { success: false, error: 'Several of your recent orders were not paid, so new orders are paused for now. Please try again later or contact us.' }
     }
     console.error('createOrder failed:', error)
     return { success: false, error: 'We could not process your order. Please try again.' }

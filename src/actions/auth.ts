@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 import { sendSecurityAlertEmail } from '@/lib/email'
 import { passwordError } from '@/lib/password'
@@ -18,9 +19,12 @@ export async function login(prevState: any, formData: FormData) {
     return { error: 'Email and password are required' }
   }
 
-  // Rate limiting runs through SECURITY DEFINER functions so the auth_attempts
-  // table is never exposed to the unauthenticated client.
-  const { data: locked } = await supabase.rpc('auth_attempt_is_locked', { p_email: email })
+  // The lockout functions are EXECUTE-able by service_role only (migration 0042):
+  // with the public anon key anyone could otherwise lock any account or clear
+  // the counter between password guesses. Threshold and lock length are fixed
+  // inside the database.
+  const lockout = createAdminClient()
+  const { data: locked } = await lockout.rpc('auth_attempt_is_locked', { p_email: email })
   if (locked === true) {
     return { error: 'Account temporarily locked due to multiple failed attempts. Please try again later.' }
   }
@@ -31,7 +35,7 @@ export async function login(prevState: any, formData: FormData) {
   })
 
   if (error || !data.user) {
-    const { data: res } = await supabase.rpc('auth_attempt_record_failure', { p_email: email })
+    const { data: res } = await lockout.rpc('auth_attempt_record_failure', { p_email: email })
 
     if (res?.justLocked) {
       await sendSecurityAlertEmail(email)
@@ -44,7 +48,7 @@ export async function login(prevState: any, formData: FormData) {
   }
 
   // On success, clear the failure counter.
-  await supabase.rpc('auth_attempt_clear', { p_email: email })
+  await lockout.rpc('auth_attempt_clear', { p_email: email })
 
   const { data: profile } = await supabase
     .from('profiles')
