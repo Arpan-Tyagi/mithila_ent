@@ -288,7 +288,10 @@ export async function setUserRole(userId: string, role: 'admin' | 'retail') {
   await assertAdmin(supabase)
   if (role !== 'admin' && role !== 'retail') throw new Error('Invalid role')
 
-  const { error } = await supabase.from('profiles').update({ role }).eq('id', userId)
+  // profiles.role is not writable by the `authenticated` DB role (migration 0039),
+  // so the change is made with the service-role client after assertAdmin().
+  const admin = createAdminClient()
+  const { error } = await admin.from('profiles').update({ role }).eq('id', userId)
   if (error) throw new Error(error.message)
 
   revalidatePath('/admin/customers')

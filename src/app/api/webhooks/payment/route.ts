@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { secretMatches } from '@/lib/secure-compare';
 
 // Payment-gateway webhook (Razorpay / Stripe / etc.).
 //
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   try {
     const expectedSecret = process.env.PAYMENT_WEBHOOK_SECRET;
     const providedSecret = request.headers.get('x-webhook-secret');
-    if (!expectedSecret || providedSecret !== expectedSecret) {
+    if (!secretMatches(expectedSecret, providedSecret)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

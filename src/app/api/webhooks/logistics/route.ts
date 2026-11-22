@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { secretMatches } from '@/lib/secure-compare';
 
 // Logistics provider webhook: updates an order's tracking status.
 //
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     const expectedSecret = process.env.LOGISTICS_WEBHOOK_SECRET;
     const providedSecret = request.headers.get('x-webhook-secret');
 
-    if (!expectedSecret || providedSecret !== expectedSecret) {
+    if (!secretMatches(expectedSecret, providedSecret)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

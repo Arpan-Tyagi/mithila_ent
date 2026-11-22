@@ -5,8 +5,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    // Fail closed: with CRON_SECRET unset, `Bearer ${undefined}` would match the
+    // literal header "Bearer undefined".
+    const secret = process.env.CRON_SECRET;
+    if (!secret) {
+      return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
+    }
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${secret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

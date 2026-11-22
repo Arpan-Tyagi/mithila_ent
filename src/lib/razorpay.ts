@@ -58,15 +58,60 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 // Verifies the checkout callback signature: HMAC_SHA256(order_id|payment_id, key_secret).
+// Fails closed: with no secret configured, nothing verifies (an empty-key HMAC
+// is computable by anyone).
 export function verifyPaymentSignature(razorpayOrderId: string, razorpayPaymentId: string, signature: string): boolean {
-  const secret = process.env.RAZORPAY_KEY_SECRET || '';
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+  if (!secret) {
+    console.error('verifyPaymentSignature: RAZORPAY_KEY_SECRET is not set; rejecting');
+    return false;
+  }
+  if (typeof signature !== 'string' || !signature) return false;
   const expected = crypto.createHmac('sha256', secret).update(`${razorpayOrderId}|${razorpayPaymentId}`).digest('hex');
   return safeEqual(expected, signature);
 }
 
-// Verifies a Razorpay webhook: HMAC_SHA256(rawBody, webhook_secret).
+// Verifies a Razorpay webhook: HMAC_SHA256(rawBody, webhook_secret). Fails closed.
 export function verifyWebhookSignature(rawBody: string, signature: string): boolean {
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || '';
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('verifyWebhookSignature: RAZORPAY_WEBHOOK_SECRET is not set; rejecting');
+    return false;
+  }
+  if (typeof signature !== 'string' || !signature) return false;
   const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
   return safeEqual(expected, signature);
+}
+
+export interface RazorpayPayment {
+  id: string;
+  order_id: string | null;
+  amount: number; // paise
+  currency: string;
+  status: string; // created | authorized | captured | refunded | failed
+  method: string | null;
+}
+
+// Fetches a payment from Razorpay so amount/status/order come from the gateway,
+// not from the browser or our own DB.
+export async function fetchRazorpayPayment(paymentId: string): Promise<RazorpayPayment> {
+  if (!/^pay_[A-Za-z0-9]+$/.test(paymentId)) throw new Error('Invalid payment id');
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keyId || !keySecret) throw new Error('Razorpay not configured');
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+  const res = await fetch(`${RP_BASE}/payments/${paymentId}`, {
+    headers: { Authorization: `Basic ${auth}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error(`Razorpay payment fetch failed: ${res.status}`);
+  const p = await res.json();
+  return {
+    id: String(p.id),
+    order_id: p.order_id ?? null,
+    amount: Number(p.amount),
+    currency: String(p.currency),
+    status: String(p.status),
+    method: p.method ?? null,
+  };
 }

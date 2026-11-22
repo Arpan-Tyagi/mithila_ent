@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
-import { calculateShippingRates, calculateGST } from '@/lib/shipping'
+import { calculateShippingRates } from '@/lib/shipping'
 
 export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
   const supabase = await createClient()
@@ -86,50 +86,41 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
     return { success: false, error: 'Your cart is empty.' }
   }
 
-  // --- Dynamic Shipping & Tax Calculation (Server-side validation) ---
+  // --- Courier quote (the only money input the DB takes from us) ---------
+  // Weight comes from the database, never from the client cart. Prices, GST
+  // and discounts are all computed inside create_order_atomic.
   let totalWeightGrams = 0;
-  let baseAmount = 0;
-  let totalGst = 0;
-  
   const itemIds = items.map(i => i.variant_id);
-  const { data: variants } = await supabase.from('product_variants').select('id, weight_grams, price, products(gst_rate)').in('id', itemIds);
-  
+  const { data: variants } = await supabase.from('product_variants').select('id, weight_grams').in('id', itemIds);
   if (variants) {
     for (const item of items) {
       const variant = variants.find(v => v.id === item.variant_id);
-      if (variant) {
-        totalWeightGrams += (variant.weight_grams || 200) * item.quantity;
-        const lineBaseAmount = (variant.price || 0) * item.quantity;
-        baseAmount += lineBaseAmount;
-        
-        const gstRate = (variant.products as any)?.gst_rate || 5;
-        const state = shippingAddress?.state || 'Delhi';
-        const taxInfo = calculateGST(state, lineBaseAmount, Number(gstRate));
-        totalGst += taxInfo.totalTax;
-      }
+      if (variant) totalWeightGrams += (variant.weight_grams || 200) * item.quantity;
     }
   }
 
   const weightKg = totalWeightGrams / 1000;
-  let validatedShippingAmount = 50; 
+  let validatedShippingAmount = 50;
   if (weightKg > 0 && shippingAddress?.pinCode) {
     const shipRes = await calculateShippingRates(shippingAddress.pinCode, weightKg);
-    if (shipRes && !shipRes.error) {
+    if (shipRes && !shipRes.error && Number.isFinite(shipRes.rate) && shipRes.rate >= 0) {
       validatedShippingAmount = shipRes.rate;
     }
   }
   // -------------------------------------------------------------------
 
-  // Create the order atomically on the DB: prices are read server-side, stock
-  // rows are locked FOR UPDATE, and the whole thing is one transaction that
-  // rolls back on any failure. See supabase/migrations/0007_create_order_atomic.sql.
-  const { data: orderId, error } = await supabase.rpc('create_order_atomic', {
+  // Create the order atomically on the DB: unit prices, GST (products.gst_rate)
+  // and discounts are computed there, stock rows are locked FOR UPDATE, and the
+  // whole thing is one transaction. The RPC is executable by service_role only
+  // (migration 0040), so the user id is passed from the verified session above.
+  const admin = createAdminClient()
+  const { data: orderId, error } = await admin.rpc('create_order_atomic', {
+    p_user_id: userData.user.id,
     p_items: items,
     p_shipping: shippingAddress ?? {},
+    p_shipping_amount: validatedShippingAmount,
     p_discount_code: discountCode && discountCode.trim() ? discountCode.trim() : null,
     p_idempotency_key: idempotencyKey || null,
-    p_tax_amount_override: totalGst, // Assuming we modify SQL to accept absolute amount
-    p_shipping_amount: validatedShippingAmount,
   })
 
   if (error || !orderId) {
@@ -139,6 +130,15 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
     }
     if (msg.includes('VARIANT_NOT_FOUND')) {
       return { success: false, error: 'One or more items in your cart are no longer available.' }
+    }
+    if (msg.includes('BELOW_MOQ')) {
+      return { success: false, error: 'One or more items are below the minimum order quantity.' }
+    }
+    if (msg.includes('INVALID_QUANTITY') || msg.includes('TOO_MANY_ITEMS')) {
+      return { success: false, error: 'Your cart has an invalid item. Please refresh and try again.' }
+    }
+    if (msg.includes('INVALID_SHIPPING')) {
+      return { success: false, error: 'We could not calculate shipping for this address.' }
     }
     if (msg.includes('AUTH_REQUIRED')) {
       return { success: false, error: 'Please sign in to complete your order.' }
@@ -164,7 +164,6 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
   // a transient Resend/PDF failure no longer loses the email.
   try {
     if (userData.user.email) {
-      const admin = createAdminClient()
       const customerName =
         shippingAddress?.fullName ||
         [shippingAddress?.firstName, shippingAddress?.lastName].filter(Boolean).join(' ') ||

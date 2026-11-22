@@ -14,9 +14,12 @@ describe.skipIf(!haveTestDb)('RLS boundaries', () => {
     admin = await makeUser(ADM);
     await setAdmin(admin.userId);
     const v = await seedVariant(500, 10);
-    const { data } = await userA.client.rpc('create_order_atomic', {
+    // create_order_atomic is service_role-only (migration 0040).
+    const { data } = await serviceClient().rpc('create_order_atomic', {
+      p_user_id: userA.userId,
       p_items: [{ variant_id: v.variantId, quantity: 1 }],
       p_shipping: { firstName: 'A', city: 'Delhi' },
+      p_shipping_amount: 50,
     });
     orderId = String(data);
   });
@@ -71,5 +74,25 @@ describe.skipIf(!haveTestDb)('RLS boundaries', () => {
       p_order_id: orderId, p_provider: 'x', p_provider_payment_id: 'p', p_amount: 1,
     });
     expect(error).not.toBeNull(); // permission denied
+  });
+
+  it('record_payment is NOT callable with the anon key', async () => {
+    const { error } = await anonClient().rpc('record_payment', {
+      p_order_id: orderId, p_provider: 'x', p_provider_payment_id: 'p-anon', p_amount: 99999,
+    });
+    expect(error).not.toBeNull();
+    const { data } = await serviceClient().from('orders').select('is_paid').eq('id', orderId).single();
+    expect(data?.is_paid).toBe(false);
+  });
+
+  it('a customer cannot promote themselves to admin', async () => {
+    await userB.client.from('profiles').update({ role: 'admin' }).eq('id', userB.userId);
+    const { data } = await serviceClient().from('profiles').select('role').eq('id', userB.userId).single();
+    expect(data?.role).toBe('retail');
+  });
+
+  it('a customer can still edit their own name', async () => {
+    const { error } = await userB.client.from('profiles').update({ full_name: 'B Test' }).eq('id', userB.userId);
+    expect(error).toBeNull();
   });
 });
