@@ -297,66 +297,25 @@ export async function partialCancelOrderItem(orderId: string, orderItemId: strin
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
   if (profile?.role !== 'admin') throw new Error('Forbidden')
 
+  // Lock, cancel, restock, refund maths, order totals and audit event all run in
+  // one transaction in public.partial_cancel_order_item (migration 0045).
   const admin = createAdminClient()
-
-  // 1. Get the order item
-  const { data: item, error: itemErr } = await admin.from('order_items').select('*').eq('id', orderItemId).single()
-  if (itemErr || !item) throw new Error('Order item not found')
-  if (item.status === 'cancelled' || item.status === 'refunded') throw new Error('Item is already cancelled')
-
-  // 2. Mark item as cancelled
-  await admin.from('order_items').update({ status: 'cancelled' }).eq('id', orderItemId)
-
-  // 3. Optional restock
-  if (restock) {
-    const { data: variant } = await admin.from('product_variants').select('stock_quantity').eq('id', item.variant_id).single()
-    if (variant) {
-      await admin.from('product_variants').update({ stock_quantity: variant.stock_quantity + item.quantity }).eq('id', item.variant_id)
-    }
-  }
-
-  // 4. Refund calculation (Proportional discount and Tax)
-  const { data: order } = await admin.from('orders').select('subtotal, total_discount, total_amount, shipping_address').eq('id', orderId).single()
-  if (order) {
-    const itemSubtotal = item.price * item.quantity
-    let refundAmount = itemSubtotal
-    if (order.total_discount > 0 && order.subtotal > 0) {
-      const discountShare = (itemSubtotal / order.subtotal) * order.total_discount
-      refundAmount = itemSubtotal - discountShare
-    }
-    
-    // Calculate tax to refund
-    let taxRefund = 0;
-    const { data: variantData } = await admin.from('product_variants').select('products(gst_rate)').eq('id', item.variant_id).single()
-    if ((variantData?.products as any)?.gst_rate) {
-      const gstRate = Number((variantData?.products as any)?.gst_rate)
-      const state = (order.shipping_address as any)?.state || 'Delhi'
-      const { calculateGST } = await import('@/lib/shipping')
-      const taxInfo = calculateGST(state, itemSubtotal, gstRate)
-      taxRefund = taxInfo.totalTax
-    }
-
-    refundAmount += taxRefund;
-    
-    // Decrease totals on order
-    const newSubtotal = Math.max(0, order.subtotal - itemSubtotal)
-    const newTotal = Math.max(0, order.total_amount - refundAmount)
-    
-    await admin.from('orders').update({
-      subtotal: newSubtotal,
-      total_amount: newTotal
-    }).eq('id', orderId)
-
-    // Log the event
-    const { error: eventErr } = await admin.from('order_events').insert({
-      order_id: orderId,
-      event: 'order_item.cancelled',
-      note: `Line item cancelled. Refunded ₹${refundAmount.toFixed(2)} (inc. tax ₹${taxRefund.toFixed(2)})${restock ? ' (Restocked)' : ' (Shrinkage)'}`,
-    })
-    if (eventErr) console.error('partialCancelOrderItem: order_events insert failed:', eventErr)
+  const { data, error } = await admin.rpc('partial_cancel_order_item', {
+    p_order_id: orderId,
+    p_order_item_id: orderItemId,
+    p_restock: restock === true,
+    p_actor: userData.user.id,
+  })
+  if (error) {
+    if (error.message.includes('ITEM_ALREADY_CANCELLED')) throw new Error('Item is already cancelled')
+    if (error.message.includes('ORDER_ALREADY_CANCELLED')) throw new Error('Order is already cancelled')
+    if (error.message.includes('NOT_FOUND')) throw new Error('Order item not found')
+    console.error('partialCancelOrderItem: rpc failed:', error)
+    throw new Error('Failed to cancel order item')
   }
 
   revalidatePath('/admin/orders')
   revalidatePath(`/admin/orders/${orderId}`)
-  return { success: true }
+  revalidatePath('/account/orders')
+  return { success: true, refund: data }
 }
