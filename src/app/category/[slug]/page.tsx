@@ -2,12 +2,59 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { fabricData } from '@/lib/fabric-data';
+import { getSiteUrl } from '@/lib/site-url';
 
 export const revalidate = 3600;
 
+export function generateStaticParams() {
+  return Object.keys(fabricData).map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const fabric = fabricData[slug];
+  const name = fabric?.name || slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+  const title = `Buy ${name} Fabric Online by the Meter | Wholesale & Retail Delhi`;
+  const description =
+    fabric?.heroDescription ||
+    `Order premium ${name} fabric by the meter in India. Fractional 0.5m cuts, single-bolt continuous yardage, and tiered wholesale roll pricing from Mithila Enterprises.`;
+  const siteUrl = getSiteUrl();
+  const url = `${siteUrl}/category/${slug}`;
+
+  return {
+    title,
+    description,
+    keywords: [
+      `buy ${name.toLowerCase()} fabric online india`,
+      `${name.toLowerCase()} fabric per meter`,
+      `wholesale ${name.toLowerCase()} fabric suppliers delhi`,
+      `bulk ${name.toLowerCase()} fabric rolls`,
+      `unstitched ${name.toLowerCase()} shirting fabric`,
+      `${name.toLowerCase()} fabric swatches online`,
+    ],
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: `${title} | Mithila Enterprises`,
+      description,
+      url,
+      images: [{ url: `/images/fabrics/${slug}.png`, alt: `${name} Fabric` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | Mithila Enterprises`,
+      description,
+      images: [`/images/fabrics/${slug}.png`],
+    },
+  };
+}
+
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const siteUrl = getSiteUrl();
   const supabase = await createClient();
   
   // First find category
@@ -30,8 +77,34 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   // Safely get fabric data (returns undefined if not present yet)
   const fabricInfo = fabricData ? fabricData[slug] : undefined;
 
+  const collectionLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${category.name} Fabrics`,
+    description: fabricInfo?.heroDescription || `Explore premium ${category.name} fabrics.`,
+    url: `${siteUrl}/category/${slug}`,
+  };
+
+  const breadcrumbsLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: `${siteUrl}/shop` },
+      { '@type': 'ListItem', position: 3, name: category.name, item: `${siteUrl}/category/${slug}` },
+    ],
+  };
+
   return (
     <main className="flex-grow bg-transparent">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+      />
       {/* 1. EDITORIAL HERO SECTION */}
       <section className="w-full relative min-h-[60vh] md:min-h-[75vh] flex items-center pt-32 pb-24 overflow-hidden">
         <div className="container mx-auto px-6 md:px-8 relative z-10">
@@ -225,6 +298,116 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                  <p className="font-sans text-lg text-[var(--charcoal-ink)]/90 max-w-lg mx-auto leading-relaxed">Our weavers are currently preparing the newest collection of {category.name.toLowerCase()} fabrics. Check back soon for fresh inventory.</p>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. TECHNICAL SOURCING & PATTERN-MAKER SPECIFICATIONS */}
+      <section className="py-20 border-t border-[var(--charcoal-ink)]/10 bg-white">
+        <div className="container mx-auto px-6 md:px-8 max-w-7xl">
+          <div className="max-w-3xl mb-12 space-y-2">
+            <span className="text-[var(--madder-red)] font-sans uppercase text-xs tracking-widest font-bold">
+              Atelier Standard
+            </span>
+            <h2 className="text-3xl md:text-4xl font-serif italic font-bold text-[var(--charcoal-ink)]">
+              {category.name} Cutting &amp; Sourcing Specifications
+            </h2>
+            <p className="font-sans text-sm text-zinc-600">
+              Every meter of {category.name.toLowerCase()} dispatched from our Delhi warehouse complies with strict atelier inspection standards.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 bg-[var(--unbleached-cotton)] border-2 border-[var(--charcoal-ink)] shadow-[4px_4px_0_var(--charcoal-ink)] rounded-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--madder-red)] font-bold text-lg">01</span>
+                <h3 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)]">
+                  Fractional Continuous Meterage
+                </h3>
+              </div>
+              <p className="font-sans text-xs text-zinc-700 leading-relaxed text-justify">
+                Order custom yardage in 0.5-meter increments starting at 1 meter. We guarantee that orders for 3, 5, or 10 meters are cut as one single, continuous, uninterrupted length off the master bolt — zero stitched scraps or surprise remnant breaks.
+              </p>
+            </div>
+
+            <div className="p-6 bg-[var(--unbleached-cotton)] border-2 border-[var(--charcoal-ink)] shadow-[4px_4px_0_var(--charcoal-ink)] rounded-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--madder-red)] font-bold text-lg">02</span>
+                <h3 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)]">
+                  Calibrated GSM &amp; Shrinkage
+                </h3>
+              </div>
+              <p className="font-sans text-xs text-zinc-700 leading-relaxed text-justify">
+                Natural artisanal textiles naturally relax when first immersed in water. Our {category.name.toLowerCase()} carries an expected relaxation shrinkage of 3% to 5% lengthwise. We recommend pre-washing uncut yardage in cold water before laying pattern pieces.
+              </p>
+            </div>
+
+            <div className="p-6 bg-[var(--unbleached-cotton)] border-2 border-[var(--charcoal-ink)] shadow-[4px_4px_0_var(--charcoal-ink)] rounded-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--madder-red)] font-bold text-lg">03</span>
+                <h3 className="font-serif italic font-bold text-lg text-[var(--charcoal-ink)]">
+                  Swatch Recovery Credit
+                </h3>
+              </div>
+              <p className="font-sans text-xs text-zinc-700 leading-relaxed text-justify">
+                Unsure about hand-feel or color matching? Order our curated fabric sample card for ₹99. Every single rupee spent on sampling is 100% credited back to your account towards your first meterage order.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. B2B WHOLESALE & ROLL SOURCING DESK */}
+      <section className="py-20 border-t border-[var(--charcoal-ink)]/10 bg-[var(--charcoal-ink)] text-[var(--unbleached-cotton)]">
+        <div className="container mx-auto px-6 md:px-8 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-[#f59e0b] text-zinc-950 font-bold text-[10px] uppercase tracking-wider rounded-sm">
+                  B2B Commercial Procurement
+                </span>
+                <span className="text-xs text-zinc-400 font-mono">MOQ 50 Meters</span>
+              </div>
+              <h2 className="font-serif italic text-3xl md:text-5xl font-bold text-white">
+                Sourcing {category.name} in Bulk Rolls (Thaans)?
+              </h2>
+              <p className="font-sans text-sm md:text-base text-zinc-300 max-w-2xl leading-relaxed">
+                We supply garment export houses, boutique fashion labels, and bespoke tailoring houses across India with wholesale roll pricing, certified dye-lot continuity, and statutory GST 2.0 invoices (CGST Rule 46) directly from our Okhla warehouse.
+              </p>
+              <div className="flex flex-wrap gap-6 pt-2 font-sans text-xs text-zinc-300">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f59e0b]">✓</span>
+                  <span>50m+ Single Bolt Continuous Rolls</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f59e0b]">✓</span>
+                  <span>100m Custom Vat Dyeing Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f59e0b]">✓</span>
+                  <span>Pan-India Pallet Freight from Okhla Phase-II</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col gap-3">
+              <a
+                href={`https://wa.me/919818555220?text=${encodeURIComponent(
+                  `Hi Mithila Enterprises, I am inquiring about B2B wholesale roll pricing for ${category.name} (MOQ 50m).`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-4 px-6 bg-[#25D366] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#20ba59] transition-all shadow-md text-center"
+              >
+                WhatsApp Wholesale RFQ &rarr;
+              </a>
+              <Link
+                href="/wholesale"
+                className="w-full py-3.5 px-6 bg-white/10 text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-white/20 transition-all text-center border border-white/20"
+              >
+                Explore B2B Wholesale Portal
+              </Link>
+            </div>
           </div>
         </div>
       </section>

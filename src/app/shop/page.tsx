@@ -1,16 +1,31 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { MotionDiv, MotionLink } from '@/components/Motion';
 import ProductImage from '@/components/ProductImage';
-
 import MobileFilterSheet from '@/components/MobileFilterSheet';
 import SortDropdown from '@/components/SortDropdown';
-
 import { getSiteContentMap } from '@/lib/content';
+import { getSiteUrl } from '@/lib/site-url';
 
 export const revalidate = 3600; // ISR cache for 1 hour
+
+export const metadata: Metadata = {
+  title: 'Buy Premium Artisan Fabrics Online | Wholesale & Retail Meterage',
+  description:
+    'Explore our curated archive of luxury textiles: pure linen, organic cotton, corduroy, wool, velvet, flannel, and twill. Fractional meterage from 0.5m, continuous single-bolt yardage, and tiered wholesale supply.',
+  alternates: {
+    canonical: `${getSiteUrl()}/shop`,
+  },
+  openGraph: {
+    title: 'Buy Premium Artisan Fabrics Online | Mithila Enterprises',
+    description:
+      'Curated archive of luxury textiles: pure linen, organic cotton, corduroy, wool, velvet, flannel, and twill. Fractional meterage and wholesale supply.',
+    url: `${getSiteUrl()}/shop`,
+  },
+};
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string, style?: string, color?: string, gsm?: string, construction?: string, count?: string, price?: string, sort?: string, collection?: string }> }) {
   const contentMap = await getSiteContentMap();

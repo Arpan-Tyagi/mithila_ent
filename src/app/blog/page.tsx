@@ -3,11 +3,21 @@ import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog-data';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import type { Metadata } from 'next';
+import { getSiteUrl } from '@/lib/site-url';
 
 export const metadata: Metadata = {
-  title: "The Weaver's Journal | Mithila Enterprises Blog",
+  title: "The Weaver's Journal | Indian Handloom, Organic Dyes & Textile Heritage",
   description:
-    'Insights on Indian textile heritage, handloom innovation, organic dyeing, and sustainable fabric sourcing from Mithila Enterprises.',
+    'Dispatches from the loom floor: expert guides on Indian textile heritage, wireless loom innovations, natural vat indigo dyeing, cotton grading, and circular sustainable fabrics.',
+  alternates: {
+    canonical: `${getSiteUrl()}/blog`,
+  },
+  openGraph: {
+    title: "The Weaver's Journal | Mithila Enterprises Blog",
+    description:
+      'Dispatches from the loom floor: expert guides on Indian textile heritage, wireless loom innovations, natural vat indigo dyeing, and circular sustainable fabrics.',
+    url: `${getSiteUrl()}/blog`,
+  },
 };
 
 export default function BlogListingPage() {

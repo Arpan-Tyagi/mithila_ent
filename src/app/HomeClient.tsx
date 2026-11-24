@@ -78,15 +78,16 @@ function AnimatedTitle({ text }: { text: string }) {
   return (
     <h1 className="font-serif italic text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] text-zinc-900 flex flex-wrap gap-x-3">
       {words.map((word, idx) => (
-        <span key={idx} className="block overflow-hidden relative pb-4 -mb-4 pr-2 -mr-2">
+        <span key={idx} className="inline-block overflow-hidden relative pb-4 -mb-4 pr-1">
           <motion.span
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             transition={{ type: "spring", bounce: 0.1, duration: 0.8, delay: idx * 0.05 }}
-            className="block"
+            className="inline-block"
           >
             {word}
           </motion.span>
+          {" "}
         </span>
       ))}
     </h1>

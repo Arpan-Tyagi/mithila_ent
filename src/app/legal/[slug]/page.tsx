@@ -1,6 +1,8 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { getSiteUrl } from '@/lib/site-url';
 
 export const revalidate = 86400; // Cache for 24 hours
 
@@ -10,6 +12,34 @@ export async function generateStaticParams() {
     { slug: 'terms-of-service' },
     { slug: 'shipping-returns' }
   ];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const doc = legalDocuments[slug];
+  if (!doc) return { title: 'Legal Document' };
+
+  const siteUrl = getSiteUrl();
+  const url = `${siteUrl}/legal/${slug}`;
+  const title = `${doc.title} | Mithila Enterprises`;
+  const description = `Read our official ${doc.title.toLowerCase()}. Transparency, legal standards, and Indian consumer protection compliance for Mithila Enterprises.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
 }
 
 interface LegalDoc {

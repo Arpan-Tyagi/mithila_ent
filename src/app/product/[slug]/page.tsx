@@ -5,15 +5,17 @@ import { Metadata } from 'next';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { MotionDiv } from '@/components/Motion';
 import ProductImage from '@/components/ProductImage';
+import { getSiteUrl } from '@/lib/site-url';
 
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const siteUrl = getSiteUrl();
   const supabase = await createClient();
   const { data: dbProduct } = await supabase
     .from('products')
-    .select('title, description')
+    .select('title, description, product_variants(images)')
     .eq('slug', slug)
     .single();
 
@@ -21,9 +23,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!product) return { title: 'Product Not Found' };
 
+  const title = `${product.title} | Premium Artisan Fabric`;
+  const description =
+    product.description ||
+    `Order ${product.title} fabric online. Continuous fractional meterage, certified artisan quality, and tiered wholesale pricing from Mithila Enterprises.`;
+  const url = `${siteUrl}/product/${slug}`;
+  const firstImage = product.product_variants?.[0]?.images?.[0] || '/images/logo.png';
+  const imageUrl = firstImage.startsWith('http') ? firstImage : `${siteUrl}${firstImage}`;
+
   return {
-    title: `${product.title} | Mithila Enterprises`,
-    description: product.description,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      images: [{ url: imageUrl, alt: product.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -57,12 +82,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     return <div className="py-24 text-center">Product is unavailable.</div>;
   }
 
+  const siteUrl = getSiteUrl();
+
   const productLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    description: product.description || 'Premium wholesale fabric',
-    image: defaultVariant.images?.[0] ? [defaultVariant.images[0]] : undefined,
+    description: product.description || 'Premium wholesale & retail artisan fabric by the meter',
+    image: defaultVariant.images?.[0]
+      ? [defaultVariant.images[0].startsWith('http') ? defaultVariant.images[0] : `${siteUrl}${defaultVariant.images[0]}`]
+      : [`${siteUrl}/images/logo.png`],
     sku: defaultVariant.sku || product.id,
     brand: {
       '@type': 'Brand',
@@ -72,17 +101,65 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     pattern: product.print || 'Madhubani Inspired',
     offers: {
       '@type': 'Offer',
-      url: `https://www.mithilaenterprises.co.in/product/${product.slug}`,
+      url: `${siteUrl}/product/${product.slug}`,
       priceCurrency: 'INR',
       price: defaultVariant.price,
+      priceValidUntil: new Date(Date.now() + 31536000000).toISOString().split('T')[0],
       availability: defaultVariant.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      itemCondition: 'https://schema.org/NewCondition'
+      itemCondition: 'https://schema.org/NewCondition',
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'IN',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 10,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'INR',
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'IN',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 2,
+            unitCode: 'd',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 3,
+            maxValue: 6,
+            unitCode: 'd',
+          },
+        },
+      },
     }
+  };
+
+  const breadcrumbsLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: `${siteUrl}/shop` },
+      { '@type': 'ListItem', position: 3, name: product.categories?.name || 'Fabric', item: `${siteUrl}/category/${product.categories?.slug || 'fabrics'}` },
+      { '@type': 'ListItem', position: 4, name: product.title, item: `${siteUrl}/product/${product.slug}` },
+    ]
   };
 
   return (
     <main className="flex-grow bg-transparent pt-32 pb-24 relative overflow-hidden">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }} />
       <BackgroundPattern className="opacity-40" />
       <div className="container mx-auto px-4 md:px-8 max-w-7xl relative z-10">
         {/* Breadcrumb */}
