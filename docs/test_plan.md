@@ -65,7 +65,7 @@ Priority: **P0** = handover blocker, **P1** = important, **P2** = nice-to-have.
 ### 4.5 Payments & order linkage — P0
 - Integration: `log_payment_intent` creates a `created` payment row bound to the **order_id**; idempotent (no duplicate intent).
 - Integration: `record_payment('captured')` sets `orders.is_paid=true`, status `pending→paid`, stores `payment_intent_id`; appends a `payments` row with the order_id.
-- API: `/api/webhooks/payment` rejects without/with wrong `x-webhook-secret` (401); on valid secret calls `record_payment`.
+- API: `/api/webhooks/razorpay` rejects a bad `x-razorpay-signature` (401); a valid event is stored once in `webhook_events` and recorded after the response (`tests/webhook-route.test.ts`).
 - Security: `record_payment` is **not** callable by anon/authenticated (only service_role) — assert the grant.
 - **Gap**: no live gateway initiates a charge — see §6. Until then, test the webhook path with a simulated gateway payload.
 

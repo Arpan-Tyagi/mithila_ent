@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import { sendWhatsAppNotification } from '@/lib/whatsapp';
 import { checkApiRateLimit, clientIp } from '@/lib/ratelimit';
+import { isLikelyBot } from '@/lib/bot-check';
 import { LIMITS, cleanEmail, cleanText, escapeHtml, optionalText } from '@/lib/form-input';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build_only');
@@ -16,6 +17,9 @@ export async function POST(req: Request) {
   try {
     if (!(await checkApiRateLimit(`wholesale:${clientIp(req)}`))) {
       return NextResponse.json({ error: 'Too many requests. Please try again in a minute.' }, { status: 429 });
+    }
+    if (await isLikelyBot()) {
+      return NextResponse.json({ error: 'Your request could not be verified. Please reload the page and try again.' }, { status: 403 });
     }
 
     const body = await req.json().catch(() => null);

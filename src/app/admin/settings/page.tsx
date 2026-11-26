@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/Button';
+import { requireAdminPage } from '@/lib/dal/session';
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth-guard';
 import { updateStoreSettings } from '@/actions/admin';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +10,7 @@ export default async function AdminSettings({
 }: {
   searchParams: Promise<{ saved?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { saved } = await searchParams;
   const supabase = await createClient();
   const { data: settings } = await supabase

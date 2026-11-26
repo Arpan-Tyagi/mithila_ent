@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/dal/session';
 import { adjustInventory } from '@/actions/admin'
 
 export default async function AdminInventoryPage() {
+  await requireAdminPage();
   const supabase = await createClient()
   
   // Fetch variants joined with parent product data

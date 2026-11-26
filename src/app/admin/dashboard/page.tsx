@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth-guard';
+import { requireAdminPage } from '@/lib/dal/session';
 import { Package, ShoppingBag, IndianRupee, Users, TrendingUp, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  await requireAdmin();
+  await requireAdminPage();
   const supabase = await createClient();
 
   // Live aggregations

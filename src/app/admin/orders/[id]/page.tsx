@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth-guard';
+import { requireAdminPage } from '@/lib/dal/session';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
@@ -27,7 +27,7 @@ function paymentStatusClasses(status: string) {
 }
 
 export default async function AdminOrderDetail({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { id } = await params;
   const supabase = await createClient();
 

@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth-guard';
+import { requireAdminPage } from '@/lib/dal/session';
 import { notFound } from 'next/navigation';
 import EditProductForm from './EditProductForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { id } = await params;
   const supabase = await createClient();
 

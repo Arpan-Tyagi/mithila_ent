@@ -46,7 +46,7 @@ Add **every** variable from `.env.local` under Vercel → Project → Settings �
 - ⬜ `CRON_SECRET` *(secret)*
 - ⬜ `NEXT_PUBLIC_SITE_URL` = your real domain
 - ⬜ `GEMINI_API_KEY` *(AI fabric extraction)*
-- ⬜ `PAYMENT_WEBHOOK_SECRET`, `LOGISTICS_WEBHOOK_SECRET`
+- ⬜ `LOGISTICS_WEBHOOK_SECRET` (`PAYMENT_WEBHOOK_SECRET` is no longer used: `/api/webhooks/payment` was removed)
 
 **Optional (feature-gated — leave unset to keep the feature off)**
 - ⬜ `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` — error monitoring

@@ -1,7 +1,27 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, Schema, SchemaType } from '@google/generative-ai';
-import { createClient } from '@/lib/supabase/server';
+import { z } from 'zod';
 import { checkApiRateLimit, clientIp } from '@/lib/ratelimit';
+import { AuthError, requireAdmin } from '@/lib/dal/session';
+import { decodeImageDataUrl } from '@/lib/image-validation';
+import { plainText } from '@/lib/validation/common';
+
+// SEC-10: the model's answer is untrusted (a swatch photo can carry injected
+// text). Every field is cut to plain text and capped before it reaches the
+// admin's draft; createProduct validates again on save.
+const extractedSchema = z.object({
+  title: plainText(200).catch(''),
+  description: plainText(5000).catch(''),
+  weaveDensity: plainText(100).catch(''),
+  pigment: plainText(100).catch(''),
+  gsm: z.coerce.number().finite().min(0).max(5000).catch(0),
+  width: plainText(50).catch(''),
+  stretch: plainText(50).catch(''),
+  origin: plainText(100).catch(''),
+  bestSuitedFor: plainText(500).catch(''),
+  print: plainText(100).catch(''),
+  colors: z.array(plainText(60)).max(10).catch([]),
+});
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -30,28 +50,42 @@ const fabricSchema: Schema = {
 export async function POST(req: Request) {
   try {
     // Admin only: this burns paid Gemini quota.
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    let admin;
+    try {
+      admin = await requireAdmin();
+    } catch (err) {
+      const code = err instanceof AuthError && err.code === 'FORBIDDEN' ? 403 : 401;
+      return NextResponse.json({ error: code === 403 ? 'Forbidden' : 'Unauthorized' }, { status: code });
+    }
 
-    if (!(await checkApiRateLimit('extract-fabric:' + clientIp(req)))) {
+    if (!(await checkApiRateLimit('extract-fabric:' + admin.id + ':' + clientIp(req)))) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    const { imageBase64, baseName } = await req.json();
+    let body: { imageBase64?: unknown; baseName?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+    const { imageBase64 } = body;
+    const baseName = typeof body.baseName === 'string'
+      ? body.baseName.replace(/[^\p{L}\p{N} .,'()-]/gu, '').slice(0, 80)
+      : '';
 
     if (!imageBase64) {
       return NextResponse.json({ error: 'Image is required' }, { status: 400 });
+    }
+    let image;
+    try {
+      image = decodeImageDataUrl(imageBase64);
+    } catch (err) {
+      return NextResponse.json({ error: (err as Error).message }, { status: 400 });
     }
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json({ error: 'Gemini API key is not configured' }, { status: 500 });
     }
-
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-    const mimeType = imageBase64.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/jpeg';
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
@@ -71,18 +105,23 @@ export async function POST(req: Request) {
       prompt,
       {
         inlineData: {
-          data: base64Data,
-          mimeType: mimeType
+          data: image.buffer.toString('base64'),
+          mimeType: image.image.contentType
         }
       }
     ]);
 
-    const responseText = result.response.text();
-    const data = JSON.parse(responseText);
+    let raw: unknown;
+    try {
+      raw = JSON.parse(result.response.text());
+    } catch {
+      return NextResponse.json({ error: 'Could not read the extraction result' }, { status: 502 });
+    }
+    const data = extractedSchema.parse(raw ?? {});
 
     return NextResponse.json(data);
-  } catch (error: any) {
-    console.error('Gemini Extraction Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to extract fabric details' }, { status: 500 });
+  } catch (error) {
+    console.error('Gemini Extraction Error:', (error as Error).message);
+    return NextResponse.json({ error: 'Failed to extract fabric details' }, { status: 500 });
   }
 }

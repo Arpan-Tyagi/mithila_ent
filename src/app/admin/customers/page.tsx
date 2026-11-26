@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth-guard';
+import { requireAdminPage } from '@/lib/dal/session';
 import { setUserRole } from '@/actions/admin';
 
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const money = (n: any) => `₹${Number(n || 0).toFixed(2)}`;
 
 export default async function AdminCustomers() {
-  await requireAdmin();
+  await requireAdminPage();
   const supabase = await createClient();
 
   const { data: profiles } = await supabase

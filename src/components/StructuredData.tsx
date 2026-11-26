@@ -1,4 +1,5 @@
 import { getSiteUrl } from "@/lib/site-url";
+import { jsonLd } from '@/lib/json-ld';
 
 export default function StructuredData() {
   const siteUrl = getSiteUrl();
@@ -117,19 +118,19 @@ export default function StructuredData() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(organizationLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(websiteLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(storeLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(storeLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbsLd) }}
       />
     </>
   );

@@ -1,46 +1,70 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse, after } from 'next/server';
 import { verifyWebhookSignature } from '@/lib/razorpay';
+import { createAdminClient } from '@/lib/supabase/admin';
+import {
+  PROVIDER,
+  processWebhookEvent,
+  razorpayEventId,
+  reduceRazorpayEvent,
+} from '@/lib/payments/razorpay-webhook';
 
-// Razorpay webhook — the source of truth for captures (fires even if the buyer
-// closes the tab). Verifies the signature, then records the payment idempotently.
+// The only Razorpay webhook (SEC-07). Configure Razorpay to call
+// https://<domain>/api/webhooks/razorpay. /api/payment/razorpay/webhook is an
+// alias of this handler for dashboards set up with the older path.
+//
+// 1. HMAC-SHA256 over the raw, unparsed body, compared in constant time.
+// 2. One INSERT into webhook_events (dedupe on the event id).
+// 3. 200 straight away; the payment is recorded after the response.
+// If step 2 fails we answer 500 so Razorpay retries the delivery.
+
+const MAX_BODY_BYTES = 256 * 1024;
+
 export async function POST(request: Request) {
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+  const signature = request.headers.get('x-razorpay-signature') || '';
+  if (!verifyWebhookSignature(raw, signature)) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+
+  let event: unknown;
   try {
-    const raw = await request.text();
-    const signature = request.headers.get('x-razorpay-signature') || '';
-    if (!verifyWebhookSignature(raw, signature)) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    event = JSON.parse(raw);
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const reduced = reduceRazorpayEvent(event);
+  const eventId = razorpayEventId(request.headers.get('x-razorpay-event-id'), reduced);
+  if (!eventId) {
+    // Signed but carries nothing we can act on (no event id, no payment id).
+    return NextResponse.json({ received: true });
+  }
+
+  try {
+    const admin = createAdminClient();
+    const { data: inserted, error } = await admin
+      .from('webhook_events')
+      .upsert(
+        { provider: PROVIDER, event_id: eventId, event_type: reduced.event, payload: reduced },
+        { onConflict: 'provider,event_id', ignoreDuplicates: true },
+      )
+      .select('event_id');
+    if (error) {
+      console.error('razorpay webhook: could not store event', error.message);
+      return NextResponse.json({ error: 'Temporary failure' }, { status: 500 });
     }
 
-    const event = JSON.parse(raw);
-    const entity = event?.payload?.payment?.entity;
-    const orderId = entity?.notes?.order_id;
-    const status =
-      event?.event === 'payment.captured' ? 'captured' :
-      event?.event === 'payment.failed' ? 'failed' : null;
-
-    if (!orderId || !status) return NextResponse.json({ received: true });
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } }
-    );
-
-    await supabase.rpc('record_payment', {
-      p_order_id: orderId,
-      p_provider: 'razorpay',
-      p_provider_payment_id: entity.id,
-      p_amount: Number(entity.amount || 0) / 100,
-      p_status: status,
-      p_method: entity.method || 'razorpay',
-      p_currency: entity.currency || 'INR',
-      p_raw: event,
-    });
-
+    // A duplicate delivery returns no row; an earlier delivery owns processing
+    // (and the retry cron picks it up if that run failed).
+    if (inserted && inserted.length > 0) {
+      after(() => processWebhookEvent(eventId));
+    }
     return NextResponse.json({ received: true });
   } catch (err) {
-    console.error('razorpay webhook:', err);
-    return NextResponse.json({ error: (err as Error).message }, { status: 400 });
+    console.error('razorpay webhook:', (err as Error).message);
+    return NextResponse.json({ error: 'Temporary failure' }, { status: 500 });
   }
 }

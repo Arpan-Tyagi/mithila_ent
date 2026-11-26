@@ -11,10 +11,9 @@ export default async function proxy(request: NextRequest) {
     return response;
   }
 
-  // Basic security headers
+  // Security headers (HSTS, nosniff, CSP, framing) are set for every path,
+  // including /api, in next.config.ts headers() (SEC-09).
   response.headers.set('X-DNS-Prefetch-Control', 'on');
-  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
 
   // Cloudflare GEO logic
   const country = request.headers.get('cf-ipcountry') || request.headers.get('x-vercel-ip-country') || 'US';

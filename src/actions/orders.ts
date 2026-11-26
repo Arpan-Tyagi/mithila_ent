@@ -6,19 +6,22 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
 import { calculateShippingRates, fallbackShippingRate, isValidPinCode } from '@/lib/shipping'
 import { checkApiRateLimit } from '@/lib/ratelimit'
+import { requireAdmin, requireUser } from '@/lib/dal/session'
+import { parseOrThrow, uuid } from '@/lib/validation/common'
+import { addressSchema, cartItemsSchema, discountCodeSchema, idempotencyKeySchema } from '@/lib/validation/customer'
+
+const ORDER_STATUSES = new Set(['pending', 'paid', 'shipped', 'delivered', 'cancelled'])
 
 export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
+  await requireAdmin()
+  orderId = parseOrThrow(uuid, orderId, 'Invalid order')
+  if (typeof status !== 'string' || !ORDER_STATUSES.has(status)) throw new Error('Invalid status')
+  const tracking = typeof trackingNumber === 'string' ? trackingNumber.trim().slice(0, 200) : ''
   const supabase = await createClient()
 
-  // Verify Admin
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData?.user) throw new Error('Unauthorized')
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
-  if (profile?.role !== 'admin') throw new Error('Forbidden')
-
-  const updateData: any = { status }
-  if (trackingNumber) {
-    updateData.tracking_status = trackingNumber
+  const updateData: { status: string; tracking_status?: string } = { status }
+  if (tracking) {
+    updateData.tracking_status = tracking
   }
 
   const { error } = await supabase
@@ -66,40 +69,42 @@ export async function updateOrderStatus(orderId: string, status: string, trackin
   return { success: true }
 }
 
-export async function createOrder(cartItems: any[], shippingAddress: any, discountCode?: string, idempotencyKey?: string) {
-  const supabase = await createClient()
-
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData?.user) {
+export async function createOrder(cartItems: unknown, shippingAddressInput: unknown, discountCodeInput?: unknown, idempotencyKeyInput?: unknown) {
+  let user
+  try {
+    user = await requireUser()
+  } catch {
     return { success: false, error: 'Please sign in to complete your order.' }
   }
 
   // Each order holds stock until it is paid or expires, so placement is
   // throttled per account (the database also caps unpaid orders, migration 0043).
-  if (!(await checkApiRateLimit(`create-order:${userData.user.id}`))) {
+  if (!(await checkApiRateLimit(`create-order:${user.id}`))) {
     return { success: false, error: 'Too many order attempts. Please wait a minute and try again.' }
   }
 
-  // Normalize cart items. The Zustand cart stores the variant id as `id`
-  // (see src/store/useCart.ts), so accept either `variant_id` or `id`.
-  const items = (cartItems || [])
-    .map((item) => ({
-      variant_id: item?.variant_id ?? item?.id,
-      quantity: Number(item?.quantity) || 0,
-    }))
-    .filter((item) => item.variant_id && item.quantity > 0)
-
-  if (items.length === 0) {
-    return { success: false, error: 'Your cart is empty.' }
+  // SEC-12: every input is parsed before use. Cart lines accept `variant_id`
+  // or `id` (the Zustand cart's name for the variant id).
+  const parsedItems = cartItemsSchema.safeParse(cartItems)
+  if (!parsedItems.success) {
+    return { success: false, error: parsedItems.error.issues[0]?.message === 'Too many items in the cart.'
+      ? 'Too many items in the cart.' : 'Your cart is empty.' }
   }
+  const items = parsedItems.data as { variant_id: string; quantity: number }[]
 
   // SEC-05: the PIN code goes into the courier query and the order row, so it
   // must be exactly six digits (the orders table enforces the same rule).
-  const pinCode = typeof shippingAddress?.pinCode === 'string' ? shippingAddress.pinCode.trim() : ''
-  if (!isValidPinCode(pinCode)) {
-    return { success: false, error: 'Please enter a valid 6-digit PIN code.' }
+  const parsedAddress = addressSchema.safeParse(shippingAddressInput)
+  if (!parsedAddress.success) {
+    const pinIssue = parsedAddress.error.issues.some((i) => i.path[0] === 'pinCode')
+    return { success: false, error: pinIssue ? 'Please enter a valid 6-digit PIN code.' : 'Please check your shipping address.' }
   }
-  shippingAddress = { ...shippingAddress, pinCode }
+  const shippingAddress = parsedAddress.data
+  const pinCode = shippingAddress.pinCode
+  const discountCode = discountCodeSchema.safeParse(discountCodeInput).data ?? null
+  const idempotencyKey = idempotencyKeySchema.safeParse(idempotencyKeyInput).data ?? null
+
+  const supabase = await createClient()
 
   // --- Courier quote (the only money input the DB takes from us) ---------
   // Weight comes from the database, never from the client cart. Prices, GST
@@ -128,12 +133,12 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
   // (migration 0040), so the user id is passed from the verified session above.
   const admin = createAdminClient()
   const { data: orderId, error } = await admin.rpc('create_order_atomic', {
-    p_user_id: userData.user.id,
+    p_user_id: user.id,
     p_items: items,
-    p_shipping: shippingAddress ?? {},
+    p_shipping: shippingAddress,
     p_shipping_amount: validatedShippingAmount,
-    p_discount_code: discountCode && discountCode.trim() ? discountCode.trim() : null,
-    p_idempotency_key: idempotencyKey || null,
+    p_discount_code: discountCode,
+    p_idempotency_key: idempotencyKey,
   })
 
   if (error || !orderId) {
@@ -182,14 +187,12 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
   // away (best-effort). Anything not sent now is retried by the cron worker, so
   // a transient Resend/PDF failure no longer loses the email.
   try {
-    if (userData.user.email) {
+    if (user.email) {
       const customerName =
-        shippingAddress?.fullName ||
-        [shippingAddress?.firstName, shippingAddress?.lastName].filter(Boolean).join(' ') ||
-        'Customer'
+        [shippingAddress.firstName, shippingAddress.lastName].filter(Boolean).join(' ') || 'Customer'
       const row = await enqueueOrderEmail(admin, {
         orderId: orderIdStr,
-        recipient: userData.user.email,
+        recipient: user.email,
         kind: 'order_confirmation',
         payload: { customerName },
       })
@@ -213,10 +216,15 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
 
 
 export async function previewDiscount(code: string, subtotal: number) {
+  const c = typeof code === 'string' ? code.trim().slice(0, 50) : ''
+  const sub = Number(subtotal)
+  if (!c || !Number.isFinite(sub) || sub < 0 || sub > 100_000_000) {
+    return { valid: false as const, error: 'Invalid code.' }
+  }
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('validate_discount', {
-    p_code: code || '',
-    p_subtotal: subtotal,
+    p_code: c,
+    p_subtotal: sub,
   })
 
   if (error || !data) {
@@ -244,9 +252,13 @@ export async function previewDiscount(code: string, subtotal: number) {
 
 
 export async function requestCancellation(orderId: string) {
+  try {
+    await requireUser()
+  } catch {
+    return { success: false, error: 'Please sign in.' }
+  }
+  if (!uuid.safeParse(orderId).success) return { success: false, error: 'Could not request cancellation.' }
   const supabase = await createClient()
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData?.user) return { success: false, error: 'Please sign in.' }
 
   const { data, error } = await supabase.rpc('request_order_cancellation', { p_order_id: orderId })
   const res = data as any
@@ -264,11 +276,8 @@ export async function requestCancellation(orderId: string) {
 }
 
 export async function cancelOrder(orderId: string, restock: boolean = true) {
-  const supabase = await createClient()
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData?.user) throw new Error('Unauthorized')
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
-  if (profile?.role !== 'admin') throw new Error('Forbidden')
+  const me = await requireAdmin()
+  orderId = parseOrThrow(uuid, orderId, 'Invalid order')
 
   const admin = createAdminClient()
 
@@ -279,7 +288,7 @@ export async function cancelOrder(orderId: string, restock: boolean = true) {
   const { data, error } = await admin.rpc('cancel_order_restock', {
     p_order_id: orderId,
     p_restock: restock === true,
-    p_actor: userData.user.id,
+    p_actor: me.id,
   })
   if (error || !(data as { ok?: boolean } | null)?.ok) {
     console.error('cancelOrder: rpc failed:', error?.message ?? data)
@@ -293,11 +302,9 @@ export async function cancelOrder(orderId: string, restock: boolean = true) {
 }
 
 export async function partialCancelOrderItem(orderId: string, orderItemId: string, restock: boolean) {
-  const supabase = await createClient()
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData?.user) throw new Error('Unauthorized')
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
-  if (profile?.role !== 'admin') throw new Error('Forbidden')
+  const me = await requireAdmin()
+  orderId = parseOrThrow(uuid, orderId, 'Invalid order')
+  orderItemId = parseOrThrow(uuid, orderItemId, 'Invalid order item')
 
   // Lock, cancel, restock, refund maths, order totals and audit event all run in
   // one transaction in public.partial_cancel_order_item (migration 0045).
@@ -306,7 +313,7 @@ export async function partialCancelOrderItem(orderId: string, orderItemId: strin
     p_order_id: orderId,
     p_order_item_id: orderItemId,
     p_restock: restock === true,
-    p_actor: userData.user.id,
+    p_actor: me.id,
   })
   if (error) {
     if (error.message.includes('ITEM_ALREADY_CANCELLED')) throw new Error('Item is already cancelled')

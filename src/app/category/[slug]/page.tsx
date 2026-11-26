@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { jsonLd } from '@/lib/json-ld';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -99,11 +100,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <main className="flex-grow bg-transparent">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(collectionLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbsLd) }}
       />
       {/* 1. EDITORIAL HERO SECTION */}
       <section className="w-full relative min-h-[60vh] md:min-h-[75vh] flex items-center pt-32 pb-24 overflow-hidden">

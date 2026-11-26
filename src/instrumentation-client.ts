@@ -1,4 +1,14 @@
 import * as Sentry from '@sentry/nextjs';
+import { initBotId } from 'botid/client/core';
+
+// Invisible bot check on the public forms (src/lib/bot-check.ts checks the
+// verdict on the server). Keep this list in step with the routes that call it.
+initBotId({
+  protect: [
+    { path: '/api/contact', method: 'POST' },
+    { path: '/api/wholesale', method: 'POST' },
+  ],
+});
 
 // Browser error monitoring. Inert until NEXT_PUBLIC_SENTRY_DSN is set.
 Sentry.init({

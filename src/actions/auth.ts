@@ -10,10 +10,16 @@ import { sendSecurityAlertEmail } from '@/lib/email'
 import { passwordError } from '@/lib/password'
 import { safeNextPath } from '@/lib/safe-next'
 
-export async function login(prevState: any, formData: FormData) {
+// FormData values can be File objects; keep only bounded strings (SEC-12).
+function formString(formData: FormData, key: string, max: number): string {
+  const v = formData.get(key)
+  return typeof v === 'string' && v.length <= max ? v : ''
+}
+
+export async function login(prevState: unknown, formData: FormData) {
   const supabase = await createClient()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const email = formString(formData, 'email', 254).trim()
+  const password = formString(formData, 'password', 256)
   const nextPath = safeNextPath(formData.get('next'))
 
   if (!email || !password) {
@@ -66,11 +72,11 @@ export async function login(prevState: any, formData: FormData) {
   }
 }
 
-export async function register(prevState: any, formData: FormData) {
+export async function register(prevState: unknown, formData: FormData) {
   const supabase = await createClient()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const fullName = formData.get('fullName') as string
+  const email = formString(formData, 'email', 254).trim()
+  const password = formString(formData, 'password', 256)
+  const fullName = formString(formData, 'fullName', 100).trim()
   const nextPath = safeNextPath(formData.get('next'))
 
   if (!email || !password) {

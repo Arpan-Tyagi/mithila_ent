@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth-guard';
+import { requireAdminPage } from '@/lib/dal/session';
 import { updateSiteContent } from '@/actions/admin';
 import { Button } from '@/components/ui/Button';
 
@@ -142,7 +142,7 @@ export default async function AdminContent({
 }: {
   searchParams: Promise<{ saved?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdminPage();
   const { saved } = await searchParams;
   const supabase = await createClient();
   const { data: dbBlocks } = await supabase.from('site_content').select('*');

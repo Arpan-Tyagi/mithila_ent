@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { jsonLd } from '@/lib/json-ld';
 import { notFound } from 'next/navigation';
 import ProductBuyBox from './ProductBuyBox';
 import { Metadata } from 'next';
@@ -166,8 +167,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="flex-grow bg-transparent pt-32 pb-24 relative overflow-hidden">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(productLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbsLd) }} />
       <BackgroundPattern className="opacity-40" />
       <div className="container mx-auto px-4 md:px-8 max-w-7xl relative z-10">
         {/* Breadcrumb */}

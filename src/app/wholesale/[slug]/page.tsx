@@ -1,4 +1,5 @@
 import React from 'react';
+import { jsonLd } from '@/lib/json-ld';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -105,11 +106,11 @@ export default async function WholesaleCategoryPage({
     <main className="flex-grow w-full bg-transparent text-[var(--charcoal-ink)] pt-24 md:pt-32 pb-24 font-sans relative overflow-hidden">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbsLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(wholesaleStoreLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(wholesaleStoreLd) }}
       />
 
       <BackgroundPattern className="opacity-30" />

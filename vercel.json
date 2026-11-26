@@ -1,16 +1,6 @@
 {
   "crons": [
-    { "path": "/api/cron/process-emails", "schedule": "0 0 * * *" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": ""
-        }
-      ]
-    }
+    { "path": "/api/cron/process-emails", "schedule": "0 0 * * *" },
+    { "path": "/api/cron/webhook-retry", "schedule": "30 0 * * *" }
   ]
 }

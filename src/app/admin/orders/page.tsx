@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/dal/session';
 import { updateOrderStatus } from '@/actions/orders'
-import { requireAdmin } from '@/lib/auth-guard'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminOrdersPage() {
-  await requireAdmin()
+  await requireAdminPage();
   const supabase = await createClient()
 
   const { data: orders } = await supabase
