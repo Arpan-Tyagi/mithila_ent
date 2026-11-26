@@ -8,12 +8,13 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 import { sendSecurityAlertEmail } from '@/lib/email'
 import { passwordError } from '@/lib/password'
+import { safeNextPath } from '@/lib/safe-next'
 
 export async function login(prevState: any, formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const nextPath = formData.get('next') as string || '/account'
+  const nextPath = safeNextPath(formData.get('next'))
 
   if (!email || !password) {
     return { error: 'Email and password are required' }
@@ -70,7 +71,7 @@ export async function register(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
-  const nextPath = formData.get('next') as string || '/account'
+  const nextPath = safeNextPath(formData.get('next'))
 
   if (!email || !password) {
     return { error: 'Email and password are required' }
@@ -101,7 +102,7 @@ export async function register(prevState: any, formData: FormData) {
       data: {
         full_name: fullName,
       },
-      emailRedirectTo: `${origin}/api/auth/callback?next=${nextPath}`,
+      emailRedirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(nextPath)}`,
     },
   })
 
@@ -153,12 +154,12 @@ export async function signInWithGoogle(formData: FormData) {
       : process.env.VERCEL_URL 
         ? `https://${process.env.VERCEL_URL}` 
         : 'http://localhost:3000'
-  const nextPath = formData.get('next') as string || '/account'
+  const nextPath = safeNextPath(formData.get('next'))
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/api/auth/callback?next=${nextPath}`,
+      redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(nextPath)}`,
     },
   })
 

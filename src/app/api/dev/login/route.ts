@@ -66,7 +66,8 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser()
     if (user) {
       const admin = createAdminClient()
-      await admin.from('profiles').upsert({ id: user.id, role: 'admin' })
+      // Roles live in user_roles (migration 0047); a trigger mirrors profiles.role.
+      await admin.from('user_roles').upsert({ user_id: user.id, role: 'admin' }, { onConflict: 'user_id' })
     }
   } catch {
     // non-fatal

@@ -288,11 +288,25 @@ export async function setUserRole(userId: string, role: 'admin' | 'retail') {
   await assertAdmin(supabase)
   if (role !== 'admin' && role !== 'retail') throw new Error('Invalid role')
 
-  // profiles.role is not writable by the `authenticated` DB role (migration 0039),
-  // so the change is made with the service-role client after assertAdmin().
+  // RLS-06 (migration 0047): public.user_roles is the only source of the admin
+  // role. It is writable by the service role only; a trigger mirrors the role
+  // into profiles.role, which nothing else may change.
+  const { data: me } = await supabase.auth.getUser()
+  if (me?.user?.id === userId && role !== 'admin') {
+    throw new Error('You cannot remove your own admin role')
+  }
+
   const admin = createAdminClient()
-  const { error } = await admin.from('profiles').update({ role }).eq('id', userId)
-  if (error) throw new Error(error.message)
+  const { error } = role === 'admin'
+    ? await admin.from('user_roles').upsert(
+        { user_id: userId, role: 'admin', granted_by: me?.user?.id ?? null, granted_at: new Date().toISOString() },
+        { onConflict: 'user_id' },
+      )
+    : await admin.from('user_roles').delete().eq('user_id', userId)
+  if (error) {
+    console.error('setUserRole failed:', error.message)
+    throw new Error('Could not change the role')
+  }
 
   revalidatePath('/admin/customers')
   return { success: true }

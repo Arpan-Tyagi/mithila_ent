@@ -15,7 +15,7 @@ END $$;
 INSERT INTO auth.users (instance_id, id, aud, role, email) VALUES
   ('00000000-0000-0000-0000-000000000000', '11111111-1111-4111-8111-111111111111', 'authenticated', 'authenticated', 'customer-a@example.test'),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-4333-8333-333333333333', 'authenticated', 'authenticated', 'owner@example.test');
-UPDATE public.profiles SET role = 'admin' WHERE id = '33333333-3333-4333-8333-333333333333';
+INSERT INTO public.user_roles (user_id, role) VALUES ('33333333-3333-4333-8333-333333333333', 'admin');
 
 SELECT is((SELECT public FROM storage.buckets WHERE id = 'product-images'), true,
           'product-images bucket exists and is public-read');

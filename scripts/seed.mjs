@@ -83,38 +83,28 @@ const MOCK_VARIANTS = [
   }
 ];
 
+// SEC-15: catalog-only seed for a LOCAL or BRANCH database.
+// - No user accounts are created and no credentials live in this file.
+// - Uses the service-role key from the environment (never commit it).
+// - Refuses to run against the production project.
+const PRODUCTION_REF = 'nhmarliyovmucuqryceg';
+
 async function seed() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
-    console.error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    process.exit(1);
+  }
+  if (url.includes(PRODUCTION_REF)) {
+    console.error("Refusing to seed the production project. Point NEXT_PUBLIC_SUPABASE_URL at a local or branch database.");
     process.exit(1);
   }
 
-  const supabase = createClient(url, key);
+  const supabase = createClient(url, key, { auth: { persistSession: false } });
 
-  console.log("Signing up admin user...");
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: 'dheeraj.mishra02@gmail.com',
-    password: 'admin123'
-  });
-
-  if (authError && authError.message !== 'User already registered') {
-    console.error("Auth error:", authError);
-    process.exit(1);
-  }
-
-  // Sign in to make sure we have a session
-  await supabase.auth.signInWithPassword({
-    email: 'dheeraj.mishra02@gmail.com',
-    password: 'admin123'
-  });
-
-  const { data: user } = await supabase.auth.getUser();
-  if (user?.user?.id) {
-    console.log("Setting user role to admin...");
-    await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.user.id);
-  }
+  // Optional: attach the sample order to an existing local user.
+  const sampleOrderUserId = process.env.SEED_ORDER_USER_ID || null;
 
   console.log("Seeding categories...");
   const categoryNames = [...new Set(MOCK_VARIANTS.map(v => v.products.categories.name))];
@@ -182,9 +172,9 @@ async function seed() {
   // Get variants for order items
   const { data: dbVariants } = await supabase.from('product_variants').select('id, price').limit(2);
   
-  if (dbVariants && dbVariants.length > 0 && user?.user?.id) {
+  if (dbVariants && dbVariants.length > 0 && sampleOrderUserId) {
     const { data: orderData, error: orderError } = await supabase.from('orders').insert({
-      user_id: user.user.id,
+      user_id: sampleOrderUserId,
       status: 'paid',
       subtotal: dbVariants[0].price * 2,
       total_amount: dbVariants[0].price * 2,

@@ -9,6 +9,14 @@ import { getSiteUrl } from '@/lib/site-url';
 
 export const revalidate = 3600;
 
+// schema.org Offer.priceValidUntil: one year ahead. Kept outside the component
+// so render stays pure (react-hooks/purity); the page is regenerated hourly.
+function oneYearFromToday(): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().split('T')[0];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const siteUrl = getSiteUrl();
@@ -104,8 +112,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       url: `${siteUrl}/product/${product.slug}`,
       priceCurrency: 'INR',
       price: defaultVariant.price,
-      priceValidUntil: new Date(Date.now() + 31536000000).toISOString().split('T')[0],
-      availability: defaultVariant.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      priceValidUntil: oneYearFromToday(),
+      availability: Number(defaultVariant.stock_quantity ?? 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy',

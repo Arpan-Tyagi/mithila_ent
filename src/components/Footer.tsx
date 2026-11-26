@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ConsentPreferencesButton } from '@/components/AnalyticsConsent';
 import { getStoreSettings } from '@/lib/content';
 
 export default async function Footer() {
@@ -89,6 +90,7 @@ export default async function Footer() {
           <div className="order-2 md:order-none flex gap-6">
             <Link href="/legal/privacy-policy" className="hover:underline">Privacy</Link>
             <Link href="/legal/terms-of-service" className="hover:underline">Terms</Link>
+            <ConsentPreferencesButton className="hover:underline" />
           </div>
         </div>
 

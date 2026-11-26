@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
-import { calculateShippingRates } from '@/lib/shipping'
+import { calculateShippingRates, fallbackShippingRate, isValidPinCode } from '@/lib/shipping'
 import { checkApiRateLimit } from '@/lib/ratelimit'
 
 export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
@@ -93,6 +93,14 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
     return { success: false, error: 'Your cart is empty.' }
   }
 
+  // SEC-05: the PIN code goes into the courier query and the order row, so it
+  // must be exactly six digits (the orders table enforces the same rule).
+  const pinCode = typeof shippingAddress?.pinCode === 'string' ? shippingAddress.pinCode.trim() : ''
+  if (!isValidPinCode(pinCode)) {
+    return { success: false, error: 'Please enter a valid 6-digit PIN code.' }
+  }
+  shippingAddress = { ...shippingAddress, pinCode }
+
   // --- Courier quote (the only money input the DB takes from us) ---------
   // Weight comes from the database, never from the client cart. Prices, GST
   // and discounts are all computed inside create_order_atomic.
@@ -107,13 +115,11 @@ export async function createOrder(cartItems: any[], shippingAddress: any, discou
   }
 
   const weightKg = totalWeightGrams / 1000;
-  let validatedShippingAmount = 50;
-  if (weightKg > 0 && shippingAddress?.pinCode) {
-    const shipRes = await calculateShippingRates(shippingAddress.pinCode, weightKg);
-    if (shipRes && !shipRes.error && Number.isFinite(shipRes.rate) && shipRes.rate >= 0) {
-      validatedShippingAmount = shipRes.rate;
-    }
-  }
+  // calculateShippingRates returns the live courier quote, or a weight-band
+  // fallback (never a flat amount) when the quote is unavailable.
+  const shipRes = await calculateShippingRates(pinCode, weightKg > 0 ? weightKg : 0.2);
+  const validatedShippingAmount =
+    Number.isFinite(shipRes.rate) && shipRes.rate >= 0 ? shipRes.rate : fallbackShippingRate(weightKg);
   // -------------------------------------------------------------------
 
   // Create the order atomically on the DB: unit prices, GST (products.gst_rate)
@@ -266,22 +272,18 @@ export async function cancelOrder(orderId: string, restock: boolean = true) {
 
   const admin = createAdminClient()
 
-  if (restock) {
-    const { data, error } = await admin.rpc('cancel_order_restock', { p_order_id: orderId })
-    if (error || !(data as any)?.ok) throw new Error('Failed to cancel order')
-  } else {
-    // Refund Only (Shrinkage)
-    const { error } = await admin.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
-    await admin.from('order_items').update({ status: 'cancelled' }).eq('order_id', orderId)
-    if (error) throw new Error('Failed to cancel order')
-    // The orders status trigger logs order.status_changed; this records why.
-    const { error: eventErr } = await admin.from('order_events').insert({
-      order_id: orderId,
-      event: 'order.cancelled',
-      to_status: 'cancelled',
-      note: 'Cancelled by admin; no restock (shrinkage)',
-    })
-    if (eventErr) console.error('cancelOrder: order_events insert failed:', eventErr)
+  // One transaction in public.cancel_order_restock (migration 0046): locks the
+  // order and its lines, restocks only still-active lines when restock=true
+  // (shrinkage otherwise), returns the coupon use and logs order.cancelled.
+  // Idempotent: a second call on a cancelled order changes nothing.
+  const { data, error } = await admin.rpc('cancel_order_restock', {
+    p_order_id: orderId,
+    p_restock: restock === true,
+    p_actor: userData.user.id,
+  })
+  if (error || !(data as { ok?: boolean } | null)?.ok) {
+    console.error('cancelOrder: rpc failed:', error?.message ?? data)
+    throw new Error('Failed to cancel order')
   }
 
   revalidatePath('/admin/orders')

@@ -2,19 +2,31 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import { sendWhatsAppNotification } from '@/lib/whatsapp';
+import { checkApiRateLimit, clientIp } from '@/lib/ratelimit';
+import { LIMITS, cleanEmail, cleanText, escapeHtml, optionalText } from '@/lib/form-input';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build_only');
 const FROM = process.env.EMAIL_FROM || 'Mithila Enterprises <onboarding@resend.dev>';
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'mithlaenterprises11@gmail.com';
 const ADMIN_WHATSAPP = process.env.ADMIN_WHATSAPP || '+910000000000'; // Replace with real admin number
 
+// SEC-06: public form. Rate limited per IP, every field length-capped and
+// validated, every value HTML-escaped before it goes into the owner e-mail.
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { firstName, lastName, email, location, message } = body;
+    if (!(await checkApiRateLimit(`contact:${clientIp(req)}`))) {
+      return NextResponse.json({ error: 'Too many requests. Please try again in a minute.' }, { status: 429 });
+    }
 
-    if (!firstName || !lastName || !email || !message) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const body = await req.json().catch(() => null);
+    const firstName = cleanText(body?.firstName, LIMITS.name);
+    const lastName = cleanText(body?.lastName, LIMITS.name);
+    const email = cleanEmail(body?.email);
+    const location = optionalText(body?.location, LIMITS.location);
+    const message = cleanText(body?.message, LIMITS.message, true);
+
+    if (!firstName || !lastName || !email || !message || location === null) {
+      return NextResponse.json({ error: 'Please check the form: a field is missing, invalid or too long.' }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -26,48 +38,54 @@ export async function POST(req: Request) {
         first_name: firstName,
         last_name: lastName,
         email,
-        location,
+        location: location ?? null,
         message
       });
 
     if (dbError) {
-      console.error('Failed to insert contact inquiry:', dbError);
+      console.error('Failed to insert contact inquiry:', dbError.message);
       return NextResponse.json({ error: 'Failed to save inquiry' }, { status: 500 });
     }
 
-    // 2. Send Email via Resend
+    // 2. Send Email via Resend (all user values escaped)
+    const h = {
+      name: escapeHtml(`${firstName} ${lastName}`),
+      email: escapeHtml(email),
+      location: escapeHtml(location ?? 'N/A'),
+      message: escapeHtml(message),
+    };
     try {
       await resend.emails.send({
         from: FROM,
         to: SUPPORT_EMAIL,
         replyTo: email,
-        subject: `New Contact Inquiry from ${firstName} ${lastName}`,
+        subject: `New Contact Inquiry from ${firstName} ${lastName}`.slice(0, 150),
         html: `
           <div style="font-family: sans-serif; padding: 20px;">
             <h2>New Contact Inquiry</h2>
-            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Location:</strong> ${location || 'N/A'}</p>
+            <p><strong>Name:</strong> ${h.name}</p>
+            <p><strong>Email:</strong> ${h.email}</p>
+            <p><strong>Location:</strong> ${h.location}</p>
             <hr />
             <p><strong>Message:</strong></p>
-            <p style="white-space: pre-wrap;">${message}</p>
+            <p style="white-space: pre-wrap;">${h.message}</p>
           </div>
         `
       });
     } catch (emailError) {
-      console.error('Failed to send contact email:', emailError);
-      // We don't fail the request if email fails, since DB saved successfully
+      console.error('Failed to send contact email:', emailError instanceof Error ? emailError.message : emailError);
+      // The inquiry is saved, so an e-mail failure does not fail the request.
     }
 
-    // 3. Send WhatsApp Notification
+    // 3. Send WhatsApp Notification (plain text)
     await sendWhatsAppNotification(
-      ADMIN_WHATSAPP, 
+      ADMIN_WHATSAPP,
       `New Contact Inquiry!\n\nName: ${firstName} ${lastName}\nEmail: ${email}\n\nMessage: ${message.substring(0, 100)}...`
     );
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('Contact API Error:', err);
+    console.error('Contact API Error:', err instanceof Error ? err.message : err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

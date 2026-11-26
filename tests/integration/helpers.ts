@@ -30,7 +30,8 @@ export async function makeUser(email: string, password = 'Test-User-1234!') {
 }
 
 export async function setAdmin(userId: string) {
-  await serviceClient().from('profiles').upsert({ id: userId, role: 'admin' });
+  // Roles live in user_roles (migration 0047); a trigger mirrors profiles.role.
+  await serviceClient().from('user_roles').upsert({ user_id: userId, role: 'admin' }, { onConflict: 'user_id' });
 }
 
 export async function deleteUser(email: string) {

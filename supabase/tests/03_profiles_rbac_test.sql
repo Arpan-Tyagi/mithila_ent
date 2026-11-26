@@ -25,7 +25,7 @@ INSERT INTO auth.users (instance_id, id, aud, role, email) VALUES
   ('00000000-0000-0000-0000-000000000000', '11111111-1111-4111-8111-111111111111', 'authenticated', 'authenticated', 'customer-a@example.test'),
   ('00000000-0000-0000-0000-000000000000', '22222222-2222-4222-8222-222222222222', 'authenticated', 'authenticated', 'customer-b@example.test'),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-4333-8333-333333333333', 'authenticated', 'authenticated', 'owner@example.test');
-UPDATE public.profiles SET role = 'admin' WHERE id = '33333333-3333-4333-8333-333333333333';
+INSERT INTO public.user_roles (user_id, role) VALUES ('33333333-3333-4333-8333-333333333333', 'admin');
 UPDATE public.profiles SET full_name = 'Customer B' WHERE id = '22222222-2222-4222-8222-222222222222';
 
 -- Sign-up trigger created a profile for every new user, as non-admin.

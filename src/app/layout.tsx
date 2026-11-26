@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import StructuredData from "@/components/StructuredData";
@@ -9,6 +8,7 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import { getSiteContentMap } from "@/lib/content";
 import AuthCallbackCatcher from "@/components/AuthCallbackCatcher";
+import AnalyticsConsent from "@/components/AnalyticsConsent";
 import { Suspense } from "react";
 
 import { getSiteUrl } from "@/lib/site-url";
@@ -114,33 +114,9 @@ export default async function RootLayout({
         <StructuredData />
       </head>
       <body className="min-h-full flex flex-col font-sans relative overflow-x-hidden w-full pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-        {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-TDLCQ9XB"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
-
-        {/* Google Tag Manager & dataLayer Initialization */}
-        <Script
-          id="google-tag-manager"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','GTM-TDLCQ9XB');
-            `,
-          }}
-        />
+        {/* Google Tag Manager loads only after opt-in, never on admin/account/
+            checkout/auth pages (src/components/AnalyticsConsent.tsx). */}
+        <AnalyticsConsent />
 
         <Suspense fallback={null}>
           <AuthCallbackCatcher />

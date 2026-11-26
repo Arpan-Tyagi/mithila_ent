@@ -7,6 +7,7 @@ import { useActionState, useState } from 'react';
 import { register, signInWithGoogle } from '@/actions/auth';
 import { passwordRules } from '@/lib/password';
 import { PasswordInput } from '@/components/PasswordInput';
+import { safeNextPath } from '@/lib/safe-next';
 
 const initialState: { error?: string; success?: string } = {
   error: '',
@@ -14,7 +15,7 @@ const initialState: { error?: string; success?: string } = {
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/account';
+  const nextPath = safeNextPath(searchParams.get('next'));
   const [state, formAction, isPending] = useActionState(register, initialState);
   const [password, setPassword] = useState('');
 

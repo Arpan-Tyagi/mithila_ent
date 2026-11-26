@@ -179,7 +179,7 @@ async function main() {
     } else {
       const u = list.users.find((x) => (x.email || '').toLowerCase() === adminEmail.toLowerCase());
       if (u) {
-        const { error: upErr } = await supabase.from('profiles').upsert({ id: u.id, role: 'admin' });
+        const { error: upErr } = await supabase.from('user_roles').upsert({ user_id: u.id, role: 'admin' }, { onConflict: 'user_id' });
         if (upErr) console.error('✗ promote admin:', upErr.message);
         else console.log(`✓ promoted ${adminEmail} to admin`);
       } else {

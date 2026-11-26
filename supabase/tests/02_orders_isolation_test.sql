@@ -28,7 +28,7 @@ INSERT INTO auth.users (instance_id, id, aud, role, email) VALUES
   ('00000000-0000-0000-0000-000000000000', '11111111-1111-4111-8111-111111111111', 'authenticated', 'authenticated', 'customer-a@example.test'),
   ('00000000-0000-0000-0000-000000000000', '22222222-2222-4222-8222-222222222222', 'authenticated', 'authenticated', 'customer-b@example.test'),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-4333-8333-333333333333', 'authenticated', 'authenticated', 'owner@example.test');
-UPDATE public.profiles SET role = 'admin' WHERE id = '33333333-3333-4333-8333-333333333333';
+INSERT INTO public.user_roles (user_id, role) VALUES ('33333333-3333-4333-8333-333333333333', 'admin');
 
 INSERT INTO public.orders (id, user_id, status, subtotal, total_amount, shipping_address) VALUES
   ('a0000000-0000-4000-8000-00000000000a', '11111111-1111-4111-8111-111111111111', 'pending', 1000, 1050, '{"city":"A"}'),

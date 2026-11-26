@@ -181,7 +181,62 @@ Production security advisors after apply:
 
 **Found while checking (not caused by 0044):** `src/actions/orders.ts:276` and `:344` insert `order_events` with `status` and `description` columns that do not exist; the table has `event, from_status, to_status, note`. The errors are not checked, so admin cancellation and refund events are never recorded.
 
+## 4b. Fix status: migrations 0045-0047 (local and production, 2026-11-26)
+
+- `0045_partial_cancel_order_item_atomic.sql` (`e842de6`), live as `20261126075244`.
+- `0046_definer_search_path_and_input_checks.sql` (RLS-05 + SEC-05/06/07/08 DB parts), live as `20261126133358`.
+- `0047_user_roles_and_access_token_hook.sql` (RLS-06 / SEC-13), live as `20261126133422`.
+
+Both were applied with the owner's approval after the full local suite passed. The `order_events` column bug noted at the end of 4a was fixed in `033f1d0`; the no-restock cancel path now runs inside `cancel_order_restock`.
+
+**pgTAP, local** (`npx supabase db reset --local` then `npx supabase test db`, 2026-11-26):
+
+```
+01_schema_invariants_test.sql .. ok
+02_orders_isolation_test.sql ... ok
+03_profiles_rbac_test.sql ...... ok
+04_catalog_discounts_test.sql .. ok
+05_leads_internal_test.sql ..... ok
+06_storage_test.sql ............ ok
+07_carts_test.sql .............. ok
+08_partial_cancel_test.sql ..... ok
+09_definer_functions_test.sql .. ok
+10_user_roles_test.sql ......... ok
+All tests successful.
+Files=10, Tests=170
+Result: PASS
+```
+
+Fixtures in 02-06 and 08 now grant admin with `INSERT INTO public.user_roles`, because `profiles.role` can no longer be written directly.
+
+| ID | Status | Evidence |
+|---|---|---|
+| RLS-05 search_path on SECURITY DEFINER | FIXED (local + live) | `01` t5. `0046` rewrites `handle_new_user`, `log_order_event`, `log_payment_intent`, `request_order_cancellation`, `record_payment`, `cancel_order_restock` with `search_path = ''` and schema-qualified names; drops the unused `checkout_processor` and `process_logistics_order`; pins the platform `rls_auto_enable()` too. Live query: `definer_no_sp = NULL`; `checkout_proc_gone = true`, `logistics_proc_gone = true`. |
+| RLS-06 user_roles + access-token hook | FIXED (local + live); hook must be enabled in the dashboard | `01` t7-8; `10` (17 tests). Live: `user_roles_admins = 1`, `roles_in_sync = 1`, `policies_reading_profiles = NULL`, `anon/authenticated SELECT on user_roles = false`, `supabase_auth_admin EXECUTE on hook = true`. |
+| cancel_order_restock | FIXED (local + live) | `09`: service-role call `ok` (was FORBIDDEN); no second restock of a line cancelled by 0045; idempotent; shrinkage path; customer 42501. Live: `authenticated EXECUTE = false`, rollback probe `auth_cancel=denied`. |
+| record_payment idempotency | FIXED (local + live) | `09`: same id, 1 row, 1 `order.paid`, raw duplicate 23505. Live: `payments_provider_payment_status_key` present. |
+
+**Production rollback-only probe** (one `DO` block ending in `RAISE EXCEPTION`; nothing persisted):
+
+```
+PROBE_RESULT hook_admin=admin hook_other=retail direct_role_update=denied is_admin(admin)=true
+             auth_insert_roles=denied auth_cancel=denied is_admin(customer)=false long_contact=rejected
+```
+
+**Production security advisors after 0046/0047:** no `function_search_path_mutable` (was 1, plus 8 `search_path=public` functions that Splinter does not flag). Remaining:
+- SECURITY DEFINER callable: `is_admin` (used by RLS policies), `validate_discount` (checkout coupon check), `log_payment_intent` and `request_order_cancellation` (customer RPCs, owner-checked inside). All intended.
+- `rls_auto_enable` callable by anon/authenticated: a platform event-trigger function; it returns `event_trigger` and cannot run as an RPC. Revoking its EXECUTE is harmless but was not part of the approved change.
+- `rls_enabled_no_policy` INFO on `auth_attempts`, `order_item_cancellations`, `pending_emails`: server-only by design.
+- Leaked-password protection disabled (dashboard setting).
+
+**Owner actions:**
+1. Dashboard → Authentication → Hooks → Customize Access Token → `public.custom_access_token_hook` (enabled locally in `supabase/config.toml`).
+2. Deploy the app. Until then the deployed "Make Admin" button fails, because it still writes `profiles.role`, which only `user_roles` may now change.
+3. Enable leaked-password protection.
+
 ## 5. Splinter advisors (`npx supabase db advisors`, local)
+
+**After 0047 (local, 2026-11-26):** 0 ERROR, 42 WARN: 40 `multiple_permissive_policies` and 2 `rls_policy_always_true` (intended; the lead tables now have length CHECKs and the routes are rate limited). `function_search_path_mutable` is gone.
 
 **After 0044:** 0 ERROR, 43 WARN. These are 40 `multiple_permissive_policies`, 1 `function_search_path_mutable` (RLS-05) and 2 `rls_policy_always_true` (intended). `auth_rls_initplan` is gone.
 
@@ -203,12 +258,12 @@ Splinter does not check TRUNCATE grants or `search_path=public` (only a missing 
 | Sensitive routes use `getUser()`, not bare `getClaims()` | PASS | No `getClaims` anywhere in `src/`. `getSession()` is used only for client-side UI state (`src/app/checkout/page.tsx:41`, `src/components/AuthCallbackCatcher.tsx:24`). Server code calls `getUser()`: 11 calls in `src/actions/` (admin 3, checkout 1, orders 5, profile 2) and 8 files under `src/app/`. |
 | Legacy JWT keys → `sb_publishable_*` / `sb_secret_*` | NOT READY | Code reads `NEXT_PUBLIC_SUPABASE_ANON_KEY` (4 places) and `SUPABASE_SERVICE_ROLE_KEY` (5 places). The switch is an env-var swap plus the new keys from the dashboard; no code change is needed beyond the variable names. |
 | Private Storage buckets (invoices, credit notes, exports) | N/A today | No private bucket exists; invoices are rendered on request from RLS-protected rows (section 3). Add tests to `06_storage_test.sql` if one is created. |
-| Spec tables from the report not in the schema | MISSING (product scope) | `fabric_rolls`, `coupon_redemptions`, `leads`/`lead_events`, `otp_challenges`, `refund_requests`, `credit_notes`, `user_roles`, `consent_logs`. Their RLS tests should be added when each table is built (Step 1 backlog). |
+| Spec tables from the report not in the schema | MISSING (product scope) | `fabric_rolls`, `coupon_redemptions`, `leads`/`lead_events`, `otp_challenges`, `refund_requests`, `credit_notes`, `consent_logs` (`user_roles` added in 0047). Their RLS tests should be added when each table is built (Step 1 backlog). |
 
 ## 7. How to reproduce
 
 ```
-npx supabase start          # Docker Desktop running; applies all 44 migrations
+npx supabase start          # Docker Desktop running; applies all 47 migrations
 npx supabase test db        # pgTAP suite in supabase/tests/
 npx supabase db advisors    # Splinter lints (local is the default)
 ```

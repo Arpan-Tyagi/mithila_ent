@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
 import { login, signInWithGoogle } from '@/actions/auth';
 import { PasswordInput } from '@/components/PasswordInput';
+import { safeNextPath } from '@/lib/safe-next';
 
 const initialState = {
   error: '',
@@ -13,7 +14,7 @@ const initialState = {
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/account';
+  const nextPath = safeNextPath(searchParams.get('next'));
   const [state, formAction, isPending] = useActionState(login, initialState);
 
   return (

@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/Button';
 export default function NotFound() {
   return (
     <main className="flex-grow bg-transparent py-32 flex flex-col items-center justify-center text-center px-4">
-      {/* Search Engine Directives */}
-      <head>
-        <title>404 - Page Not Found | Mithila Enterprises</title>
-        <meta name="robots" content="noindex, nofollow" />
-      </head>
+      {/* Search Engine Directives (React hoists these into <head>; a <head>
+          element inside <main> is invalid HTML) */}
+      <title>404 - Page Not Found | Mithila Enterprises</title>
+      <meta name="robots" content="noindex, nofollow" />
+
 
       {/* Madhubani Motif Placeholder */}
       <div className="w-32 h-32 kachni-border bg-[var(--charcoal-ink)] opacity-20 mb-8 relative">

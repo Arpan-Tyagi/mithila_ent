@@ -25,7 +25,7 @@ END $$;
 INSERT INTO auth.users (instance_id, id, aud, role, email) VALUES
   ('00000000-0000-0000-0000-000000000000', '11111111-1111-4111-8111-111111111111', 'authenticated', 'authenticated', 'customer-a@example.test'),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-4333-8333-333333333333', 'authenticated', 'authenticated', 'owner@example.test');
-UPDATE public.profiles SET role = 'admin' WHERE id = '33333333-3333-4333-8333-333333333333';
+INSERT INTO public.user_roles (user_id, role) VALUES ('33333333-3333-4333-8333-333333333333', 'admin');
 
 -- The public forms insert with the visitor's key (src/app/api/contact/route.ts:20-25,
 -- src/app/api/wholesale/route.ts:20-25), so anon INSERT is intended today.
