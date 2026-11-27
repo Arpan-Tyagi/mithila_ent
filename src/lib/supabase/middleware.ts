@@ -60,36 +60,28 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Basic Route Protection
+  // Route protection (routing only: every page, action and route handler
+  // re-checks through the DAL in src/lib/dal/session.ts).
   const pathname = request.nextUrl.pathname
+  const needsUser = pathname.startsWith('/account') || pathname.startsWith('/admin')
 
-  if (pathname.startsWith('/account')) {
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
+  if (needsUser && !user) {
+    // Send them back where they were going once they sign in. The login page
+    // passes this through safeNextPath, so it can only be a same-site path.
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.search = ''
+    url.searchParams.set('next', `${pathname}${request.nextUrl.search}`)
+    return NextResponse.redirect(url)
   }
 
   if (pathname.startsWith('/admin')) {
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-
-    // Role check for admin (no hardcoded bypass — admins are admins by their
-    // profile role). Dev convenience lives in /api/dev/login, which is gated to
-    // local development only and performs a real sign-in.
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin') {
+    // Same check as the DAL and RLS: public.is_admin() reads public.user_roles.
+    const { data: isAdmin } = await supabase.rpc('is_admin')
+    if (isAdmin !== true) {
       const url = request.nextUrl.clone()
       url.pathname = '/'
+      url.search = ''
       return NextResponse.redirect(url)
     }
   }
