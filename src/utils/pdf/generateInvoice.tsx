@@ -98,31 +98,31 @@ const InvoiceDocument = ({ order, orderItems }: { order: any, orderItems: any[] 
             {item.product_variants?.products?.title} ({item.product_variants?.color})
           </Text>
           <Text style={[styles.text, { width: '15%', textAlign: 'right' }]}>{item.quantity}</Text>
-          <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>₹{(Number(item.unit_price) * item.quantity).toFixed(2)}</Text>
+          <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>INR {(Number(item.unit_price) * item.quantity).toFixed(2)}</Text>
         </View>
       ))}
 
       <View style={styles.row}>
         <Text style={[styles.text, styles.colLeft]}></Text>
         <Text style={[styles.text, { width: '15%', textAlign: 'right' }]}>Shipping</Text>
-        <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>₹{Number(order.shipping_amount || 0).toFixed(2)}</Text>
+        <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>INR {Number(order.shipping_amount || 0).toFixed(2)}</Text>
       </View>
       <View style={styles.row}>
         <Text style={[styles.text, styles.colLeft]}></Text>
         <Text style={[styles.text, { width: '15%', textAlign: 'right' }]}>Tax</Text>
-        <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>₹{Number(order.tax_amount || 0).toFixed(2)}</Text>
+        <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>INR {Number(order.tax_amount || 0).toFixed(2)}</Text>
       </View>
       {Number(order.discount_applied || 0) > 0 && (
         <View style={styles.row}>
           <Text style={[styles.text, styles.colLeft]}></Text>
           <Text style={[styles.text, { width: '15%', textAlign: 'right' }]}>Discount</Text>
-          <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>-₹{Number(order.discount_applied || 0).toFixed(2)}</Text>
+          <Text style={[styles.text, { width: '25%', textAlign: 'right' }]}>-INR {Number(order.discount_applied || 0).toFixed(2)}</Text>
         </View>
       )}
 
       <View style={styles.totalRow}>
         <Text style={styles.totalLabel}>Grand Total:</Text>
-        <Text style={styles.totalValue}>₹{Number(order.total_amount || 0).toFixed(2)}</Text>
+        <Text style={styles.totalValue}>INR {Number(order.total_amount || 0).toFixed(2)}</Text>
       </View>
     </Page>
   </Document>

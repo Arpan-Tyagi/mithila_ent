@@ -1,6 +1,6 @@
+import { splitGst } from '@/lib/gst';
 const SHIPROCKET_EMAIL = process.env.SHIPROCKET_EMAIL;
 const SHIPROCKET_PASSWORD = process.env.SHIPROCKET_PASSWORD;
-const WAREHOUSE_STATE = 'Delhi'; // Configurable based on warehouse location
 
 let shiprocketToken: string | null = null;
 let tokenExpiresAt: number = 0;
@@ -95,23 +95,9 @@ export async function calculateShippingRates(
   return { rate: fallback, error: 'No courier available' };
 }
 
+// Place of supply is decided by GST state code (src/lib/gst.ts), so "New Delhi",
+// "NCT of Delhi" and "DL" all count as intra-state for our Delhi registration.
 export function calculateGST(state: string, baseAmount: number, gstRate: number) {
-  // If destination state matches warehouse state, apply CGST + SGST. Otherwise IGST.
-  const isInterState = state.toLowerCase() !== WAREHOUSE_STATE.toLowerCase();
-  
-  if (isInterState) {
-    return {
-      igst: (baseAmount * gstRate) / 100,
-      cgst: 0,
-      sgst: 0,
-      totalTax: (baseAmount * gstRate) / 100
-    };
-  } else {
-    return {
-      igst: 0,
-      cgst: (baseAmount * (gstRate / 2)) / 100,
-      sgst: (baseAmount * (gstRate / 2)) / 100,
-      totalTax: (baseAmount * gstRate) / 100
-    };
-  }
+  const { igst, cgst, sgst, totalTax } = splitGst(state, baseAmount, gstRate);
+  return { igst, cgst, sgst, totalTax };
 }

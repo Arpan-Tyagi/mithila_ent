@@ -19,7 +19,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "px-6 py-3 font-sans font-bold text-sm tracking-wider uppercase hand-drawn-border transition-colors duration-300 relative overflow-hidden group",
           {
-            "bg-[var(--lotus-pink)] text-[var(--unbleached-cotton)] hover:bg-[var(--peacock-blue)] hover:text-white":
+            "bg-[var(--lotus-pink)] text-[var(--charcoal-ink)] hover:bg-[var(--indigo-dye)] hover:text-white":
               variant === "primary",
             "bg-[var(--unbleached-cotton)] text-[var(--charcoal-ink)] hover:bg-[var(--turmeric)]":
               variant === "outline",

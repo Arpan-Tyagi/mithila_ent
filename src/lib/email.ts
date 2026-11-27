@@ -4,6 +4,7 @@ import { render } from '@react-email/components';
 import { OrderConfirmationEmail } from '@/components/emails/OrderConfirmationEmail';
 import { generateInvoiceBuffer } from '@/utils/pdf/generateInvoice';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { escapeHtml } from '@/lib/form-input';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build_only');
 const FROM = process.env.EMAIL_FROM || 'Mithila Enterprises <onboarding@resend.dev>';
@@ -25,83 +26,6 @@ export async function sendSecurityAlertEmail(email: string) {
     });
   } catch (error) {
     console.error('Failed to send security email', error);
-  }
-}
-
-export async function sendInvoiceEmail(
-  email: string, 
-  shippingDetails: any, 
-  cartItems: any[], 
-  subtotal: number, 
-  taxAmount: number, 
-  total: number,
-  paymentId: string
-) {
-  try {
-    // Premium Formal Invoice HTML
-    const itemsHtml = cartItems.map(item => `
-      <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.title} (${item.color})</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">₹${item.price.toFixed(2)}</td>
-      </tr>
-    `).join('');
-
-    await resend.emails.send({
-      from: FROM,
-      to: email,
-      subject: `Order Confirmation - Mithila Enterprises (${paymentId})`,
-      html: `
-        <div style="font-family: serif; color: #1a1a1a; padding: 40px; max-width: 600px; margin: 0 auto; background-color: #fcfcfc; border: 1px solid #eee;">
-          <div style="text-align: center; margin-bottom: 40px;">
-            <h1 style="font-style: italic; color: #0f172a; margin: 0;">Mithila Enterprises</h1>
-            <p style="font-family: sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; color: #64748b;">Premium Textile Registry</p>
-          </div>
-          
-          <p style="font-family: sans-serif; font-size: 14px;">Dear ${shippingDetails.firstName},</p>
-          <p style="font-family: sans-serif; font-size: 14px;">Your procurement order has been formally registered and payment was successful.</p>
-          
-          <h3 style="font-family: sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-top: 40px;">Invoice Details</h3>
-          <p style="font-family: sans-serif; font-size: 12px;"><strong>Transaction ID:</strong> ${paymentId}</p>
-          
-          <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-family: sans-serif; font-size: 13px;">
-            <thead>
-              <tr>
-                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #333;">Textile</th>
-                <th style="text-align: center; padding: 8px; border-bottom: 2px solid #333;">Qty</th>
-                <th style="text-align: right; padding: 8px; border-bottom: 2px solid #333;">Unit Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-          
-          <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px; font-family: sans-serif; font-size: 13px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span>Subtotal:</span>
-              <span style="float: right;">₹${subtotal.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span>Tax (18% GST):</span>
-              <span style="float: right;">₹${taxAmount.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-top: 15px; border-top: 2px solid #333; padding-top: 15px;">
-              <span>Total Paid:</span>
-              <span style="float: right;">₹${total.toFixed(2)}</span>
-            </div>
-          </div>
-          
-          <div style="margin-top: 60px; text-align: center; font-family: sans-serif; font-size: 11px; color: #64748b;">
-            <p>Shipping to: ${shippingDetails.address1}, ${shippingDetails.city}, ${shippingDetails.state} ${shippingDetails.pinCode}</p>
-            <p>Thank you for choosing Mithila Enterprises.</p>
-          </div>
-        </div>
-      `
-    });
-    console.log('Invoice email dispatched successfully');
-  } catch (error) {
-    console.error('Failed to send invoice email', error);
   }
 }
 
@@ -181,14 +105,14 @@ async function buildEmail(admin: SupabaseClient, row: any): Promise<Built | null
         : 'Your order has been cancelled';
   const tracking =
     status === 'shipped' && order.tracking_status
-      ? `<p style="margin:8px 0">Tracking reference: <strong>${order.tracking_status}</strong></p>`
+      ? `<p style="margin:8px 0">Tracking reference: <strong>${escapeHtml(String(order.tracking_status))}</strong></p>`
       : '';
   const refundNote =
     status === 'cancelled' ? '<p style="margin:8px 0">Any amount paid will be refunded per our policy.</p>' : '';
   const html = `<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;color:#2A2A2A;line-height:1.5">
     <h2 style="color:#8B2E2E;margin:0 0 4px">Mithila Enterprises</h2>
     <h3 style="margin:0 0 16px">${heading}</h3>
-    <p style="margin:8px 0">Dear ${customerName},</p>
+    <p style="margin:8px 0">Dear ${escapeHtml(String(customerName))},</p>
     <p style="margin:8px 0">Your order <strong>#${shortId}</strong> is now <strong>${status}</strong>.</p>
     ${tracking}${refundNote}
     <p style="margin:16px 0 0">Thank you for shopping with us.</p>

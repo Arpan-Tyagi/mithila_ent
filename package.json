@@ -14,7 +14,9 @@
     "supabase:login": "npx supabase login",
     "supabase:link": "npx supabase link --project-ref nhmarliyovmucuqryceg",
     "supabase:push": "npx supabase db push",
-    "supabase:types": "npx supabase gen types typescript --linked > src/lib/supabase/database.types.ts"
+    "supabase:types": "npx supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
+    "test:redteam": "node tests/security-redteam/run.mjs",
+    "test:e2e:local": "node tests/e2e/run.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -43,6 +45,7 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

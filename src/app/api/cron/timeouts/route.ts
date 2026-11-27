@@ -1,3 +1,4 @@
+import { secretMatches } from '@/lib/secure-compare';
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
@@ -11,8 +12,8 @@ export async function GET(request: Request) {
     if (!secret) {
       return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
     }
-    const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${secret}`) {
+    const authHeader = request.headers.get('authorization') || '';
+    if (!secretMatches(secret, authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

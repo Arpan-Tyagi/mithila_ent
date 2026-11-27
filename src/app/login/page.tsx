@@ -36,12 +36,12 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Email</label>
-            <input type="email" name="email" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="login-email">Email</label>
+            <input id="login-email" type="email" name="email" autoComplete="email" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
           </div>
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Password</label>
-            <PasswordInput className="focus:border-[var(--madder-red)]" />
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="login-password">Password</label>
+            <PasswordInput id="login-password" autoComplete="current-password" className="focus:border-[var(--madder-red)]" />
           </div>
           
           <div className="flex items-center justify-between">

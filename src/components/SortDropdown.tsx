@@ -21,7 +21,8 @@ export default function SortDropdown({ currentSort }: { currentSort: string }) {
 
   return (
     <div className="relative">
-      <select 
+      <select
+        aria-label="Sort products"
         className="appearance-none bg-white border border-[var(--charcoal-ink)]/20 text-[var(--charcoal-ink)] font-sans text-sm font-bold rounded-md pl-4 pr-10 py-2 focus:outline-none focus:border-[var(--charcoal-ink)]/40 cursor-pointer shadow-sm"
         value={currentSort || 'featured'}
         onChange={handleSortChange}

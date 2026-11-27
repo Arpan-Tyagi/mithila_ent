@@ -97,8 +97,8 @@ RESET ROLE;
 
 -- owner_admin: full CRM visibility
 SELECT pg_temp.act_as('authenticated', '33333333-3333-4333-8333-333333333333');
-SELECT is((SELECT count(*) FROM public.orders), 2::bigint, 'owner_admin sees all orders');
-SELECT is((SELECT count(*) FROM public.payments), 2::bigint, 'owner_admin sees all payments');
+SELECT is((SELECT count(*) FROM public.orders WHERE id IN ('a0000000-0000-4000-8000-00000000000a', 'b0000000-0000-4000-8000-00000000000b')), 2::bigint, 'owner_admin sees every customer order (scoped to fixtures: other suites share the local DB)');
+SELECT is((SELECT count(*) FROM public.payments WHERE order_id IN ('a0000000-0000-4000-8000-00000000000a', 'b0000000-0000-4000-8000-00000000000b')), 2::bigint, 'owner_admin sees every customer payment');
 RESET ROLE;
 
 -- TRUNCATE bypasses RLS entirely, so the privilege itself must be absent.
@@ -108,7 +108,7 @@ RESET ROLE;
 SELECT pg_temp.act_as('authenticated', '22222222-2222-4222-8222-222222222222');
 SELECT throws_ok($$TRUNCATE public.order_events$$, '42501', NULL, 'customer_b cannot TRUNCATE order_events');
 RESET ROLE;
-SELECT is((SELECT count(*) FROM public.payments), 2::bigint, 'payments intact after TRUNCATE attempts');
+SELECT is((SELECT count(*) FROM public.payments WHERE order_id IN ('a0000000-0000-4000-8000-00000000000a', 'b0000000-0000-4000-8000-00000000000b')), 2::bigint, 'payments intact after TRUNCATE attempts');
 
 SELECT * FROM finish();
 ROLLBACK;

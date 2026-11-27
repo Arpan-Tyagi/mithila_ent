@@ -43,8 +43,8 @@ SELECT is((SELECT count(*) FROM public.products WHERE slug LIKE 'pgtap-%'), 1::b
 SELECT is((SELECT count(*) FROM public.product_variants WHERE sku = 'PGTAP-DRF'), 0::bigint,
           'anon cannot read variants (price/SKU) of a draft product');
 SELECT is((SELECT count(*) FROM public.discounts), 0::bigint, 'anon cannot list discount codes');
-SELECT is((public.validate_discount('PGTAPSECRET', 1000) ->> 'valid')::boolean, true,
-          'anon can still validate a code it already knows');
+SELECT throws_ok($$SELECT public.validate_discount('PGTAPSECRET', 1000)$$, '42501', NULL,
+          'anon cannot probe discount codes (0049; checkout validates server-side)');
 SELECT throws_ok($$INSERT INTO public.categories (slug, name) VALUES ('pgtap-x', 'x')$$,
                  '42501', NULL, 'anon cannot create categories');
 RESET ROLE;

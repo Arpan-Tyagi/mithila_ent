@@ -44,16 +44,18 @@ export default function SignupPage() {
           )}
 
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Full Name</label>
-            <input type="text" name="fullName" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--turmeric)] transition-colors" />
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="signup-name">Full Name</label>
+            <input id="signup-name" type="text" name="fullName" autoComplete="name" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--turmeric)] transition-colors" />
           </div>
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Email</label>
-            <input type="email" name="email" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--turmeric)] transition-colors" />
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="signup-email">Email</label>
+            <input id="signup-email" type="email" name="email" autoComplete="email" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--turmeric)] transition-colors" />
           </div>
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Password</label>
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="signup-password">Password</label>
             <PasswordInput
+              id="signup-password"
+              autoComplete="new-password"
               name="password"
               required
               value={password}
@@ -65,7 +67,7 @@ export default function SignupPage() {
               <div className="mt-3 space-y-1">
                 {passwordRules.map((rule, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs font-sans">
-                    <span className={rule.test(password) ? "text-green-600" : "text-zinc-800"}>
+                    <span className={rule.test(password) ? "text-green-800" : "text-zinc-800"}>
                       {rule.test(password) ? '✓' : '○'}
                     </span>
                     <span className={rule.test(password) ? "text-zinc-800" : "text-zinc-700"}>
@@ -96,7 +98,7 @@ export default function SignupPage() {
         </form>
 
         <p className="font-sans text-sm text-center mt-8">
-          Already have an account? <Link href="/login" className="font-bold text-[var(--turmeric)] hover:underline">Log in</Link>
+          Already have an account? <Link href="/login" className="font-bold text-[var(--turmeric-ink)] hover:underline">Log in</Link>
         </p>
       </div>
     </main>

@@ -42,7 +42,7 @@ export default async function AccountOrdersPage() {
           <div key={order.id} className="border-4 border-double border-[var(--charcoal-ink)] p-6 bg-white shadow-[4px_4px_0_var(--turmeric)]">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-[var(--charcoal-ink)]/10 pb-4">
               <div>
-                <div className="font-mono text-xs opacity-50 mb-1">ORDER #{order.id.split('-')[0].toUpperCase()}</div>
+                <div className="font-mono text-xs opacity-75 mb-1">ORDER #{order.id.split('-')[0].toUpperCase()}</div>
                 <div className="font-bold">{new Date(order.created_at).toLocaleDateString()}</div>
               </div>
               <div className="mt-2 md:mt-0 text-right">
@@ -51,10 +51,19 @@ export default async function AccountOrdersPage() {
                   <div className="font-mono text-xs uppercase tracking-widest opacity-70">TRK: {order.tracking_status}</div>
                 )}
                 <div className="mt-2 flex md:justify-end items-center gap-2">
-                  <span className={`px-2 py-0.5 text-[9px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-600 text-green-700' : 'border-[var(--madder-red)] text-[var(--madder-red)]'}`}>
+                  <span className={`px-2 py-0.5 text-[9px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-700 text-green-800' : 'border-[var(--madder-red)] text-[var(--madder-red)]'}`}>
                     {order.is_paid ? 'Paid' : 'Payment Pending'}
                   </span>
                 </div>
+                {order.is_paid && (
+                  <a
+                    href={`/api/invoice/${order.id}`}
+                    download
+                    className="mt-2 inline-block text-[10px] uppercase tracking-widest font-bold text-[var(--indigo-dye)] underline underline-offset-4"
+                  >
+                    Download GST invoice (PDF)
+                  </a>
+                )}
                 {(order.status === 'pending' || order.status === 'paid') && !order.cancellation_requested && (
                   <form action={async () => { 'use server'; await requestCancellation(order.id); }} className="mt-2 md:flex md:justify-end">
                     <button type="submit" className="text-[10px] uppercase tracking-widest font-bold text-[var(--madder-red)] border border-[var(--madder-red)]/50 px-3 py-1 hover:bg-[var(--madder-red)] hover:text-white transition-colors">
@@ -63,7 +72,7 @@ export default async function AccountOrdersPage() {
                   </form>
                 )}
                 {order.cancellation_requested && order.status !== 'cancelled' && (
-                  <div className="mt-2 text-[10px] uppercase tracking-widest font-bold text-[var(--turmeric)]">Cancellation requested</div>
+                  <div className="mt-2 text-[10px] uppercase tracking-widest font-bold text-[var(--turmeric-ink)]">Cancellation requested</div>
                 )}
               </div>
             </div>
@@ -92,14 +101,14 @@ export default async function AccountOrdersPage() {
 
             {/* Order Items */}
             <div className="bg-[var(--unbleached-cotton)] p-4 border-2 border-[var(--charcoal-ink)]/10">
-              <h3 className="text-[10px] uppercase font-bold tracking-widest opacity-50 mb-3">Items</h3>
+              <h3 className="text-[10px] uppercase font-bold tracking-widest opacity-75 mb-3">Items</h3>
               <div className="space-y-3">
                 {order.order_items?.map((item: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-center text-sm font-bold">
                     <div>
                       <span>{item.quantity}x </span>
                       <span>{item.product_variants?.products?.title}</span>
-                      <span className="opacity-50 ml-2">({item.product_variants?.color})</span>
+                      <span className="opacity-75 ml-2">({item.product_variants?.color})</span>
                     </div>
                     <div className="opacity-80">₹{(item.unit_price * item.quantity).toFixed(2)}</div>
                   </div>
@@ -112,7 +121,7 @@ export default async function AccountOrdersPage() {
 
         {(!orders || orders.length === 0) && (
           <div className="text-center p-12 border-2 border-dashed border-[var(--charcoal-ink)]/20">
-            <p className="font-sans uppercase tracking-widest text-sm opacity-50">No orders placed yet.</p>
+            <p className="font-sans uppercase tracking-widest text-sm opacity-75">No orders placed yet.</p>
           </div>
         )}
       </div>

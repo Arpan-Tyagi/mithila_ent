@@ -91,28 +91,28 @@ export default function ContactClient() {
 
               <div className="space-y-4 font-sans text-sm">
                 <div>
-                  <span className="block font-bold text-[10px] uppercase opacity-40">Email Address</span>
+                  <span className="block font-bold text-[10px] uppercase opacity-70">Email Address</span>
                   <a href="mailto:mithlaenterprises11@gmail.com" className="text-base text-[var(--charcoal-ink)] hover:text-[var(--turmeric)] transition-colors font-medium">
                     mithlaenterprises11@gmail.com
                   </a>
                 </div>
                 <div>
-                  <span className="block font-bold text-[10px] uppercase opacity-40">Call / WhatsApp</span>
+                  <span className="block font-bold text-[10px] uppercase opacity-70">Call / WhatsApp</span>
                   <a href="tel:+919818555220" className="text-base text-[var(--charcoal-ink)] hover:text-[var(--turmeric)] transition-colors font-medium">
                     +91 9818555220
                   </a>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <span className="block font-bold text-[10px] uppercase opacity-40">Registered Office</span>
+                    <span className="block font-bold text-[10px] uppercase opacity-70">Registered Office</span>
                     <p className="text-zinc-700 leading-relaxed">X-3458/7, Street -1, Raghubar Pura -2, Gandhi Nagar, DELHI - 110031</p>
                   </div>
                   <div>
-                    <span className="block font-bold text-[10px] uppercase opacity-40">Warehouse</span>
+                    <span className="block font-bold text-[10px] uppercase opacity-70">Warehouse</span>
                     <p className="text-zinc-700 leading-relaxed">TA-106, Okhla Estate Marg, Tughlakabad Extension, Kalkaji New Delhi, Delhi 110019</p>
                   </div>
                   <div>
-                    <span className="block font-bold text-[10px] uppercase opacity-40">Tax Identity</span>
+                    <span className="block font-bold text-[10px] uppercase opacity-70">Tax Identity</span>
                     <p className="text-zinc-700 font-mono text-xs mt-1">GSTIN: 07AGUPM2548P1ZH</p>
                   </div>
                 </div>

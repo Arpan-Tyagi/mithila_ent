@@ -85,7 +85,7 @@ export default function AboutClient({
             className="relative z-20 w-[90%] md:w-[50%] mx-auto md:mr-0 -mt-20 md:-mt-80 bg-white/95 backdrop-blur-2xl p-8 md:p-12 border border-[var(--charcoal-ink)]/10 shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl"
           >
             <span className="w-12 h-[2px] bg-[var(--madder-red)] mb-6 block" />
-            <span className="text-[var(--turmeric)] font-sans uppercase text-[10px] tracking-wider font-bold block mb-2 opacity-90">The Weave Quality</span>
+            <span className="text-[var(--turmeric-ink)] font-sans uppercase text-[10px] tracking-wider font-bold block mb-2">The Weave Quality</span>
             <h3 className="font-serif text-3xl md:text-4xl italic font-bold text-[var(--charcoal-ink)] mb-6">
               {heritage.title || "Material Physics"}
             </h3>

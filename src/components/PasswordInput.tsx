@@ -18,7 +18,7 @@ export function PasswordInput({ name = 'password', required = true, placeholder 
       <button 
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--charcoal-ink)]/90 hover:text-[var(--charcoal-ink)] transition-colors focus:outline-none"
+        className="absolute right-1 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center text-[var(--charcoal-ink)]/90 hover:text-[var(--charcoal-ink)] transition-colors focus-visible:outline-2 focus-visible:outline-[var(--charcoal-ink)]"
         aria-label={show ? "Hide password" : "Show password"}
       >
         {show ? (

@@ -7,9 +7,10 @@
   --text-primary: #18181b;
   --text-secondary: #52525b;
   
-  --madder-red: #dc2626; /* Vibrant Traditional Red */
+  --madder-red: #b91c1c; /* Traditional red; darkened from #dc2626 for WCAG AA text contrast (5.0-5.75:1 on cotton and card) */
   --indigo-dye: #1e3a8a; /* Rich Madhubani Blue */
-  --turmeric: #f59e0b;   /* Bright Sunshine Yellow */
+  --turmeric: #f59e0b;   /* Bright Sunshine Yellow: fills, borders and text on dark only */
+  --turmeric-ink: #92400e; /* Turmeric for text on light backgrounds (WCAG AA, 5.5-6.3:1 on cotton and card) */
   --peacock-blue: #0ea5e9; /* Cerulean Blue */
   --madhubani-green: #16a34a; /* Vibrant Leaf Green */
   

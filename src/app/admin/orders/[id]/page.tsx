@@ -236,8 +236,8 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               );
             }} className="space-y-4">
               <div>
-                <label className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">Update Status</label>
-                <select name="status" defaultValue={order.status} className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]">
+                <label htmlFor="order-status" className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">Update Status</label>
+                <select id="order-status" name="status" defaultValue={order.status} className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]">
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
                   <option value="processing">Processing</option>
@@ -274,7 +274,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                     {p.provider_payment_id && (
                       <div className="text-[10px] opacity-50 font-mono mt-1 break-all">{p.provider_payment_id}</div>
                     )}
-                    <div className="text-[10px] opacity-40 mt-1">{new Date(p.created_at).toLocaleString()}</div>
+                    <div className="text-[10px] opacity-70 mt-1">{new Date(p.created_at).toLocaleString()}</div>
                   </div>
                 ))}
               </div>
@@ -297,7 +297,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                       </div>
                     )}
                     {e.note && <div className="text-xs opacity-70 mt-0.5">{e.note}</div>}
-                    <div className="text-[10px] opacity-40 mt-1">{new Date(e.created_at).toLocaleString()}</div>
+                    <div className="text-[10px] opacity-70 mt-1">{new Date(e.created_at).toLocaleString()}</div>
                   </li>
                 ))}
               </ol>

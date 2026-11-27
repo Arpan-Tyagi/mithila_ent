@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendDueEmails } from '@/lib/email'
+import { secretMatches } from '@/lib/secure-compare'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +12,8 @@ async function run(request: NextRequest) {
   if (!secret) {
     return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 })
   }
-  if (request.headers.get('authorization') !== `Bearer ${secret}`) {
+  const auth = request.headers.get('authorization') || ''
+  if (!secretMatches(secret, auth.startsWith('Bearer ') ? auth.slice(7) : '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   try {

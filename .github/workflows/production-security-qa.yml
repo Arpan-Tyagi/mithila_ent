@@ -1,0 +1,117 @@
+name: Production Security & QA
+
+# Playbook Step 7. Runs on every PR and push to main, and weekly as the
+# scheduled audit (Monday 08:00 IST = 02:30 UTC). Everything runs against a
+# throwaway local Supabase stack inside the runner; no production URL or
+# secret is used. Tools are pinned: actions by commit SHA (SEC-14), semgrep
+# by PyPI version, gitleaks by release checksum, Supabase CLI by lockfile.
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '30 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Types, lint, SAST, secrets, dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # gitleaks scans the full history
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+      - run: npm ci
+      - name: TypeScript (strict)
+        run: npx tsc --noEmit
+      - name: ESLint
+        run: npm run lint
+      - name: Unit and integration tests
+        run: npm test
+      - name: Dependency audit (production, high and above)
+        run: npm audit --omit=dev --audit-level=high
+      - name: Semgrep (OWASP Top 10, CWE Top 25)
+        run: |
+          python3 -m pip install --quiet 'semgrep==1.184.0'
+          semgrep scan --config p/owasp-top-ten --config p/cwe-top-25 \
+            --severity ERROR --error --metrics off src supabase
+      - name: Gitleaks (full history)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSfL -o gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tgz" | sha256sum -c -
+          tar -xzf gitleaks.tgz gitleaks
+          ./gitleaks git --redact --no-banner --exit-code 1 .
+
+  database-and-e2e:
+    name: RLS (pgTAP), advisors, red-team, E2E + WCAG
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+      - run: npm ci
+      - name: Start local Supabase (all migrations applied)
+        run: npx --no-install supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,storage-api
+      - name: pgTAP RLS and money-path tests
+        run: npx --no-install supabase test db
+      - name: Database advisors (schema lint)
+        run: npx --no-install supabase db lint --level warning --fail-on error
+      - name: Point the app at the local stack
+        run: |
+          eval "$(npx --no-install supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "NEXT_PUBLIC_SITE_URL=http://localhost:3100"
+            echo "RAZORPAY_WEBHOOK_SECRET=rt_whsec_local"
+            echo "LOGISTICS_WEBHOOK_SECRET=rt_logi_local"
+            echo "CRON_SECRET=rt_cron_local"
+            echo "NEXT_TELEMETRY_DISABLED=1"
+          } >> "$GITHUB_ENV"
+      - name: Build
+        run: npm run build
+      - name: Start the app
+        run: |
+          nohup npx next start -p 3100 > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3100/ && exit 0; sleep 1; done
+          cat app.log; exit 1
+      - name: Red-team (races, IDOR, HTTP layer)
+        env:
+          REDTEAM_APP_URL: http://localhost:3100
+        run: npm run test:redteam
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Multi-role E2E + WCAG 2.2 AA (desktop and mobile)
+        env:
+          REDTEAM_APP_URL: http://localhost:3100
+        run: npm run test:e2e:local
+      - name: Upload E2E traces on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-traces
+          path: test-results/e2e-local
+          retention-days: 7

@@ -74,7 +74,7 @@ export default async function AdminDashboard() {
             <IndianRupee className="text-[var(--madder-red)]" size={24} />
           </div>
           <p className="font-serif font-bold text-4xl text-[var(--charcoal-ink)]">{revenueLabel}</p>
-          <div className="mt-4 flex items-center gap-1 text-xs font-bold text-green-700 uppercase tracking-widest">
+          <div className="mt-4 flex items-center gap-1 text-xs font-bold text-green-800 uppercase tracking-widest">
             <TrendingUp size={14} /> +12.5% this month
           </div>
         </div>
@@ -125,16 +125,16 @@ export default async function AdminDashboard() {
               <Link key={o.id} href={`/admin/orders/${o.id}`} className="flex items-center justify-between py-3 px-2 -mx-2 hover:bg-[var(--unbleached-cotton)] transition-colors">
                 <div>
                   <div className="font-mono text-xs font-bold">#{o.id.split('-')[0].toUpperCase()}</div>
-                  <div className="text-[10px] opacity-50">{new Date(o.created_at).toLocaleDateString()}</div>
+                  <div className="text-[10px] opacity-75">{new Date(o.created_at).toLocaleDateString()}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[9px] uppercase tracking-widest font-bold opacity-60">{o.status}</span>
-                  <span className={`text-[9px] uppercase tracking-widest font-bold ${o.is_paid ? 'text-green-700' : 'text-[var(--madder-red)]'}`}>{o.is_paid ? 'Paid' : 'Unpaid'}</span>
+                  <span className="text-[9px] uppercase tracking-widest font-bold opacity-75">{o.status}</span>
+                  <span className={`text-[9px] uppercase tracking-widest font-bold ${o.is_paid ? 'text-green-800' : 'text-[var(--madder-red)]'}`}>{o.is_paid ? 'Paid' : 'Unpaid'}</span>
                   <span className="font-bold text-[var(--madder-red)]">₹{Number(o.total_amount).toFixed(0)}</span>
                 </div>
               </Link>
             ))}
-            {(!recentOrders || recentOrders.length === 0) && <p className="py-6 text-center opacity-50 text-sm">No orders yet.</p>}
+            {(!recentOrders || recentOrders.length === 0) && <p className="py-6 text-center opacity-75 text-sm">No orders yet.</p>}
           </div>
         </div>
 
@@ -148,12 +148,12 @@ export default async function AdminDashboard() {
               <div key={v.id} className="flex items-center justify-between py-3">
                 <div>
                   <div className="font-bold text-sm">{v.products?.title || 'Variant'}</div>
-                  <div className="text-[10px] opacity-50">{v.color}</div>
+                  <div className="text-[10px] opacity-75">{v.color}</div>
                 </div>
-                <span className={`font-mono font-bold ${v.stock_quantity === 0 ? 'text-[var(--madder-red)]' : 'text-[var(--turmeric)]'}`}>{v.stock_quantity}</span>
+                <span className={`font-mono font-bold ${v.stock_quantity === 0 ? 'text-[var(--madder-red)]' : 'text-[var(--turmeric-ink)]'}`}>{v.stock_quantity}</span>
               </div>
             ))}
-            {(!lowStock || lowStock.length === 0) && <p className="py-6 text-center opacity-50 text-sm">All variants well stocked.</p>}
+            {(!lowStock || lowStock.length === 0) && <p className="py-6 text-center opacity-75 text-sm">All variants well stocked.</p>}
           </div>
         </div>
       </div>
@@ -169,10 +169,10 @@ export default async function AdminDashboard() {
               <div key={app.id} className="flex items-center justify-between py-3">
                 <div>
                   <div className="font-bold text-sm">{app.business_name}</div>
-                  <div className="text-[10px] opacity-50">{app.email}</div>
+                  <div className="text-[10px] opacity-75">{app.email}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--turmeric)]">Pending</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--turmeric-ink)]">Pending</span>
                 </div>
               </div>
             ))}
@@ -199,7 +199,7 @@ export default async function AdminDashboard() {
             })}
           </div>
         ) : (
-          <p className="py-4 text-center opacity-50 text-sm">No sales recorded yet.</p>
+          <p className="py-4 text-center opacity-75 text-sm">No sales recorded yet.</p>
         )}
       </div>
 

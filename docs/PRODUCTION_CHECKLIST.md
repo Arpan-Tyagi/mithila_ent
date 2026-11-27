@@ -245,7 +245,27 @@ These are missing capabilities, not defects. Sequence them after the Top-10, sin
 
 ---
 
-## 5. Test & CI Baseline (observed)
+## 5a. Status after Steps 4–7 (2026-11-27)
+
+The evidence below comes from executed runs. For these items it supersedes the "nothing executed" note at the top.
+
+- **CI:** `.github/workflows/production-security-qa.yml` runs on every push and PR to `main`/`master`, and weekly on Mondays at 08:00 IST.
+  - Static job: tsc, ESLint, vitest, `npm audit --omit=dev --audit-level=high`, semgrep (OWASP Top 10 + CWE Top 25), and gitleaks over the full history.
+  - Database job: local Supabase, pgTAP, `supabase db lint`, the red-team suite, and Playwright + axe E2E.
+- **pgTAP:** `Files=12, Tests=190, Result: PASS` on the local stack with migrations through 0049.
+- **Red-team:** 22/22 pass; see `docs/SECURITY_REDTEAM_REPORT.md`.
+  - D3-9 (₹1 order), D6-11 (cross-order verify) and D7-2 (coupon race) were exercised and all hold.
+  - New finding RT-01 (coupon enumeration) is fixed by migration 0049. 0049 is **not yet applied to production**.
+- **E2E + WCAG 2.2 AA:** 26/26 pass across customer A, customer B and owner admin, on 1440 and 375 viewports, with 0 axe violations. See `docs/E2E_QA_REPORT.md`.
+  - D4: invoice download link added.
+  - D1-5: login and signup pages pass axe; the reset flow itself was not walked.
+- **Integrations, GST and DLT:** see `docs/INTEGRATIONS_COMPLIANCE_REPORT.md` and `docs/DLT_OPS_CHECKLIST.md`.
+- **Semgrep:** 0 findings across 209 files (local run, semgrep 1.184.0).
+- **Still open:**
+  - The MISSING features in §1 remain No-Go blockers.
+  - Dev-only `vitest@2.1.9` brings in a critical `tinypool` advisory and a high `vite` advisory. Production dependencies are clean at `high`. Upgrading vitest is a breaking change, so it's tracked as a follow-up.
+
+## 5. Test & CI Baseline (as of 2026-11-22; superseded by 5a)
 
 - `.github/workflows/main.yml` runs only `npm ci`, `npm run lint` and `npm run build`. No unit, integration, E2E, pgTAP or dependency audit.
 - `tests/integration/rls.test.ts` and `order-rpc.test.ts` exist but `describe.skipIf(!haveTestDb)`, so they never run in CI. They also do not cover role self-escalation, client-controlled RPC pricing, or coupon limits.

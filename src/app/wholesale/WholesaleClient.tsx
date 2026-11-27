@@ -89,17 +89,17 @@ export default function WholesaleClient() {
                 </p>
               </div>
 
-              <ul className="space-y-4 font-sans text-sm text-[var(--charcoal-ink)] opacity-80">
+              <ul className="space-y-4 font-sans text-sm text-[var(--charcoal-ink)]/85">
                 <li className="flex items-start">
-                  <span className="text-[var(--madder-red)] mr-3 font-bold opacity-100">01.</span>
+                  <span className="text-[var(--madder-red)] mr-3 font-bold">01.</span>
                   A valid Tax Identification Number or equivalent business registration is mandatory.
                 </li>
                 <li className="flex items-start">
-                  <span className="text-[var(--madder-red)] mr-3 font-bold opacity-100">02.</span>
+                  <span className="text-[var(--madder-red)] mr-3 font-bold">02.</span>
                   The Minimum Order Quantity (MOQ) is 50 yards per specific textile variant.
                 </li>
                 <li className="flex items-start">
-                  <span className="text-[var(--madder-red)] mr-3 font-bold opacity-100">03.</span>
+                  <span className="text-[var(--madder-red)] mr-3 font-bold">03.</span>
                   Custom dye runs require a separate consultation and a 100-yard MOQ.
                 </li>
               </ul>

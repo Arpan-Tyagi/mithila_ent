@@ -221,8 +221,18 @@ export async function previewDiscount(code: string, subtotal: number) {
   if (!c || !Number.isFinite(sub) || sub < 0 || sub > 100_000_000) {
     return { valid: false as const, error: 'Invalid code.' }
   }
-  const supabase = await createClient()
-  const { data, error } = await supabase.rpc('validate_discount', {
+  // RT-01: validate_discount is service-role only (migration 0049), so codes
+  // cannot be enumerated through the public API. Signed-in and rate-limited here.
+  let userId: string
+  try {
+    userId = (await requireUser()).id
+  } catch {
+    return { valid: false as const, error: 'Please sign in to use a discount code.' }
+  }
+  if (!(await checkApiRateLimit(`discount-preview:${userId}`))) {
+    return { valid: false as const, error: 'Too many attempts. Please wait a minute.' }
+  }
+  const { data, error } = await createAdminClient().rpc('validate_discount', {
     p_code: c,
     p_subtotal: sub,
   })

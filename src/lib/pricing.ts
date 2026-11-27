@@ -1,6 +1,8 @@
 // Pure, testable order-total math. Mirrors create_order_atomic so the checkout
 // preview and the server-side order always agree.
-export const TAX_RATE = 0.18;
+// GST 2.0: woven/knitted fabrics (Ch. 50-60) are a flat 5%. Matches the
+// COALESCE(p.gst_rate, 5.00) default in create_order_atomic (0040).
+export const TAX_RATE = 0.05;
 export const FLAT_SHIPPING = 50;
 
 export function round2(n: number): number {

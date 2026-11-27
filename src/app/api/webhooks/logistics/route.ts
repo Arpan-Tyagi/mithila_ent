@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { z } from 'zod';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { secretMatches } from '@/lib/secure-compare';
+import { plainText, uuid } from '@/lib/validation/common';
 
 // Logistics provider webhook: updates an order's tracking status.
 //
@@ -8,40 +10,50 @@ import { secretMatches } from '@/lib/secure-compare';
 // that matches LOGISTICS_WEBHOOK_SECRET. If the secret is unset or wrong, the
 // request is rejected (fail closed).
 //
-// We use the Supabase service-role client here because this request has no user
-// session, and `orders` is admin-write under RLS, so the anon client would be
-// silently blocked. The secret check is what authorizes the call.
+// The service-role client is used because the request has no user session and
+// `orders` is admin-write under RLS. The secret check is what authorizes it.
+// The status ends up in customer e-mails, so it is bounded and stripped of
+// markup, and database errors are never echoed back to the caller.
+
+const MAX_BODY_BYTES = 16 * 1024;
+
+const payloadSchema = z.object({
+  order_id: uuid,
+  tracking_status: plainText(200, { min: 1 }),
+});
+
 export async function POST(request: Request) {
-  try {
-    const expectedSecret = process.env.LOGISTICS_WEBHOOK_SECRET;
-    const providedSecret = request.headers.get('x-webhook-secret');
-
-    if (!secretMatches(expectedSecret, providedSecret)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const payload = await request.json();
-    const { order_id, tracking_status } = payload ?? {};
-
-    if (!order_id || typeof tracking_status !== 'string') {
-      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } }
-    );
-
-    const { error } = await supabase
-      .from('orders')
-      .update({ tracking_status })
-      .eq('id', order_id);
-
-    if (error) throw error;
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 400 });
+  if (!secretMatches(process.env.LOGISTICS_WEBHOOK_SECRET, request.headers.get('x-webhook-secret'))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
+  }
+  let body: unknown;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+  }
+  const parsed = payloadSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+  }
+
+  const { data, error } = await createAdminClient()
+    .from('orders')
+    .update({ tracking_status: parsed.data.tracking_status })
+    .eq('id', parsed.data.order_id)
+    .select('id');
+
+  if (error) {
+    console.error('logistics webhook update failed:', error.message);
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+  }
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+  }
+  return NextResponse.json({ success: true });
 }

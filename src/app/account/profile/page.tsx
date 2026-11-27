@@ -23,17 +23,17 @@ export default async function ProfilePage() {
         
         <div className="mt-8 space-y-6">
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Email Address</label>
-            <input type="email" defaultValue={userData.user.email} disabled className="w-full border-2 border-[var(--charcoal-ink)] bg-neutral-100 p-3 font-sans opacity-70 cursor-not-allowed" />
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="profile-email">Email Address</label>
+            <input id="profile-email" type="email" defaultValue={userData.user.email} disabled className="w-full border-2 border-[var(--charcoal-ink)] bg-neutral-100 p-3 font-sans opacity-70 cursor-not-allowed" />
           </div>
           <div>
-            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2">Role</label>
-            <input type="text" defaultValue={profile?.role || 'Customer'} disabled className="w-full border-2 border-[var(--charcoal-ink)] bg-neutral-100 p-3 font-sans opacity-70 cursor-not-allowed" />
+            <label className="block font-sans text-xs font-bold uppercase tracking-widest text-[var(--charcoal-ink)] mb-2" htmlFor="profile-role">Role</label>
+            <input id="profile-role" type="text" defaultValue={profile?.role || 'Customer'} disabled className="w-full border-2 border-[var(--charcoal-ink)] bg-neutral-100 p-3 font-sans opacity-70 cursor-not-allowed" />
           </div>
         </div>
       </div>
 
-      <div className="border-t-2 border-[var(--charcoal-ink)]/20 pt-8">
+      <div id="addresses" className="border-t-2 border-[var(--charcoal-ink)]/20 pt-8 scroll-mt-8">
         <h2 className="font-serif text-3xl font-bold text-[var(--charcoal-ink)] mb-6">Saved Addresses</h2>
         
         <div className="space-y-4 mb-8">
@@ -53,7 +53,7 @@ export default async function ProfilePage() {
             </div>
           ))}
           {savedAddresses.length === 0 && (
-            <p className="text-sm opacity-60 italic">No saved addresses yet.</p>
+            <p className="text-sm opacity-75 italic">No saved addresses yet.</p>
           )}
         </div>
 
@@ -71,15 +71,15 @@ export default async function ProfilePage() {
           });
         }} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <input type="text" name="firstName" placeholder="First Name" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-            <input type="text" name="lastName" placeholder="Last Name" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <input type="text" name="firstName" placeholder="First Name" aria-label="First Name" autoComplete="given-name" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <input type="text" name="lastName" placeholder="Last Name" aria-label="Last Name" autoComplete="family-name" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
           </div>
-          <input type="text" name="address1" placeholder="Address Line 1" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-          <input type="text" name="address2" placeholder="Address Line 2 (Optional)" className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+          <input type="text" name="address1" placeholder="Address Line 1" aria-label="Address Line 1" autoComplete="address-line1" required className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+          <input type="text" name="address2" placeholder="Address Line 2 (Optional)" aria-label="Address Line 2" autoComplete="address-line2" className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
           <div className="grid grid-cols-3 gap-4">
-            <input type="text" name="city" placeholder="City" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-            <input type="text" name="state" placeholder="State" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-            <input type="text" name="pinCode" placeholder="PIN Code" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <input type="text" name="city" placeholder="City" aria-label="City" autoComplete="address-level2" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <input type="text" name="state" placeholder="State" aria-label="State" autoComplete="address-level1" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+            <input type="text" name="pinCode" placeholder="PIN Code" aria-label="PIN Code" autoComplete="postal-code" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
           </div>
           <Button type="submit">Save Address</Button>
         </form>
