@@ -143,6 +143,9 @@ export async function createOrder(cartItems: unknown, shippingAddressInput: unkn
 
   if (error || !orderId) {
     const msg = error?.message || ''
+    if (msg.includes('NO_CONTINUOUS_LENGTH')) {
+      return { success: false, error: 'We do not have that length on a single roll. Please choose a shorter length.' }
+    }
     if (msg.includes('INSUFFICIENT_STOCK')) {
       return { success: false, error: 'Sorry, one or more items just went out of stock.' }
     }
@@ -153,7 +156,7 @@ export async function createOrder(cartItems: unknown, shippingAddressInput: unkn
       return { success: false, error: 'One or more items are below the minimum order quantity.' }
     }
     if (msg.includes('INVALID_QUANTITY') || msg.includes('TOO_MANY_ITEMS')) {
-      return { success: false, error: 'Your cart has an invalid item. Please refresh and try again.' }
+      return { success: false, error: 'Your cart has an invalid length. Fabric is sold in 0.5 m steps and other items by the piece.' }
     }
     if (msg.includes('INVALID_SHIPPING')) {
       return { success: false, error: 'We could not calculate shipping for this address.' }
@@ -274,6 +277,9 @@ export async function requestCancellation(orderId: string) {
   const res = data as any
   if (error || !res?.ok) {
     const code = res?.error || error?.message || ''
+    if (code.includes('ALREADY_CUT')) {
+      return { success: false, error: 'Your fabric has already been cut to length, so this order can no longer be cancelled.' }
+    }
     if (code.includes('NOT_CANCELLABLE')) {
       return { success: false, error: 'This order can no longer be cancelled.' }
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from '@/store/useCart';
+import { asUnit, formatQuantity, lineTotal } from '@/lib/meterage';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
@@ -59,7 +60,7 @@ export default function CheckoutPage() {
 
 
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + lineTotal(item.price, item.quantity), 0);
   
   // Use dynamic totals if available, otherwise fallback to static computeOrderTotals
   const staticTotals = computeOrderTotals(
@@ -316,9 +317,9 @@ export default function CheckoutPage() {
                 <div key={item.id} className="flex justify-between items-center font-sans">
                   <div>
                     <span className="font-bold">{item.title}</span>
-                    <span className="text-sm opacity-70 block">{item.color} x {item.quantity}</span>
+                    <span className="text-sm opacity-70 block">{item.color} × {formatQuantity(item.quantity, asUnit(item.unit))}</span>
                   </div>
-                  <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                  <span>₹{lineTotal(item.price, item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               {items.length === 0 && (

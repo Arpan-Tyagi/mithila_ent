@@ -53,7 +53,14 @@ export async function persona(tag: string, opts: { admin?: boolean } = {}): Prom
   return { id: data.user.id, email, client, session: s.data.session as unknown as Persona['session'] };
 }
 
-export type Fixture = { categoryId: string; productId: string; variant: (stock: number, price?: number) => Promise<string> };
+export type Fixture = {
+  categoryId: string;
+  productId: string;
+  /** Fabric sold by the metre: stock becomes an opening-balance roll (migration 0050). */
+  variant: (stock: number, price?: number) => Promise<string>;
+  /** Item sold by the piece (sarees, stitched goods): plain stock counter. */
+  pcsVariant: (stock: number, price?: number) => Promise<string>;
+};
 
 export async function catalogue(tag: string): Promise<Fixture> {
   const svc = service();
@@ -67,17 +74,31 @@ export async function catalogue(tag: string): Promise<Fixture> {
     .single();
   if (prod.error) throw new Error(`product: ${prod.error.message}`);
   let n = 0;
+  let pcsProduct: string | null = null;
+  const addVariant = async (productId: string, stock: number, price: number) => {
+    const v = await svc
+      .from('product_variants')
+      .insert({ product_id: productId, sku: `RT-${tag}-${suffix}-${n++}`, color: 'Indigo', price, stock_quantity: stock })
+      .select('id')
+      .single();
+    if (v.error) throw new Error(`variant: ${v.error.message}`);
+    return v.data.id as string;
+  };
   return {
     categoryId: cat.data.id,
     productId: prod.data.id,
-    variant: async (stock: number, price = 100) => {
-      const v = await svc
-        .from('product_variants')
-        .insert({ product_id: prod.data.id, sku: `RT-${tag}-${suffix}-${n++}`, color: 'Indigo', price, stock_quantity: stock })
-        .select('id')
-        .single();
-      if (v.error) throw new Error(`variant: ${v.error.message}`);
-      return v.data.id as string;
+    variant: (stock: number, price = 100) => addVariant(prod.data.id, stock, price),
+    pcsVariant: async (stock: number, price = 100) => {
+      if (!pcsProduct) {
+        const p = await svc
+          .from('products')
+          .insert({ category_id: cat.data.id, slug: `rt-pcs-${tag}-${suffix}`, title: `RT ${tag} pieces`, status: 'active', sell_unit: 'PCS' })
+          .select('id')
+          .single();
+        if (p.error) throw new Error(`pcs product: ${p.error.message}`);
+        pcsProduct = p.data.id as string;
+      }
+      return addVariant(pcsProduct, stock, price);
     },
   };
 }
@@ -85,7 +106,7 @@ export async function catalogue(tag: string): Promise<Fixture> {
 export async function stockOf(variantId: string): Promise<number> {
   const { data, error } = await service().from('product_variants').select('stock_quantity').eq('id', variantId).single();
   if (error) throw new Error(error.message);
-  return data.stock_quantity as number;
+  return Number(data.stock_quantity);
 }
 
 export const SHIPPING = {

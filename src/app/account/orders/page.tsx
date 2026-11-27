@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { formatQuantity, lineTotal } from '@/lib/meterage'
 import { redirect } from 'next/navigation'
 import { requestCancellation } from '@/actions/orders'
 
@@ -23,6 +24,8 @@ export default async function AccountOrdersPage() {
       created_at,
       order_items(
         quantity,
+        uqc,
+        dye_lot,
         unit_price,
         product_variants(color, products(title))
       )
@@ -106,11 +109,12 @@ export default async function AccountOrdersPage() {
                 {order.order_items?.map((item: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-center text-sm font-bold">
                     <div>
-                      <span>{item.quantity}x </span>
+                      <span className="tabular-nums">{formatQuantity(Number(item.quantity), item.uqc === 'PCS' ? 'PCS' : 'MTR')} </span>
                       <span>{item.product_variants?.products?.title}</span>
                       <span className="opacity-75 ml-2">({item.product_variants?.color})</span>
+                      {item.dye_lot && <span className="block text-xs font-normal opacity-70">Dye lot {item.dye_lot}</span>}
                     </div>
-                    <div className="opacity-80">₹{(item.unit_price * item.quantity).toFixed(2)}</div>
+                    <div className="opacity-80 tabular-nums">₹{lineTotal(Number(item.unit_price), Number(item.quantity)).toFixed(2)}</div>
                   </div>
                 ))}
               </div>

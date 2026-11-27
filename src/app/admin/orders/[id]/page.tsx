@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { cancelOrder } from '@/actions/orders';
+import { asUnit, formatQuantity, lineTotal } from '@/lib/meterage';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +35,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   const { data: order } = await supabase
     .from('orders')
     .select(
-      '*, order_items(quantity, unit_price, product_variants(color, sku, products(title))), discounts(code, type, value)'
+      '*, order_items(id, status, quantity, uqc, dye_lot, unit_price, order_item_cuts(roll_code, status), product_variants(color, sku, products(title))), discounts(code, type, value)'
     )
     .eq('id', id)
     .single();
@@ -161,10 +162,25 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                         {it.product_variants?.color}
                         {it.product_variants?.sku ? ` · ${it.product_variants.sku}` : ''}
                       </div>
+                      {(() => {
+                        const cut = Array.isArray(it.order_item_cuts) ? it.order_item_cuts[0] : it.order_item_cuts;
+                        if (!cut && !it.dye_lot) return null;
+                        return (
+                          <div className="text-xs opacity-70 font-mono mt-1">
+                            {cut?.roll_code ? `Roll ${cut.roll_code}` : ''}
+                            {it.dye_lot ? ` · Dye lot ${it.dye_lot}` : ''}
+                            {cut?.status ? (
+                              <span className={`ml-2 uppercase tracking-widest text-[9px] font-sans font-bold ${cut.status === 'cut' ? 'text-green-400' : cut.status === 'released' ? 'text-white/50' : 'text-[var(--turmeric)]'}`}>
+                                {cut.status === 'allocated' ? 'to cut' : cut.status}
+                              </span>
+                            ) : null}
+                          </div>
+                        );
+                      })()}
                     </td>
-                    <td className="px-6 py-3 text-center">{it.quantity}</td>
-                    <td className="px-6 py-3 text-right">{money(it.unit_price)}</td>
-                    <td className="px-6 py-3 text-right">{money(it.unit_price * it.quantity)}</td>
+                    <td className="px-6 py-3 text-center tabular-nums">{formatQuantity(Number(it.quantity), asUnit(it.uqc === 'PCS' ? 'PCS' : 'MTR'))}</td>
+                    <td className="px-6 py-3 text-right tabular-nums">{money(it.unit_price)}</td>
+                    <td className="px-6 py-3 text-right tabular-nums">{money(lineTotal(Number(it.unit_price), Number(it.quantity)))}</td>
                     <td className="px-6 py-3 text-right flex justify-end items-center gap-2">
                       {it.status !== 'pending' && it.status !== 'fulfilled' ? (
                         <span className={`text-[9px] uppercase tracking-widest font-bold ${it.status === 'refunded' ? 'text-orange-400' : 'text-red-400'}`}>

@@ -278,7 +278,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <div className="mt-8">
-              <ProductBuyBox productId={product.id} title={product.title} variants={product.product_variants} />
+              <ProductBuyBox productId={product.id} title={product.title} variants={product.product_variants} unit={product.sell_unit} />
             </div>
 
             {/* Accordion Placeholders for Details */}

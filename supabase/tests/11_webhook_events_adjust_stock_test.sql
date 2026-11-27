@@ -14,8 +14,8 @@ END $$;
 -- Fixture: one product with one variant holding 10 units.
 INSERT INTO public.categories (id, name, slug)
 VALUES ('aaaaaaaa-0000-4000-8000-000000000001', 'Test cat', 'test-cat-0048');
-INSERT INTO public.products (id, category_id, slug, title, status)
-VALUES ('aaaaaaaa-0000-4000-8000-000000000002', 'aaaaaaaa-0000-4000-8000-000000000001', 'test-prod-0048', 'Test', 'active');
+INSERT INTO public.products (id, category_id, slug, title, status, sell_unit)
+VALUES ('aaaaaaaa-0000-4000-8000-000000000002', 'aaaaaaaa-0000-4000-8000-000000000001', 'test-prod-0048', 'Test', 'active', 'PCS');
 INSERT INTO public.product_variants (id, product_id, sku, color, price, stock_quantity)
 VALUES ('aaaaaaaa-0000-4000-8000-000000000003', 'aaaaaaaa-0000-4000-8000-000000000002', 'T-0048', 'Indigo', 100, 10);
 
@@ -57,16 +57,16 @@ SELECT ok(has_function_privilege('service_role', 'public.adjust_stock(uuid, inte
 SELECT is((SELECT proconfig FROM pg_proc WHERE oid = 'public.adjust_stock(uuid, integer)'::regprocedure),
           ARRAY['search_path=""'], 'adjust_stock pins an empty search_path');
 
-SELECT is(public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', 5), 15, '+5 on 10 gives 15');
+SELECT is(public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', 5)::integer, 15, '+5 on 10 gives 15');
 
 -- A concurrent order decrement between an admin read and write used to be lost.
 -- With one UPDATE the two changes compose: simulate the order's -3 first.
 UPDATE public.product_variants SET stock_quantity = stock_quantity - 3
  WHERE id = 'aaaaaaaa-0000-4000-8000-000000000003';
-SELECT is(public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', 2), 14,
+SELECT is(public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', 2)::integer, 14,
           'adjust_stock adds to the current value (15 - 3 + 2), not to a stale read');
 
-SELECT is(public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', -100), 0, 'stock never goes below zero');
+SELECT is(public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', -100)::integer, 0, 'stock never goes below zero');
 SELECT throws_ok($$SELECT public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', 0)$$,
                  '22023', NULL, 'a zero delta is rejected');
 SELECT throws_ok($$SELECT public.adjust_stock('aaaaaaaa-0000-4000-8000-000000000003', 1000000)$$,
