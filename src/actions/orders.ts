@@ -69,7 +69,7 @@ export async function updateOrderStatus(orderId: string, status: string, trackin
   return { success: true }
 }
 
-export async function createOrder(cartItems: unknown, shippingAddressInput: unknown, discountCodeInput?: unknown, idempotencyKeyInput?: unknown) {
+export async function createOrder(cartItems: unknown, shippingAddressInput: unknown, discountCodeInput?: unknown, idempotencyKeyInput?: unknown, useSwatchCreditInput?: unknown) {
   let user
   try {
     user = await requireUser()
@@ -192,6 +192,14 @@ export async function createOrder(cartItems: unknown, shippingAddressInput: unkn
   }
 
   const orderIdStr = String(orderId)
+
+  // Swatch credit (migration 0052) is applied as part payment before the
+  // payment gateway order exists. Ineligible orders (no metre fabric, no
+  // balance) simply get 0; the order itself stands either way.
+  if (useSwatchCreditInput === true) {
+    const { error: creditErr } = await admin.rpc('apply_swatch_credit', { p_order_id: orderIdStr, p_user_id: user.id })
+    if (creditErr) console.error('apply_swatch_credit failed:', creditErr)
+  }
 
   // Record a payment intent so every order has an entry in the payment log.
   const { error: piErr } = await supabase.rpc('log_payment_intent', { p_order_id: orderIdStr })

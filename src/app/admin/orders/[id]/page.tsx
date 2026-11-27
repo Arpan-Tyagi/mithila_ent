@@ -221,6 +221,11 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               </tbody>
             </table>
             <div className="border-t border-white/10 p-6 space-y-1 text-sm tabular-nums">
+              {order.order_kind === 'swatch' && (
+                <div className="pb-2 mb-2 border-b border-white/10 text-xs font-bold uppercase tracking-widest text-[var(--turmeric)]">
+                  Swatch kit: no cutting, send sample cards
+                </div>
+              )}
               {order.invoice_number && (
                 <div className="flex justify-between pb-2 mb-2 border-b border-white/10">
                   <span className="opacity-80">Tax invoice</span>
@@ -254,6 +259,12 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               <div className="flex justify-between font-bold text-[var(--turmeric)] text-lg pt-2 border-t border-white/10 mt-2">
                 <span>Total</span><span>{money(order.total_amount)}</span>
               </div>
+              {Number(order.credit_applied) > 0 && (
+                <>
+                  <div className="flex justify-between opacity-80"><span>Paid with swatch credit</span><span>{money(order.credit_applied)}</span></div>
+                  <div className="flex justify-between font-bold"><span>Due via gateway</span><span>{money(order.amount_due)}</span></div>
+                </>
+              )}
             </div>
           </section>
         </div>

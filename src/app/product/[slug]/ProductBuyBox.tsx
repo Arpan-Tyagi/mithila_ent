@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useCart, CartItem } from '@/store/useCart';
 import { asUnit, clampQuantity, formatQuantity, lineTotal, stepFor, type SellUnit } from '@/lib/meterage';
+import SwatchButton from './SwatchButton';
 
 type Variant = {
   id: string;
@@ -19,11 +20,13 @@ export default function ProductBuyBox({
   title,
   variants,
   unit: unitProp,
+  swatch,
 }: {
   productId: string;
   title: string;
   variants: Variant[];
   unit?: SellUnit | string | null;
+  swatch?: { enabled: boolean; kitPrice: number; maxSwatches: number };
 }) {
   const unit = asUnit(unitProp);
   const step = stepFor(unit);
@@ -158,6 +161,14 @@ export default function ProductBuyBox({
           </svg>
         </div>
       </button>
+
+      {swatch?.enabled && unit === 'MTR' && (
+        <SwatchButton
+          pick={{ id: selected.id, title, color: selected.color, image: selected.images?.[0] || '' }}
+          kitPrice={swatch.kitPrice}
+          maxSwatches={swatch.maxSwatches}
+        />
+      )}
     </div>
   );
 }

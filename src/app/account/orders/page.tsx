@@ -21,6 +21,8 @@ export default async function AccountOrdersPage() {
       cancellation_requested,
       total_amount,
       invoice_number,
+      order_kind,
+      credit_applied,
       cgst_total,
       sgst_total,
       igst_total,
@@ -54,8 +56,14 @@ export default async function AccountOrdersPage() {
               </div>
               <div className="mt-2 md:mt-0 text-right">
                 <div className="font-serif text-xl font-bold text-[var(--madder-red)] tabular-nums">₹{Number(order.total_amount).toFixed(2)}</div>
+                {order.order_kind === 'swatch' && (
+                  <div className="text-xs font-bold uppercase tracking-widest text-[var(--indigo-dye)]">Swatch kit</div>
+                )}
                 {order.invoice_number && (
                   <div className="font-mono text-xs opacity-75">Invoice {order.invoice_number}</div>
+                )}
+                {Number(order.credit_applied) > 0 && (
+                  <div className="text-xs opacity-75 tabular-nums">Swatch credit used ₹{Number(order.credit_applied).toFixed(2)}</div>
                 )}
                 {Number(order.cgst_total) + Number(order.sgst_total) + Number(order.igst_total) > 0 && (
                   <div className="text-xs opacity-75 tabular-nums">

@@ -51,7 +51,7 @@ type Line = {
 
 function lines(items: any[]): Line[] {
   return items.map((it) => {
-    const title = it.product_variants?.products?.title ?? 'Item';
+    const title = `${it.is_swatch ? 'Swatch: ' : ''}${it.product_variants?.products?.title ?? 'Item'}`;
     const color = it.product_variants?.color ? ` (${it.product_variants.color})` : '';
     const dye = it.dye_lot ? `, dye lot ${it.dye_lot}` : '';
     const gross = Math.round(n(it.unit_price) * n(it.quantity) * 100) / 100;
@@ -160,8 +160,17 @@ const InvoiceDocument = ({ order, orderItems, ctx }: { order: any; orderItems: a
               <View style={styles.totalRow}><Text>IGST</Text><Text>Rs. {rs(sum('igst'))}</Text></View>
             </>
           )}
-          <View style={styles.totalRow}><Text>Shipping</Text><Text>Rs. {rs(order.shipping_amount)}</Text></View>
+          <View style={styles.totalRow}>
+            <Text>Shipping</Text>
+            <Text>{order.order_kind === 'swatch' ? 'Included' : `Rs. ${rs(order.shipping_amount)}`}</Text>
+          </View>
           <View style={styles.grand}><Text>Total</Text><Text>Rs. {rs(order.total_amount)}</Text></View>
+          {n(order.credit_applied) > 0 && (
+            <>
+              <View style={[styles.totalRow, { marginTop: 4 }]}><Text>Paid with swatch credit</Text><Text>Rs. {rs(order.credit_applied)}</Text></View>
+              <View style={styles.totalRow}><Text>Paid online</Text><Text>Rs. {rs(order.amount_due)}</Text></View>
+            </>
+          )}
         </View>
 
         <View style={styles.foot}>

@@ -11,6 +11,8 @@ import { INDIAN_STATES } from '@/lib/gst';
 import AuthModal from '@/components/AuthModal';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { payWithRazorpay } from '@/lib/payments/razorpay-client';
+import { mySwatchCreditBalance } from '@/actions/swatches';
 
 type AppliedDiscount = { code: string; type: string; discountAmount: number; label: string };
 
@@ -32,6 +34,8 @@ export default function CheckoutPage() {
   const [pinCode, setPinCode] = useState('');
   const [dynamicTotals, setDynamicTotals] = useState<{ shippingAmount: number, totalGst: number, breakdown: any, baseAmount: number } | null>(null);
   const [calculatingShipping, setCalculatingShipping] = useState(false);
+  const [creditBalance, setCreditBalance] = useState(0);
+  const [useCredit, setUseCredit] = useState(true);
 
   const supabase = createClient();
 
@@ -61,6 +65,16 @@ export default function CheckoutPage() {
 
 
 
+  useEffect(() => {
+    if (!user) {
+      setCreditBalance(0);
+      return;
+    }
+    let live = true;
+    mySwatchCreditBalance().then((b) => { if (live) setCreditBalance(b); }).catch(() => {});
+    return () => { live = false; };
+  }, [user]);
+
   const subtotal = items.reduce((sum, item) => sum + lineTotal(item.price, item.quantity), 0);
   
   // Use dynamic totals if available, otherwise fallback to static computeOrderTotals
@@ -74,6 +88,12 @@ export default function CheckoutPage() {
   const isFreeShip = staticTotals.isFreeShip; // Keep discount logic for free shipping
   const finalShipping = isFreeShip ? 0 : shipping;
   const total = dynamicTotals ? (dynamicTotals.baseAmount - (staticTotals.subtotal - staticTotals.total + staticTotals.shipping + staticTotals.tax) + tax + finalShipping) : staticTotals.total;
+  // Swatch credit counts as part payment on orders with metre fabric; the
+  // database applies the same rule (at least Rs 1 is left for the gateway).
+  const hasMetreFabric = items.some((i) => asUnit(i.unit) === 'MTR');
+  const creditUsable = hasMetreFabric && creditBalance > 0;
+  const creditToApply = creditUsable && useCredit ? Math.max(0, Math.min(creditBalance, total - 1)) : 0;
+  const toPay = total - creditToApply;
 
   useEffect(() => {
     if (pinCode.length >= 6 && shippingState && items.length > 0) {
@@ -136,70 +156,20 @@ export default function CheckoutPage() {
     setCouponError(null);
   };
 
-  const loadRazorpay = () =>
-    new Promise<boolean>((resolve) => {
-      if ((window as any).Razorpay) return resolve(true);
-      const sc = document.createElement('script');
-      sc.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      sc.onload = () => resolve(true);
-      sc.onerror = () => resolve(false);
-      document.body.appendChild(sc);
-    });
-
-  const payWithRazorpay = async (orderId: string, shipping: any) => {
-    const ok = await loadRazorpay();
-    if (!ok) {
-      setError('Could not load the payment gateway.');
-      setIsProcessing(false);
-      return;
-    }
-    const res = await fetch('/api/payment/razorpay/create-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || 'Could not start payment.');
-      setIsProcessing(false);
-      return;
-    }
-    const rzp = new (window as any).Razorpay({
-      key: data.keyId,
-      amount: data.amount,
-      currency: data.currency,
-      order_id: data.razorpayOrderId,
-      name: 'Mithila Enterprises',
-      description: `Order ${String(orderId).split('-')[0].toUpperCase()}`,
-      prefill: {
-        name: [shipping.firstName, shipping.lastName].filter(Boolean).join(' '),
-        email: shipping.email,
+  const startPayment = (orderId: string, shipping: any) =>
+    payWithRazorpay({
+      orderId,
+      shipping,
+      onPaid: () => {
+        useCart.getState().clearCart();
+        router.push('/checkout/success?orderId=' + orderId);
       },
-      notes: { order_id: orderId },
-      theme: { color: '#8B2E2E' },
-      handler: async (response: any) => {
-        const v = await fetch('/api/payment/razorpay/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-          }),
-        });
-        if (v.ok) {
-          useCart.getState().clearCart();
-          router.push('/checkout/success?orderId=' + orderId);
-        } else {
-          setError('Payment could not be verified. If you were charged, please contact support.');
-          setIsProcessing(false);
-        }
+      onError: (message) => {
+        setError(message);
+        setIsProcessing(false);
       },
-      modal: { ondismiss: () => setIsProcessing(false) },
+      onDismiss: () => setIsProcessing(false),
     });
-    rzp.open();
-  };
 
   const handleCheckout = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -222,7 +192,7 @@ export default function CheckoutPage() {
     try {
       if (!idemKeyRef.current) idemKeyRef.current = crypto.randomUUID();
       const { createOrder } = await import('@/actions/orders');
-      const result = await createOrder(items, shippingDetails, applied?.code, idemKeyRef.current);
+      const result = await createOrder(items, shippingDetails, applied?.code, idemKeyRef.current, creditToApply > 0);
 
       if (!result.success) {
         setError(result.error || 'Failed to process checkout');
@@ -232,7 +202,7 @@ export default function CheckoutPage() {
       idemKeyRef.current = null; // order created; a future checkout gets a fresh key
 
       if (process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-        await payWithRazorpay(result.orderId as string, shippingDetails);
+        await startPayment(result.orderId as string, shippingDetails);
         return;
       }
 
@@ -425,6 +395,31 @@ export default function CheckoutPage() {
               <span>Total</span>
               <span>{calculatingShipping ? '...' : `₹${total.toFixed(2)}`}</span>
             </div>
+            {creditUsable && (
+              <div className="mt-4 space-y-2 text-sm">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useCredit}
+                    onChange={(e) => setUseCredit(e.target.checked)}
+                    className="w-4 h-4 accent-[var(--madder-red)]"
+                  />
+                  <span>Use my swatch credit (₹{creditBalance.toFixed(2)} available)</span>
+                </label>
+                {creditToApply > 0 && !calculatingShipping && (
+                  <>
+                    <div className="flex justify-between">
+                      <span>Swatch credit</span>
+                      <span>− ₹{creditToApply.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-base">
+                      <span>To pay now</span>
+                      <span>₹{toPay.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
