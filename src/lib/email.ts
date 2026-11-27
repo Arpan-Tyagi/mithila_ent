@@ -3,6 +3,7 @@ import React from 'react';
 import { render } from '@react-email/components';
 import { OrderConfirmationEmail } from '@/components/emails/OrderConfirmationEmail';
 import { generateInvoiceBuffer } from '@/utils/pdf/generateInvoice';
+import { invoiceContext } from '@/lib/invoice-context';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { escapeHtml } from '@/lib/form-input';
 
@@ -87,7 +88,7 @@ async function buildEmail(admin: SupabaseClient, row: any): Promise<Built | null
         totalAmount: Number(order.total_amount),
       })
     );
-    const pdf = await generateInvoiceBuffer(order, order.order_items || []);
+    const pdf = await generateInvoiceBuffer(order, order.order_items || [], await invoiceContext(order.user_id));
     return {
       subject: 'Order Confirmation & Official Invoice',
       html,

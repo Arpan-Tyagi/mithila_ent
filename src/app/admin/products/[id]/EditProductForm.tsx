@@ -29,6 +29,7 @@ export default function EditProductForm({ product, categories, collections, init
     print: product.print || '',
     sellUnit: (product.sell_unit === 'PCS' ? 'PCS' : 'MTR') as 'MTR' | 'PCS',
     remnantThresholdM: Number(product.remnant_threshold_m ?? 2),
+    hsnCode: product.hsn_code || '',
     collectionIds: initialCollectionIds || [],
   });
 
@@ -131,6 +132,7 @@ export default function EditProductForm({ product, categories, collections, init
         print: form.print,
         sellUnit: form.sellUnit,
         remnantThresholdM: Number(form.remnantThresholdM) || 0,
+        hsnCode: form.hsnCode.trim(),
         collectionIds: form.collectionIds,
       });
 
@@ -307,6 +309,13 @@ export default function EditProductForm({ product, categories, collections, init
               <option value="MTR">Metre (0.5 m steps, cut from rolls)</option>
               <option value="PCS">Piece (sarees, stitched items)</option>
             </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="hsn-code">HSN code</label>
+            <input id="hsn-code" inputMode="numeric" maxLength={8} pattern="[0-9]{4}([0-9]{2}){0,2}" className={`${inputClass} font-mono`} value={form.hsnCode} onChange={(e) => setField('hsnCode', e.target.value.replace(/\D/g, ''))} aria-describedby="hsn-help" />
+            <p id="hsn-help" className="text-xs opacity-80 mt-1">
+              Fabrics (Ch. 50-60) are 5%. Stitched apparel (Ch. 61-62) is 5% up to ₹2,500 a piece, 18% above. Confirm codes with your CA.
+            </p>
           </div>
           {form.sellUnit === 'MTR' && (
             <div>

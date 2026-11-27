@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Package, LayoutDashboard, ShoppingBag, PlusCircle, LogOut, ChevronLeft, ChevronRight, Settings, Users, FileText, Menu, X, Scissors } from 'lucide-react';
+import { Package, LayoutDashboard, ShoppingBag, PlusCircle, LogOut, ChevronLeft, ChevronRight, Settings, Users, FileText, Menu, X, Scissors, Receipt } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '@/actions/auth';
 
@@ -15,6 +15,7 @@ const navItems = [
   { name: 'Live Inventory', href: '/admin/inventory', icon: Package },
   { name: 'Cut Sheet', href: '/admin/cut-sheet', icon: Scissors },
   { name: 'Promotions', href: '/admin/promotions', icon: PlusCircle },
+  { name: 'GST Report', href: '/admin/reports/gst', icon: Receipt },
   { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Content', href: '/admin/content', icon: FileText },
   { name: 'Settings', href: '/admin/settings', icon: Settings },

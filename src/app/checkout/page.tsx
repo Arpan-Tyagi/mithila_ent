@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import BackgroundPattern from '@/components/vectors/BackgroundPattern';
 import { Button } from '@/components/ui/Button';
 import { computeOrderTotals } from '@/lib/pricing';
+import { INDIAN_STATES } from '@/lib/gst';
 import AuthModal from '@/components/AuthModal';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -82,7 +83,7 @@ export default function CheckoutPage() {
           const res = await fetch('/api/shipping/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items, pinCode, state: shippingState })
+            body: JSON.stringify({ items, pinCode, state: shippingState, discount: staticTotals.discountReduction })
           });
           if (res.ok) {
             const data = await res.json();
@@ -101,7 +102,7 @@ export default function CheckoutPage() {
     } else {
       setDynamicTotals(null);
     }
-  }, [pinCode, shippingState, items]);
+  }, [pinCode, shippingState, items, staticTotals.discountReduction]);
 
   if (!mounted) return null;
 
@@ -215,6 +216,7 @@ export default function CheckoutPage() {
       city: formData.get('city'),
       state: formData.get('state'),
       pinCode: formData.get('pinCode'),
+      gstin: String(formData.get('gstin') ?? '').trim().toUpperCase(),
     };
 
     try {
@@ -281,9 +283,27 @@ export default function CheckoutPage() {
               <input type="text" name="address2" placeholder="Address Line 2 (Optional)" className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
               <div className="grid grid-cols-3 gap-4">
                 <input type="text" name="city" placeholder="City" required className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
-                <input type="text" name="state" placeholder="State" required value={shippingState} onChange={e => setShippingState(e.target.value)} className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
+                <select name="state" aria-label="State" required value={shippingState} onChange={e => setShippingState(e.target.value)} className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors">
+                  <option value="" disabled>State</option>
+                  {INDIAN_STATES.map(([code, name]) => (
+                    <option key={code + name} value={name}>{name}</option>
+                  ))}
+                </select>
                 <input type="text" name="pinCode" placeholder="PIN Code" required value={pinCode} onChange={e => setPinCode(e.target.value)} className="col-span-1 border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-sans focus:outline-none focus:border-[var(--madder-red)] transition-colors" />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="checkout-gstin" className="font-sans text-sm font-bold text-[var(--charcoal-ink)]">
+                GSTIN <span className="font-normal">(optional, for business purchases)</span>
+              </label>
+              <input
+                id="checkout-gstin" type="text" name="gstin" maxLength={15} autoComplete="off"
+                pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z][1-9A-Za-z][Zz][0-9A-Za-z]"
+                title="15-character GSTIN, for example 07ABCDE1234F1Z5"
+                className="w-full border-2 border-[var(--charcoal-ink)] bg-transparent p-3 font-mono uppercase focus:outline-none focus:border-[var(--madder-red)] transition-colors"
+              />
+              <p className="text-xs text-[var(--charcoal-ink)]/80">Printed on your tax invoice so you can claim input tax credit.</p>
             </div>
 
             <div className="space-y-4">

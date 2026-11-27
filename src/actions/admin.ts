@@ -43,6 +43,7 @@ export interface ProductDraft {
   print?: string
   sellUnit?: 'MTR' | 'PCS'
   remnantThresholdM?: number
+  hsnCode?: string
 }
 
 function slugify(s: string): string {
@@ -82,6 +83,7 @@ export async function createProduct(draft: ProductDraft, imagePreview: string | 
     status: 'active',
     print: d.print || null,
     sell_unit: d.sellUnit ?? 'MTR',
+    hsn_code: d.hsnCode || null,
   }).select().single()
 
   if (prodError) throw new Error(prodError.message)
@@ -152,6 +154,7 @@ export interface ProductUpdate {
   print?: string
   sellUnit?: 'MTR' | 'PCS'
   remnantThresholdM?: number
+  hsnCode?: string
 }
 
 export async function updateProduct(productId: string, fields: ProductUpdate) {
@@ -179,6 +182,7 @@ export async function updateProduct(productId: string, fields: ProductUpdate) {
       print: f.print || null,
       ...(f.sellUnit ? { sell_unit: f.sellUnit } : {}),
       ...(f.remnantThresholdM != null ? { remnant_threshold_m: Math.round(f.remnantThresholdM * 100) / 100 } : {}),
+      ...(f.hsnCode !== undefined ? { hsn_code: f.hsnCode || null } : {}),
     })
     .eq('id', id)
 

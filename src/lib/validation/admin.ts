@@ -9,6 +9,8 @@ const halfStep = (n: number) => Math.round(n * 2) / 2;
 const stockQty = z.coerce.number().finite().min(0).max(1_000_000).transform(halfStep);
 const minOrder = z.coerce.number().finite().min(0.5).max(10_000).transform(halfStep);
 const csv = plainText(500);
+// HSN: 4, 6 or 8 digits (blank clears it).
+const hsn = z.union([z.literal(''), z.string().trim().regex(/^\d{4}(\d{2}){0,2}$/, 'HSN must be 4, 6 or 8 digits')]).optional();
 
 export const productDraftSchema = z.object({
   title: plainText(200, { min: 1 }),
@@ -29,6 +31,7 @@ export const productDraftSchema = z.object({
   collectionIds: z.array(uuid).max(50).nullish(),
   print: plainText(100).nullish(),
   sellUnit: z.enum(['MTR', 'PCS']).optional(),
+  hsnCode: hsn,
 });
 
 export const productUpdateSchema = z.object({
@@ -49,6 +52,7 @@ export const productUpdateSchema = z.object({
   print: plainText(100).nullish(),
   sellUnit: z.enum(['MTR', 'PCS']).optional(),
   remnantThresholdM: z.coerce.number().finite().min(0).max(100).optional(),
+  hsnCode: hsn,
 });
 
 export const variantFieldsSchema = z.object({

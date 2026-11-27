@@ -44,18 +44,18 @@ SELECT is((SELECT stock_quantity FROM public.product_variants WHERE id = 'c00000
 -- Quantity rules
 SELECT throws_ok(
   $$SELECT public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-      '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":1.25}]', '{}', 0)$$,
+      '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":1.25}]', '{"state":"Delhi"}', 0)$$,
   'P0001', 'INVALID_QUANTITY', '1.25 m is not a 0.5 m step');
 SELECT throws_ok(
   $$SELECT public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-      '[{"variant_id":"c0000000-0000-4000-8000-000000000013","quantity":1.5}]', '{}', 0)$$,
+      '[{"variant_id":"c0000000-0000-4000-8000-000000000013","quantity":1.5}]', '{"state":"Delhi"}', 0)$$,
   'P0001', 'INVALID_QUANTITY', 'pieces must be whole numbers');
 
 -- Best fit: 2.5 m comes off the 3 m roll, leaving a 0.5 m remnant.
 CREATE TEMP TABLE t_orders (tag text PRIMARY KEY, id uuid);
 GRANT ALL ON t_orders TO PUBLIC;
 INSERT INTO t_orders SELECT 'o1', public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-  '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":2.5}]', '{}', 0);
+  '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":2.5}]', '{"state":"Delhi"}', 0);
 
 SELECT is((SELECT c.dye_lot FROM public.order_item_cuts c JOIN t_orders t ON t.id = c.order_id WHERE t.tag = 'o1'),
           'LOT-B', 'a 2.5 m cut is taken from the smallest roll that fits');
@@ -72,7 +72,7 @@ SELECT is((SELECT total_amount FROM public.orders o JOIN t_orders t ON t.id = o.
 
 -- 12 m comes off the 30 m roll (the 10 m roll is too short).
 INSERT INTO t_orders SELECT 'o2', public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-  '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":12}]', '{}', 0);
+  '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":12}]', '{"state":"Delhi"}', 0);
 SELECT is((SELECT c.dye_lot FROM public.order_item_cuts c JOIN t_orders t ON t.id = c.order_id WHERE t.tag = 'o2'),
           'LOT-C', 'a 12 m cut never splits across the 10 m and 3 m rolls');
 
@@ -81,11 +81,11 @@ SELECT is((SELECT stock_quantity FROM public.product_variants WHERE id = 'c00000
           28.50::numeric(10,2), 'stock is 43 - 2.5 - 12');
 SELECT throws_ok(
   $$SELECT public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-      '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":10},{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":10}]', '{}', 0)$$,
+      '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":10},{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":10}]', '{"state":"Delhi"}', 0)$$,
   'P0001', 'NO_CONTINUOUS_LENGTH', '20 m in stock but no single roll holds 20 m');
 SELECT throws_ok(
   $$SELECT public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-      '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":40}]', '{}', 0)$$,
+      '[{"variant_id":"c0000000-0000-4000-8000-000000000003","quantity":40}]', '{"state":"Delhi"}', 0)$$,
   'P0001', 'INSUFFICIENT_STOCK', 'more than the total stock');
 
 -- Releasing an uncut line returns the metres to the same roll.
@@ -118,7 +118,7 @@ SELECT is((SELECT remaining_m FROM public.fabric_rolls WHERE dye_lot = 'LOT-C' A
 
 -- Piece products keep plain stock.
 INSERT INTO t_orders SELECT 'o3', public.create_order_atomic('c0000000-0000-4000-8000-0000000000c1',
-  '[{"variant_id":"c0000000-0000-4000-8000-000000000013","quantity":2}]', '{}', 0);
+  '[{"variant_id":"c0000000-0000-4000-8000-000000000013","quantity":2}]', '{"state":"Delhi"}', 0);
 SELECT is((SELECT stock_quantity FROM public.product_variants WHERE id = 'c0000000-0000-4000-8000-000000000013'),
           3.00::numeric(10,2), 'two pieces leave three');
 SELECT is((SELECT uqc FROM public.order_items i JOIN t_orders t ON t.id = i.order_id WHERE t.tag = 'o3'),

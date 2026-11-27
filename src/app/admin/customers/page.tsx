@@ -12,7 +12,7 @@ export default async function AdminCustomers() {
 
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('id, full_name, phone, role, created_at')
+    .select('id, customer_code, full_name, phone, role, created_at')
     .order('created_at', { ascending: false });
 
   const { data: orders } = await supabase.from('orders').select('user_id, total_amount, is_paid');
@@ -46,7 +46,7 @@ export default async function AdminCustomers() {
                 <div className="flex justify-between items-start gap-3">
                   <div>
                     <div className="font-bold">{p.full_name || 'Unnamed'}</div>
-                    <div className="text-xs opacity-50 font-mono">{p.id.split('-')[0]}</div>
+                    <div className="text-xs opacity-80 font-mono">{p.customer_code}</div>
                   </div>
                   <span className={`shrink-0 px-2 py-1 text-[10px] font-bold uppercase tracking-widest border-2 ${isAdmin ? 'border-[var(--turmeric)] text-[var(--charcoal-ink)] bg-[var(--turmeric)]/20' : 'border-[var(--charcoal-ink)]/20'}`}>{p.role}</span>
                 </div>
@@ -93,15 +93,15 @@ export default async function AdminCustomers() {
                 <tr key={p.id} className="border-b border-[var(--charcoal-ink)]/10 hover:bg-[var(--unbleached-cotton)] transition-colors">
                   <td className="py-4">
                     <div className="font-bold">{p.full_name || 'Unnamed'}</div>
-                    <div className="text-xs opacity-50 font-mono">{p.id.split('-')[0]}</div>
+                    <div className="text-xs opacity-80 font-mono">{p.customer_code}</div>
                   </td>
                   <td className="py-4">
                     <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest border-2 ${isAdmin ? 'border-[var(--turmeric)] text-[var(--charcoal-ink)] bg-[var(--turmeric)]/20' : 'border-[var(--charcoal-ink)]/20'}`}>
                       {p.role}
                     </span>
                   </td>
-                  <td className="py-4 text-center">{st.count}</td>
-                  <td className="py-4 text-right font-bold text-[var(--madder-red)]">{money(st.spend)}</td>
+                  <td className="py-4 text-center tabular-nums">{st.count}</td>
+                  <td className="py-4 text-right font-bold text-[var(--madder-red)] tabular-nums">{money(st.spend)}</td>
                   <td className="py-4 text-sm opacity-70">{new Date(p.created_at).toLocaleDateString()}</td>
                   <td className="py-4 text-right">
                     <form

@@ -20,6 +20,10 @@ export default async function AccountOrdersPage() {
       is_paid,
       cancellation_requested,
       total_amount,
+      invoice_number,
+      cgst_total,
+      sgst_total,
+      igst_total,
       tracking_status,
       created_at,
       order_items(
@@ -49,7 +53,17 @@ export default async function AccountOrdersPage() {
                 <div className="font-bold">{new Date(order.created_at).toLocaleDateString()}</div>
               </div>
               <div className="mt-2 md:mt-0 text-right">
-                <div className="font-serif text-xl font-bold text-[var(--madder-red)]">₹{order.total_amount.toFixed(2)}</div>
+                <div className="font-serif text-xl font-bold text-[var(--madder-red)] tabular-nums">₹{Number(order.total_amount).toFixed(2)}</div>
+                {order.invoice_number && (
+                  <div className="font-mono text-xs opacity-75">Invoice {order.invoice_number}</div>
+                )}
+                {Number(order.cgst_total) + Number(order.sgst_total) + Number(order.igst_total) > 0 && (
+                  <div className="text-xs opacity-75 tabular-nums">
+                    {Number(order.igst_total) > 0
+                      ? `incl. IGST ₹${Number(order.igst_total).toFixed(2)}`
+                      : `incl. CGST ₹${Number(order.cgst_total).toFixed(2)} + SGST ₹${Number(order.sgst_total).toFixed(2)}`}
+                  </div>
+                )}
                 {order.tracking_status && (
                   <div className="font-mono text-xs uppercase tracking-widest opacity-70">TRK: {order.tracking_status}</div>
                 )}

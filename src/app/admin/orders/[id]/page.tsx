@@ -220,9 +220,30 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                 )}
               </tbody>
             </table>
-            <div className="border-t border-white/10 p-6 space-y-1 text-sm">
+            <div className="border-t border-white/10 p-6 space-y-1 text-sm tabular-nums">
+              {order.invoice_number && (
+                <div className="flex justify-between pb-2 mb-2 border-b border-white/10">
+                  <span className="opacity-80">Tax invoice</span>
+                  <span className="font-mono">{order.invoice_number}</span>
+                </div>
+              )}
+              {(order.place_of_supply || order.buyer_gstin) && (
+                <div className="flex justify-between opacity-80 text-xs">
+                  <span>Place of supply {order.place_of_supply}</span>
+                  {order.buyer_gstin && <span className="font-mono">GSTIN {order.buyer_gstin}</span>}
+                </div>
+              )}
               <div className="flex justify-between opacity-80"><span>Subtotal</span><span>{money(order.subtotal)}</span></div>
-              <div className="flex justify-between opacity-80"><span>Tax</span><span>{money(order.tax_amount)}</span></div>
+              {order.taxable_value != null ? (
+                <>
+                  <div className="flex justify-between opacity-80"><span>Taxable value</span><span>{money(order.taxable_value)}</span></div>
+                  {Number(order.cgst_total) > 0 && <div className="flex justify-between opacity-80"><span>CGST</span><span>{money(order.cgst_total)}</span></div>}
+                  {Number(order.sgst_total) > 0 && <div className="flex justify-between opacity-80"><span>SGST</span><span>{money(order.sgst_total)}</span></div>}
+                  {Number(order.igst_total) > 0 && <div className="flex justify-between opacity-80"><span>IGST</span><span>{money(order.igst_total)}</span></div>}
+                </>
+              ) : (
+                <div className="flex justify-between opacity-80"><span>Tax</span><span>{money(order.tax_amount)}</span></div>
+              )}
               <div className="flex justify-between opacity-80"><span>Shipping</span><span>{money(order.shipping_amount)}</span></div>
               {Number(order.discount_applied) > 0 && (
                 <div className="flex justify-between text-green-500">

@@ -96,8 +96,13 @@ export async function createOrder(cartItems: unknown, shippingAddressInput: unkn
   // must be exactly six digits (the orders table enforces the same rule).
   const parsedAddress = addressSchema.safeParse(shippingAddressInput)
   if (!parsedAddress.success) {
-    const pinIssue = parsedAddress.error.issues.some((i) => i.path[0] === 'pinCode')
-    return { success: false, error: pinIssue ? 'Please enter a valid 6-digit PIN code.' : 'Please check your shipping address.' }
+    const field = parsedAddress.error.issues[0]?.path[0]
+    const messages: Record<string, string> = {
+      pinCode: 'Please enter a valid 6-digit PIN code.',
+      state: 'Please choose your state.',
+      gstin: 'Please enter a valid GSTIN, or leave it blank.',
+    }
+    return { success: false, error: messages[String(field)] ?? 'Please check your shipping address.' }
   }
   const shippingAddress = parsedAddress.data
   const pinCode = shippingAddress.pinCode
@@ -143,6 +148,12 @@ export async function createOrder(cartItems: unknown, shippingAddressInput: unkn
 
   if (error || !orderId) {
     const msg = error?.message || ''
+    if (msg.includes('INVALID_STATE')) {
+      return { success: false, error: 'Please choose your state.' }
+    }
+    if (msg.includes('INVALID_GSTIN')) {
+      return { success: false, error: 'Please enter a valid GSTIN, or leave it blank.' }
+    }
     if (msg.includes('NO_CONTINUOUS_LENGTH')) {
       return { success: false, error: 'We do not have that length on a single roll. Please choose a shorter length.' }
     }
