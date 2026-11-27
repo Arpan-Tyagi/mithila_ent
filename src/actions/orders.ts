@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { enqueueOrderEmail, processEmailRow } from '@/lib/email'
+import { notifyOrderStatus } from '@/lib/orders/notify'
 import { calculateShippingRates, fallbackShippingRate, isValidPinCode } from '@/lib/shipping'
 import { checkApiRateLimit } from '@/lib/ratelimit'
 import { requireAdmin, requireUser } from '@/lib/dal/session'
@@ -12,16 +13,34 @@ import { addressSchema, cartItemsSchema, discountCodeSchema, idempotencyKeySchem
 
 const ORDER_STATUSES = new Set(['pending', 'paid', 'shipped', 'delivered', 'cancelled'])
 
-export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
+export async function updateOrderStatus(orderId: string, status: string, courierName?: string, awbCode?: string) {
   await requireAdmin()
   orderId = parseOrThrow(uuid, orderId, 'Invalid order')
   if (typeof status !== 'string' || !ORDER_STATUSES.has(status)) throw new Error('Invalid status')
-  const tracking = typeof trackingNumber === 'string' ? trackingNumber.trim().slice(0, 200) : ''
+  const courier = typeof courierName === 'string' ? courierName.replace(/[<>]/g, '').trim().slice(0, 100) : ''
+  const awb = typeof awbCode === 'string' ? awbCode.trim().toUpperCase() : ''
+  if (awb && !/^[A-Z0-9-]{4,40}$/.test(awb)) throw new Error('AWB must be 4-40 letters, digits or dashes')
   const supabase = await createClient()
 
-  const updateData: { status: string; tracking_status?: string } = { status }
-  if (tracking) {
-    updateData.tracking_status = tracking
+  const { data: before } = await supabase.from('orders').select('status').eq('id', orderId).single()
+
+  const updateData: Record<string, string | null> = { status }
+  if (awb) {
+    updateData.awb_code = awb
+    updateData.courier_name = courier || null
+    updateData.tracking_status = `${courier || 'Courier'} · AWB ${awb}`
+    // Courier scans that arrived before the AWB was recorded.
+    const { data: latest } = await supabase
+      .from('shipment_events')
+      .select('status_label, event_at')
+      .eq('awb_code', awb)
+      .order('event_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (latest) {
+      updateData.shipment_status = latest.status_label
+      updateData.shipment_status_at = latest.event_at
+    }
   }
 
   const { error } = await supabase
@@ -29,39 +48,14 @@ export async function updateOrderStatus(orderId: string, status: string, trackin
     .update(updateData)
     .eq('id', orderId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    if (error.code === '23505') throw new Error('That AWB is already on another order')
+    throw new Error(error.message)
+  }
 
-  // Notify the customer on shipment / delivery (durable queue + instant best-effort).
-  if (status === 'shipped' || status === 'delivered') {
-    try {
-      const admin = createAdminClient()
-      const { data: ord } = await admin
-        .from('orders')
-        .select('id, shipping_address, user_id')
-        .eq('id', orderId)
-        .single()
-      let recipient: string | undefined = (ord?.shipping_address as any)?.email
-      if (!recipient && ord?.user_id) {
-        const { data: u } = await admin.auth.admin.getUserById(ord.user_id)
-        recipient = u?.user?.email || undefined
-      }
-      if (recipient) {
-        const row = await enqueueOrderEmail(admin, {
-          orderId,
-          recipient,
-          kind: status === 'shipped' ? 'order_shipped' : 'order_delivered',
-        })
-        if (row) {
-          try {
-            await processEmailRow(admin, row)
-          } catch (sendErr) {
-            console.error('inline status send failed (will retry via cron):', sendErr)
-          }
-        }
-      }
-    } catch (statusEmailErr) {
-      console.error('Failed to queue status email:', statusEmailErr)
-    }
+  // Notify the customer when the status actually moves to shipped / delivered.
+  if ((status === 'shipped' || status === 'delivered') && before?.status !== status) {
+    await notifyOrderStatus(createAdminClient(), orderId, status)
   }
 
   revalidatePath('/admin/orders')

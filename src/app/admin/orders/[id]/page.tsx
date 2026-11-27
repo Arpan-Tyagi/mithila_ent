@@ -279,8 +279,9 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               const { updateOrderStatus } = await import('@/actions/orders');
               await updateOrderStatus(
                 order.id, 
-                formData.get('status') as string, 
-                formData.get('trackingNumber') as string || undefined
+                formData.get('status') as string,
+                (formData.get('courierName') as string) || undefined,
+                (formData.get('awbCode') as string) || undefined
               );
             }} className="space-y-4">
               <div>
@@ -288,16 +289,24 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
                 <select id="order-status" name="status" defaultValue={order.status} className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]">
                   <option value="pending">Pending</option>
                   <option value="paid">Paid</option>
-                  <option value="processing">Processing</option>
                   <option value="shipped">Shipped</option>
                   <option value="delivered">Delivered</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">Tracking Number (optional)</label>
-                <input type="text" name="trackingNumber" defaultValue={order.tracking_status || ''} placeholder="e.g. AWB123456789" className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]" />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label htmlFor="order-courier" className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">Courier</label>
+                  <input id="order-courier" type="text" name="courierName" maxLength={100} defaultValue={order.courier_name || ''} placeholder="e.g. Delhivery" className="w-full bg-black border border-white/20 p-2 text-sm focus:outline-none focus:border-[var(--turmeric)]" />
+                </div>
+                <div>
+                  <label htmlFor="order-awb" className="block text-[10px] uppercase tracking-widest opacity-60 mb-1">AWB number</label>
+                  <input id="order-awb" type="text" name="awbCode" pattern="[A-Za-z0-9\-]{4,40}" defaultValue={order.awb_code || ''} placeholder="e.g. 19041424751540" className="w-full bg-black border border-white/20 p-2 font-mono text-sm focus:outline-none focus:border-[var(--turmeric)]" />
+                </div>
               </div>
+              {order.shipment_status && (
+                <p className="text-xs opacity-80">Courier says: <strong>{order.shipment_status}</strong>{order.shipment_status_at ? ` (${new Date(order.shipment_status_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })})` : ''}</p>
+              )}
               <button type="submit" className="w-full text-[10px] uppercase tracking-widest font-bold bg-[var(--turmeric)] text-black px-3 py-2 hover:bg-white transition-colors">
                 Save Updates
               </button>

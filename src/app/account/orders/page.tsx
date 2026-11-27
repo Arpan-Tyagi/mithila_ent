@@ -27,6 +27,11 @@ export default async function AccountOrdersPage() {
       sgst_total,
       igst_total,
       tracking_status,
+      courier_name,
+      awb_code,
+      shipment_status,
+      shipment_status_at,
+      expected_delivery_at,
       created_at,
       order_items(
         quantity,
@@ -38,6 +43,25 @@ export default async function AccountOrdersPage() {
     `)
     .eq('user_id', userData.user.id)
     .order('created_at', { ascending: false })
+
+  // Courier scans for all of this person's shipments in one query (RLS limits
+  // them to AWBs on their own orders).
+  const awbs = (orders ?? []).map((o) => o.awb_code).filter((a): a is string => Boolean(a))
+  const scansByAwb = new Map<string, { event_at: string; status_label: string; activity: string | null; location: string | null }[]>()
+  if (awbs.length > 0) {
+    const { data: scans } = await supabase
+      .from('shipment_events')
+      .select('awb_code, event_at, status_label, activity, location')
+      .in('awb_code', awbs)
+      .order('event_at', { ascending: false })
+      .limit(500)
+    for (const sc of scans ?? []) {
+      const list = scansByAwb.get(sc.awb_code) ?? []
+      list.push(sc)
+      scansByAwb.set(sc.awb_code, list)
+    }
+  }
+  const when = (iso: string) => new Date(iso).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
@@ -72,9 +96,11 @@ export default async function AccountOrdersPage() {
                       : `incl. CGST ₹${Number(order.cgst_total).toFixed(2)} + SGST ₹${Number(order.sgst_total).toFixed(2)}`}
                   </div>
                 )}
-                {order.tracking_status && (
+                {order.awb_code ? (
+                  <div className="font-mono text-xs uppercase tracking-widest opacity-70">{order.courier_name || 'Courier'} · AWB {order.awb_code}</div>
+                ) : order.tracking_status ? (
                   <div className="font-mono text-xs uppercase tracking-widest opacity-70">TRK: {order.tracking_status}</div>
-                )}
+                ) : null}
                 <div className="mt-2 flex md:justify-end items-center gap-2">
                   <span className={`px-2 py-0.5 text-[9px] uppercase tracking-widest font-bold border ${order.is_paid ? 'border-green-700 text-green-800' : 'border-[var(--madder-red)] text-[var(--madder-red)]'}`}>
                     {order.is_paid ? 'Paid' : 'Payment Pending'}
@@ -123,6 +149,33 @@ export default async function AccountOrdersPage() {
                 </div>
               </div>
             </div>
+
+            {order.awb_code && (
+              <section aria-label={`Courier updates for order ${order.id.split('-')[0].toUpperCase()}`} className="mb-6 border-2 border-[var(--charcoal-ink)]/10 p-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest opacity-75">Courier updates</h3>
+                  {order.expected_delivery_at && order.status !== 'delivered' && (
+                    <span className="text-xs">Expected by <strong>{new Date(order.expected_delivery_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', timeZone: 'Asia/Kolkata' })}</strong></span>
+                  )}
+                </div>
+                {order.shipment_status && (
+                  <p className="mt-1 text-sm font-bold">{order.shipment_status}{order.shipment_status_at ? <span className="font-normal opacity-75"> · {when(order.shipment_status_at)}</span> : null}</p>
+                )}
+                {(scansByAwb.get(order.awb_code)?.length ?? 0) > 0 ? (
+                  <ol className="mt-3 space-y-2 border-l-2 border-[var(--turmeric)] pl-3 text-xs">
+                    {scansByAwb.get(order.awb_code)!.slice(0, 12).map((sc, i) => (
+                      <li key={i}>
+                        <span className="font-bold">{sc.status_label}</span>
+                        {sc.activity ? ` — ${sc.activity}` : ''}
+                        <span className="block opacity-75">{[sc.location, when(sc.event_at)].filter(Boolean).join(' · ')}</span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="mt-1 text-xs opacity-75">The courier has not sent any scans yet.</p>
+                )}
+              </section>
+            )}
 
             {/* Order Items */}
             <div className="bg-[var(--unbleached-cotton)] p-4 border-2 border-[var(--charcoal-ink)]/10">

@@ -197,6 +197,20 @@ export async function processEmailRow(
 
   try {
     if (!row.recipient) throw new Error('NO_RECIPIENT');
+    // Hard bounce or spam complaint reported by Resend (migration 0055):
+    // stop here, without retries, so the sending domain's reputation holds.
+    const { data: held } = await admin
+      .from('email_suppressions')
+      .select('reason')
+      .eq('email', String(row.recipient).trim().toLowerCase())
+      .maybeSingle();
+    if (held) {
+      await admin
+        .from('pending_emails')
+        .update({ status: 'failed', last_error: `Not sent: address on hold (${held.reason})` })
+        .eq('id', row.id);
+      return 'failed';
+    }
     const built = await buildEmail(admin, row);
     if (!built) throw new Error('ORDER_NOT_FOUND');
 
