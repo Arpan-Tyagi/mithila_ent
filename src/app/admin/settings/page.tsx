@@ -4,6 +4,9 @@ import { createClient } from '@/lib/supabase/server';
 import { updateStoreSettings } from '@/actions/admin';
 import { getSwatchSettings } from '@/lib/dal/swatch-credit';
 import SwatchSettingsForm from './SwatchSettingsForm';
+import TwoStepSettings from './TwoStepSettings';
+import { getTwoStepStatus } from '@/lib/dal/session';
+import { maskPhone, phoneOtpAvailable } from '@/lib/otp';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +24,8 @@ export default async function AdminSettings({
     .eq('id', true)
     .single();
   const swatch = await getSwatchSettings();
+  const twoStep = await getTwoStepStatus();
+  const { data: factors } = await supabase.auth.mfa.listFactors();
 
   return (
     <div className="space-y-8 max-w-3xl p-4 md:p-8">
@@ -66,6 +71,12 @@ export default async function AdminSettings({
         </div>
         <Button type="submit">Save Changes</Button>
       </form>
+
+      <TwoStepSettings
+        authenticators={factors?.totp?.length ?? 0}
+        phone={twoStep.phoneLast4 ? maskPhone(twoStep.phoneLast4) : null}
+        phoneChannels={phoneOtpAvailable()}
+      />
 
       <SwatchSettingsForm enabled={swatch.enabled} kitPrice={swatch.kitPrice} maxSwatches={swatch.maxSwatches} />
 

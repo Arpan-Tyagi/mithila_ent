@@ -30,6 +30,30 @@ export async function sendSecurityAlertEmail(email: string) {
   }
 }
 
+/**
+ * Tells an owner-portal account that its two-step sign-in changed (a method
+ * added or removed), so a change they did not make is noticed. `what` is
+ * fixed text chosen by the caller, never user input.
+ */
+export async function sendTwoStepNoticeEmail(email: string, what: string) {
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: 'Security notice: owner portal sign-in changed',
+      html: `
+        <div style="font-family: sans-serif; color: #333; padding: 20px;">
+          <h2 style="color: #990000;">Owner portal sign-in changed</h2>
+          <p>${escapeHtml(what)}</p>
+          <p>If this was not you, change your password now and contact your developer to remove the method.</p>
+        </div>
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send two-step notice email', error);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Durable email queue (pending_emails) — confirmation/invoice + status emails.
 // Enqueue a job, then send it best-effort inline; the cron worker retries any

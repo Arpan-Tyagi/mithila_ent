@@ -20,8 +20,17 @@ async function requestOrigin(): Promise<string> {
 // Admins land on the dashboard. Asks the database (public.is_admin() reads
 // public.user_roles, migration 0047), the same check the DAL and RLS use.
 async function landingPath(supabase: Awaited<ReturnType<typeof createClient>>, nextPath: string) {
-  const { data: isAdmin } = await supabase.rpc('is_admin')
-  return isAdmin === true ? '/admin/dashboard' : nextPath
+  // Admin rights need a second factor (migration 0053): a fresh password
+  // sign-in never has one, so admins go to the two-step page first.
+  const { data, error } = await supabase.rpc('admin_two_step_status')
+  if (error) {
+    // Before migration 0053 exists: the old rule, so the code can ship first.
+    const { data: isAdmin } = await supabase.rpc('is_admin')
+    return isAdmin === true ? '/admin/dashboard' : nextPath
+  }
+  const status = data as { admin_role?: boolean; second_factor?: boolean } | null
+  if (status?.admin_role === true) return status.second_factor === true ? '/admin/dashboard' : '/admin-verify'
+  return nextPath
 }
 
 // Failed attempts echo back what was typed (never the password), because

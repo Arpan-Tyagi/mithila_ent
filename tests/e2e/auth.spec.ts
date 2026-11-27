@@ -3,7 +3,7 @@
 // Run with: npm run test:e2e:local
 import { expect, test, type Page } from '@playwright/test';
 import crypto from 'crypto';
-import { appEnabled, assertLocal, record, service, SUPABASE_URL } from '../security-redteam/harness';
+import { appEnabled, assertLocal, record, service, SUPABASE_URL, totp } from '../security-redteam/harness';
 
 const MAILPIT = process.env.REDTEAM_MAILPIT_URL || SUPABASE_URL.replace(/:\d+$/, ':54324');
 if (appEnabled) assertLocal(MAILPIT);
@@ -146,6 +146,14 @@ test.describe('authentication', () => {
     const admin = await account('admin', { admin: true });
     await page.goto('/login');
     await signIn(page, admin.email, admin.password);
+    // A password alone is not enough (migration 0053): set up the second step.
+    await expect(page).toHaveURL(/\/admin-verify$/);
+    await page.goto('/admin/dashboard');
+    await expect(page).toHaveURL(/\/admin-verify$/);
+    await page.getByRole('button', { name: 'Set up an authenticator app' }).click();
+    const secret = (await page.locator('span.font-mono').innerText()).trim();
+    await page.getByLabel('Then enter the 6-digit code it shows').fill(totp(secret));
+    await page.getByRole('button', { name: 'Finish set-up' }).click();
     await expect(page).toHaveURL(/\/admin\/dashboard$/);
   });
 
