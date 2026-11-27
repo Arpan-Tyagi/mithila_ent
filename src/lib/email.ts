@@ -54,6 +54,30 @@ export async function sendTwoStepNoticeEmail(email: string, what: string) {
   }
 }
 
+/**
+ * Operational alert to the owner inbox (SUPPORT_EMAIL), e.g. "Meta lead
+ * access stopped working". Text is fixed by the caller, never user input.
+ */
+export async function sendOwnerAlertEmail(subject: string, lines: string[]) {
+  const to = process.env.SUPPORT_EMAIL;
+  if (!to) return;
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to,
+      subject: subject.slice(0, 150),
+      html: `
+        <div style="font-family: sans-serif; color: #333; padding: 20px;">
+          <h2 style="color: #990000;">${escapeHtml(subject)}</h2>
+          ${lines.map((l) => `<p>${escapeHtml(l)}</p>`).join('')}
+        </div>
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send owner alert email', error);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Durable email queue (pending_emails) — confirmation/invoice + status emails.
 // Enqueue a job, then send it best-effort inline; the cron worker retries any
